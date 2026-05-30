@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Registrar Finalization Inbox</title>
+    <link rel="stylesheet" th:href="@{/css/base.css}">
+    <link rel="stylesheet" th:href="@{/css/navdes.css}">
+    <style>
+        /* keeping footer at bottom when content is short */
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            flex: 1;
+            padding-top: 18px;
+        }
+
+        .custom-table thead tr {
+            border-bottom: 2px solid var(--primary-dark);
+        }
+
+        .custom-table tbody tr:hover {
+            background-color: #f8fafc;
+            cursor: pointer;
+        }
+
+        .remark-input {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+
+        .btn-approve {
+            background-color: #059669;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-reject {
+            background-color: #dc2626;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+
+        .remarks-text {
+            font-size: 12px;
+            color: #6b7280;
+            font-style: italic;
+            max-width: 150px;
+        }
+    </style>
+</head>
+
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+    <!-- <div class="header-strip" style="height: 40px; background: linear-gradient(135deg, var(--primary-dark), var(--primary));"></div> -->
+
+    <div class="container">
+        <h2 class="section-title">Grade Modification - Registrar Finalization</h2>
+
+        <div th:if="${success}"
+            style="background-color: #d1fae5; color: #065f46; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <strong th:text="${success}">Success</strong>
+        </div>
+
+        <div class="card"
+            style="padding: 20px; background: white; border-radius: 12px; box-shadow: var(--shadow-card);">
+            <table class="custom-table" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th>Request ID</th>
+                        <th>Faculty</th>
+                        <th>Course</th>
+                        <th>Dean's Remarks</th> <!-- Added Context -->
+                        <th>Date</th>
+                        <th>Final Decision</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="request : ${requests}"
+                        th:onclick="|window.location.href='/faculty/request-details/${request.id}'|">
+                        <td><strong th:text="${request.id}" style="color: var(--primary-dark);">ID</strong></td>
+                        <td>
+                            <div th:text="${request.facultyFullName}" style="font-weight: 600;">Name</div>
+                            <div th:text="${request.facultyUnivId}" style="font-size: 11px;">UnivID</div>
+                        </td>
+                        <td th:text="${request.courseInfo}">Course</td>
+                        <td class="remarks-text" th:text="${request.deanRemarks ?: '--No Remarks--'}">Dean feedback</td>
+                        <td th:text="${#temporals.format(request.date, 'dd-MMM-yyyy')}">Date</td>
+                        <td onclick="event.stopPropagation();">
+                            <form th:action="@{/registrar/process-request}" method="post">
+                                <input type="hidden" name="requestId" th:value="${request.id}">
+                                <input type="text" name="remarks" class="remark-input" placeholder="Final remarks..."
+                                    autocomplete="off">
+                                <button type="submit" name="action" value="APPROVE"
+                                    class="btn-approve">Finalize</button>
+                                <button type="submit" name="action" value="REJECT" class="btn-reject">Reject</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(requests)}">
+                        <td colspan="6"
+                            style="text-align:center; padding:24px; color:var(--text-muted); font-style:italic;">
+                            No pending requests — nothing awaiting finalization.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+
+</html>

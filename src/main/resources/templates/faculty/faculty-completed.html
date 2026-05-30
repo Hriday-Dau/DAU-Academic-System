@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Completed Requests</title>
+    <link rel="stylesheet" th:href="@{/css/base.css}">
+    <link rel="stylesheet" th:href="@{/css/navdes.css}">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            flex: 1;
+        }
+
+        .header-strip {
+            height: 40px;
+            background: linear-gradient(135deg, #4b5563, #374151);
+            margin-bottom: 30px;
+        }
+
+        /* Restored Wrapper & Muted Look */
+        .archive-wrapper {
+            max-width: 1100px;
+            margin: 30px auto 0;
+            border: 1px solid #d1d5db;
+            border-radius: var(--radius-md);
+            background-color: #fcfcfc;
+            padding: 40px;
+            opacity: 0.88;
+        }
+
+        .archive-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .archive-table th {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 2px solid #4b5563;
+            color: #4b5563;
+        }
+
+        .archive-table td {
+            padding: 15px 12px;
+            border-bottom: 1px solid #eee;
+            transition: background 0.2s;
+        }
+
+        .archive-table tr {
+            cursor: pointer;
+        }
+
+        .archive-table tr:hover td {
+            background-color: #f9fafb;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            border-width: 1px;
+            border-style: solid;
+            display: inline-block;
+        }
+
+        .status-approved {
+            background-color: #f0fdf4;
+            color: #166534;
+            border-color: #dcfce7;
+        }
+
+        .status-rejected-dean {
+            background-color: #fef2f2;
+            color: #991b1b;
+            border-color: #fee2e2;
+        }
+
+        .status-rejected-registrar {
+            background-color: #faf5ff;
+            color: #6b21a8;
+            border-color: #f3e8ff;
+        }
+    </style>
+</head>
+
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container" style="opacity: 0.85;">
+        <div class="archive-wrapper">
+            <h2 class="section-title" style="color: var(--primary-dark); margin-top: 0;">Completed Requests (Last 3
+                Months)</h2>
+            <table class="archive-table">
+                <thead>
+                    <tr>
+                        <th>Request ID</th>
+                        <th>Course Details</th>
+                        <th>Approver Remarks</th>
+                        <th>Final Status</th>
+                        <th>Completion Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="request : ${requests}" class="clickable-row"
+                        th:onclick="|window.location.href='/faculty/request-details/${request.id}'|">
+                        <td><strong th:text="${request.id}">ID</strong></td>
+                        <td th:text="${request.courseInfo}">Course</td>
+                        <td>
+                            <div th:text="${request.approverRemarks ?: 'Finalized without formal remarks.'}"
+                                th:classappend="${request.approverRemarks == null ? 'remarks-system' : ''}">Remarks
+                            </div>
+                        </td>
+                        <td>
+                            <span class="status-badge" th:text="${request.status}"
+                                th:classappend="${request.status == 'Approved' ? 'status-approved' : 
+                              (request.status == 'Rejected by Dean' ? 'status-rejected-dean' : 'status-rejected-registrar')}">
+                                Status
+                            </span>
+                        </td>
+                        <td th:text="${#temporals.format(request.date, 'dd-MMM-yyyy')}">Date</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(requests)}">
+                        <td colspan="5" style="text-align:center; padding:24px; color:var(--text-muted); font-style:italic;">
+                            No completed requests in the last 3 months.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="text-align: center; margin: 30px 0;"><a th:href="@{/faculty/pending-requests}" class="btn-outline">←
+                Back to Pending</a></div>
+    </div>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+
+</html>

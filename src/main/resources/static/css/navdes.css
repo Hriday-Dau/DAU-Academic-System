@@ -1,0 +1,41 @@
+/* Merges the navbar into the colour gradient pane */
+.navbar {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+    padding: 0 40px; /* Aligns with header content */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 60px; /* Consistent thickness with dashboard */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar ul {
+    list-style: none;
+    display: flex;
+    gap: 24px;
+    margin: 0;
+    padding: 0;
+    align-items: center;
+}
+
+.navbar a, .logout-btn {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0.9;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.navbar a:hover, .logout-btn:hover {
+    opacity: 1;
+}
+
+/* for the Logout Button to look like a link */
+.logout-btn {
+    font-family: inherit;
+    padding: 0;
+}
