@@ -1,0 +1,137 @@
+/* Parent CSS */
+
+:root {
+  --primary-dark: #273586;
+  --primary: #0F39B6;
+  --primary-light: #3F6AE1;
+
+  --bg-light: #F5E7E7;
+  --white: #FFFFFF;
+  --black: #000000;
+  --text-dark: #111827;
+  --text-muted: #6B7280;
+
+  --radius-sm: 6px;   /* buttons */
+  --radius-md: 12px;  /* cards */
+
+  --shadow-card: 0 6px 18px rgba(0,0,0,0.06);
+  --shadow-hover: 0 10px 28px rgba(0,0,0,0.10);
+
+  --font-main: 'Inter', sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-main);
+  background: #f3f4f6;
+  color: var(--text-dark);
+  line-height: 1.4;
+}
+
+.container {
+  width: 92%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.card {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  padding: 20px;
+}
+
+.btn {
+  background: linear-gradient(
+    135deg,
+    var(--primary-dark),
+    var(--primary)
+  );
+  color: white;
+  padding: 8px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-hover);
+}
+
+.btn-outline {
+  background: #ffffff;
+  color: var(--primary-dark);
+  border: 1.5px solid var(--primary-dark);
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.btn-outline:hover {
+  background: #f4f6ff;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 36px 0 18px;
+  color: var(--primary-dark);
+}
+
+/* Top Navbar*/
+.top-navbar {
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.top-nav-content {
+  display: flex;
+  align-items: center;
+  height: 64px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-weight: 600;
+  color: var(--primary-dark);
+}
+
+.brand img {
+  height: 46px;
+  width: auto;
+}
+
+.brand span {
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+/* Footer */
+.footer {
+  margin-top: 48px;
+  padding: 18px 0;
+  background: #ffffff;
+  border-top: 1px solid #e5e7eb;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

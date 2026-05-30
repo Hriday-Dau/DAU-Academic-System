@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dean Approval Inbox</title>
+    <link rel="stylesheet" th:href="@{/css/base.css}">
+    <link rel="stylesheet" th:href="@{/css/navdes.css}">
+    <style>
+        /* Page layout: keep footer at bottom when content is short */
+        html, body { height: 100%; }
+        body { display: flex; flex-direction: column; min-height: 100vh; margin: 0; }
+        .container { flex: 1; padding-top: 18px; }
+
+        .action-column {
+            min-width: 300px;
+        }
+
+        .remark-input {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+
+        .btn-approve {
+            background-color: #059669;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-reject {
+            background-color: #dc2626;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+
+        .btn-approve:hover {
+            background-color: #047857;
+        }
+
+        .btn-reject:hover {
+            background-color: #b91c1c;
+        }
+
+        /* Table Header Separator */
+        .custom-table { width: 100%; border-collapse: collapse; }
+        .custom-table thead th { border-bottom: 2px solid var(--primary-dark); padding: 12px; text-align: left; }
+
+        /* Row Hover Effect */
+        .custom-table tbody tr {
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+        }
+
+        .custom-table tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        /* Faculty Remarks Styling */
+        .faculty-remarks-col {
+            font-size: 13px;
+            color: #4b5563;
+            font-style: italic;
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+</head>
+
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+    <!-- <div class="header-strip" style="height: 40px; background: linear-gradient(135deg, var(--primary-dark), var(--primary));"></div> -->
+
+
+
+    <div class="container">
+        <h2 class="section-title">Grade Modification Requests Received</h2>
+
+        <!-- Success/Error Alerts -->
+        <div th:if="${success}"
+            style="background-color: #d1fae5; color: #065f46; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <strong th:text="${success}">Success message</strong>
+        </div>
+        <div th:if="${error}"
+            style="background-color: #fee2e2; color: #991b1b; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <strong th:text="${error}">Error message</strong>
+        </div>
+
+        <div class="card"
+            style="padding: 20px; background: white; border-radius: 12px; box-shadow: var(--shadow-card);">
+            <table class="custom-table" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th>Request ID</th>
+                        <th>Faculty Details</th>
+                        <th>Course Details</th>
+                        <th>Faculty Remarks</th>
+                        <th>Date Submitted</th>
+                        <th class="action-column">Decision & Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="request : ${requests}"
+                        th:onclick="|window.location.href='/faculty/request-details/${request.id}'|">
+
+                        <td><strong th:text="${request.id}" style="color: var(--primary-dark);">ID</strong></td>
+
+                        <td>
+                            <div th:text="${request.facultyFullName}" style="font-weight: 600;">Name</div>
+                            <div th:text="${request.facultyUnivId}" style="font-size: 11px;">UnivID</div>
+                        </td>
+
+                        <td th:text="${request.courseInfo}">Course</td>
+
+                        <td>
+                            <div class="faculty-remarks-col" th:text="${request.facultyRemarks}"
+                                th:title="${request.facultyRemarks}">Remarks</div>
+                        </td>
+
+                        <td th:text="${#temporals.format(request.date, 'dd-MMM-yyyy')}">Date</td>
+
+                        <td class="action-column" onclick="event.stopPropagation();">
+                            <form th:action="@{/dean/process-request}" method="post"
+                                style="display: flex; flex-direction: column;">
+                                <input type="hidden" name="requestId" th:value="${request.id}">
+                                <input type="text" name="remarks" class="remark-input"
+                                    placeholder="Enter remarks (optional)..." autocomplete="off">
+                                <div>
+                                    <button type="submit" name="action" value="APPROVE"
+                                        class="btn-approve">Approve</button>
+                                    <button type="submit" name="action" value="REJECT"
+                                        class="btn-reject">Reject</button>
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(requests)}">
+                        <td colspan="6" style="text-align:center; padding:24px; color:var(--text-muted); font-style:italic;">
+                            No pending requests — nothing awaiting your action.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+
+</html>

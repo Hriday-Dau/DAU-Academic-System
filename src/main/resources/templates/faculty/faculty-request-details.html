@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Request Details</title>
+    <link rel="stylesheet" th:href="@{/css/base.css}">
+    <link rel="stylesheet" th:href="@{/css/navdes.css}">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            flex: 1;
+        }
+
+        .header-strip {
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            margin-bottom: 24px;
+        }
+
+        .details-container {
+            max-width: 1000px;
+            margin: 44px auto; /* increase top gap from navbar */
+            background: #fff;
+            padding: 40px;
+            border: 1px solid #e5e7eb;
+            box-shadow: var(--shadow-card);
+        }
+
+        .report-header {
+            border-bottom: 2px solid #f3f4f6;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+        }
+
+        /* Grade Change UI */
+        .grade-old {
+            color: #9ca3af;
+            text-decoration: line-through;
+            font-size: 13px;
+        }
+
+        .grade-new {
+            color: #166534;
+            font-weight: 700;
+            background: #f0fdf4;
+            padding: 2px 8px;
+            border-radius: 4px;
+            border: 1px solid #dcfce7;
+        }
+
+        /* Subtle Grey Justification Box */
+        .remarks-section-grey {
+            background-color: #f9fafb;
+            padding: 20px;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+            border-left: 4px solid #9ca3af;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+    <!-- <div class="header-strip"></div> -->
+
+    <div class="container">
+        <div class="details-container">
+            <div style="margin-bottom: 16px;"><a href="javascript:history.back()" class="btn-outline">← Back</a></div>
+            <div class="report-header">
+                <h1 style="color: var(--primary-dark); font-size: 26px;">
+                    Request Details - <span th:text="${requestId}">REQ-000</span>
+                </h1>
+                <p style="color: var(--text-muted); font-size: 15px; margin-top: 5px;" th:text="${fullCourseInfo}">
+                    PC110 - Language and Literature, Autumn 2025-26
+                </p>
+            </div>
+
+            <table style="width: 100%; border-collapse: collapse; margin-top: 25px;">
+                <thead>
+                    <tr style="border-bottom: 2px solid var(--primary-dark);">
+                        <th style="padding: 12px; text-align: left;">Institute ID</th>
+                        <th style="padding: 12px; text-align: left;">Student Name</th>
+                        <th style="padding: 12px; text-align: center;">Grade Change</th>
+                        <th style="padding: 12px; text-align: left;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="student : ${studentDetails}" style="border-bottom: 1px solid #eee;">
+                        <td th:text="${student.studentId}" style="padding: 14px;">ID</td>
+                        <td th:text="${student.studentName}" style="font-weight: 500;">Name</td>
+                        <td style="padding: 14px; text-align: center;">
+                            <span class="grade-old" th:text="${student.presentGradeLetter}">B</span>
+                            <span style="color: var(--primary); font-weight: bold; margin: 0 8px;">&rarr;</span>
+                            <span class="grade-new" th:text="${student.newGradeLetter}">A</span>
+                        </td>
+                        <td th:text="${student.changeDescription}"
+                            style="font-style: italic; font-size: 13px; color: var(--text-muted);">Grade Change Description</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="remarks-section-grey">
+                <p style="color: #4b5563;"><strong>Overall Remarks:</strong></p>
+                <p th:text="${overallRemarks}" style="margin-top: 8px; line-height: 1.5; color: #1f2937;">...</p>
+            </div>
+        </div>
+    </div>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+
+</html>

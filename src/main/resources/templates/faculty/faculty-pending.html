@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Pending Grade Modifications</title>
+    <link rel="stylesheet" th:href="@{/css/base.css}">
+    <link rel="stylesheet" th:href="@{/css/navdes.css}">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            flex: 1;
+        }
+
+        .header-strip {
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            margin-bottom: 24px;
+        }
+
+        /* Restored Table Wrapper */
+        .custom-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+            padding: 0 20px;
+        }
+
+        .custom-table th {
+            color: var(--primary-dark);
+            font-weight: 600;
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 14px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .custom-table tbody tr {
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .custom-table tbody tr:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            background-color: #f8fafc;
+        }
+
+        .custom-table td {
+            padding: 16px;
+            font-size: 14px;
+            border-top: 1px solid #f3f4f6;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        /* Status Badge Template */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-width: 1px;
+            border-style: solid;
+            display: inline-block;
+        }
+
+        .status-pending-dean {
+            background-color: #fff7ed;
+            color: #9a3412;
+            border-color: #ffedd5;
+        }
+
+        .status-pending-registrar {
+            background-color: #eff6ff;
+            color: #1e40af;
+            border-color: #dbeafe;
+        }
+
+        .remarks-system {
+            color: var(--text-muted);
+            font-style: italic;
+            font-size: 13px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+    <!-- <div th:replace="~{fragments/navbar :: navbar}"></div> -->
+
+    <nav class="navbar" th:replace="~{fragments/navbar :: navbar}"></nav>
+
+    <div class="container">
+        <h2 class="section-title">Pending Grade Modifications</h2>
+
+        <div class="card"
+            style="padding: 20px; background: white; border-radius: 12px; box-shadow: var(--shadow-card);">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Request ID</th>
+                        <th>Course Details</th>
+                        <th>Approver Remarks</th>
+                        <th>Current Status</th>
+                        <th>Date Submitted</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="request : ${requests}" class="clickable-row"
+                        th:onclick="|window.location.href='/faculty/request-details/${request.id}'|">
+                        <td><strong th:text="${request.id}" style="color: var(--primary-dark);">ID</strong></td>
+                        <td th:text="${request.courseInfo}" style="font-weight: 500;">Course</td>
+                        <td>
+                            <span th:if="${request.approverRemarks != null}"
+                                th:text="${request.approverRemarks}">Remark</span>
+                            <span th:if="${request.approverRemarks == null}" class="remarks-system">
+                                <span th:if="${request.status == 'Pending Dean Approval'}">Awaiting Dean's
+                                    review...</span>
+                                <span th:if="${request.status == 'Pending Registrar Approval'}">Pending Registrar
+                                    action.</span>
+                            </span>
+                        </td>
+                        <td>
+                            <span class="status-badge" th:text="${request.status}"
+                                th:classappend="${request.status == 'Pending Dean Approval' ? 'status-pending-dean' : 'status-pending-registrar'}">
+                                Status
+                            </span>
+                        </td>
+                        <td th:text="${#temporals.format(request.date, 'dd-MMM-yyyy')}"
+                            style="color: var(--text-muted);">Date</td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(requests)}">
+                        <td colspan="5" style="text-align:center; padding:24px; color:var(--text-muted); font-style:italic;">
+                            You have no requests pending for approval.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="text-align: center; margin: 40px 0;"><a th:href="@{/faculty/completed-requests}"
+                class="btn-outline">View Completed Requests</a></div>
+    </div>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+
+</html>
