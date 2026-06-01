@@ -1,1 +1,1 @@
-# eCampus-System
+# Academic System for DAU.

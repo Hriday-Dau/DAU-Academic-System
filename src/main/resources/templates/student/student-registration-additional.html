@@ -1,0 +1,1750 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Add Courses Form</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <style>
+        :root {
+            --reg-blue-900: #0b3f73;
+            --reg-blue-800: #174f86;
+            --reg-blue-700: #2f679d;
+            --reg-blue-100: #eaf2fb;
+            --reg-gray-200: #e3e8ef;
+            --reg-gray-300: #d4dbe5;
+            --reg-gray-700: #334155;
+        }
+
+        body.additional-page {
+            background: #e9ebf0;
+            background-image: none;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        body.additional-page .main-wrap {
+            width: min(1280px, calc(100vw - 72px));
+            margin: 16px auto 20px;
+            background: #f6f7f9;
+            border: 1px solid #d7dce4;
+            border-radius: 10px;
+            padding: 0 10px 12px;
+        }
+
+        .additional-header {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #dfe3ea;
+            padding: 12px 6px;
+            margin-bottom: 8px;
+        }
+
+        .additional-title {
+            margin: 0;
+            text-align: center;
+            color: #184a78;
+            font-size: 36px;
+            line-height: 1.15;
+            font-weight: 700;
+        }
+
+        .back-link-btn {
+            justify-self: start;
+            border: 1px solid #ced6e0;
+            background: #f4f7fa;
+            color: #355a7a;
+            text-decoration: none;
+            border-radius: 6px;
+            padding: 6px 14px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .back-link-btn:hover {
+            background: #eaf0f6;
+            color: #274b69;
+        }
+
+        .additional-section-title {
+            color: #22384f;
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 8px !important;
+            margin-top: 2px;
+        }
+
+        .additional-page .table {
+            border-color: var(--reg-gray-300);
+            margin-bottom: 12px;
+        }
+
+        .additional-page .table thead th {
+            background: #e4e8ee !important;
+            color: #123f6e !important;
+            border-color: var(--reg-gray-300) !important;
+            border-left-color: transparent !important;
+            border-right-color: transparent !important;
+            text-align: center;
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.25;
+            text-transform: none;
+            letter-spacing: 0;
+            font-family: inherit;
+        }
+
+        .additional-page .table thead th:first-child {
+            border-left-color: var(--reg-gray-300) !important;
+        }
+
+        .additional-page .table thead th:last-child {
+            border-right-color: var(--reg-gray-300) !important;
+        }
+
+        .additional-page .table tbody td {
+            border-color: var(--reg-gray-300);
+            text-align: center;
+            font-size: 15px;
+            font-weight: 500;
+            line-height: 1.35;
+            color: #223a54;
+            font-family: inherit;
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+
+        .additional-page .table tbody tr:nth-child(odd) {
+            background: #f2f6fb;
+        }
+
+        .additional-page .table tbody tr:nth-child(even) {
+            background: #ffffff;
+        }
+
+        .additional-page .form-control,
+        .additional-page .form-select {
+            border-color: #c6d0de;
+            color: var(--reg-gray-700);
+            background-color: #ffffff;
+        }
+
+        .additional-page .form-control:focus,
+        .additional-page .form-select:focus {
+            border-color: var(--reg-blue-700);
+            box-shadow: 0 0 0 0.18rem rgba(47, 103, 157, 0.16);
+        }
+
+        .additional-page .form-check-input {
+            border-color: #a9bfd9;
+        }
+
+        .additional-page .form-check-input:checked {
+            background-color: var(--reg-blue-800);
+            border-color: var(--reg-blue-800);
+        }
+
+        .additional-page .btn {
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .additional-divider {
+            border: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #212224 0%, #3a3d41 50%, #3c3e41 100%);
+            margin: 30px 0 22px;
+        }
+
+        .additional-page .action-link-outline {
+            color: var(--reg-blue-800);
+            border: 1px solid #b7cbe3;
+            background: #f5f9fe;
+        }
+
+        .additional-page .action-link-outline:hover {
+            color: #ffffff;
+            border-color: var(--reg-blue-700);
+            background: var(--reg-blue-700);
+        }
+
+        .additional-page .action-solid-primary {
+            color: #ffffff;
+            border: 1px solid #083b72;
+            background: #0b4c8e;
+        }
+
+        .additional-page .action-solid-primary:hover {
+            color: #ffffff;
+            border-color: #072f5a;
+            background: #083b72;
+        }
+
+        .additional-page .action-neutral-outline {
+            color: #3a5f83;
+            border: 1px solid #bfd0e4;
+            background: #f7fbff;
+        }
+
+        .additional-page .action-neutral-outline:hover {
+            color: #ffffff;
+            border-color: #3a5f83;
+            background: #3a5f83;
+        }
+
+        .additional-page #audit-search-results .list-group-item,
+        .additional-page #backlog-search-results .list-group-item,
+        .additional-page #gi-search-results .list-group-item {
+            border-color: #cfd8e5;
+            color: #223a54;
+            font-size: 14px;
+        }
+
+        .additional-page #audit-search-results .btn-outline-primary,
+        .additional-page #backlog-search-results .btn-outline-primary,
+        .additional-page #gi-search-results .btn-outline-primary {
+            color: var(--reg-blue-800);
+            border-color: #b7cbe3;
+            background: #f5f9fe;
+        }
+
+        .additional-page #audit-search-results .btn-outline-primary:hover,
+        .additional-page #backlog-search-results .btn-outline-primary:hover,
+        .additional-page #gi-search-results .btn-outline-primary:hover {
+            color: #fff;
+            border-color: var(--reg-blue-700);
+            background: var(--reg-blue-700);
+        }
+
+        .audit-search-shell {
+            position: relative;
+        }
+
+        .audit-search-controls {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            gap: 6px;
+            z-index: 3;
+        }
+
+        .audit-search-input {
+            padding-right: 88px;
+        }
+
+        .audit-icon-btn {
+            border: 1px solid #bfd0e4;
+            background: #f7fbff;
+            color: #3a5f83;
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            font-size: 14px;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .audit-icon-btn:hover {
+            color: #ffffff;
+            border-color: #3a5f83;
+            background: #3a5f83;
+        }
+
+        .audit-icon-btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            color: #7c94ae;
+            background: #eef3f9;
+            border-color: #d2dbe6;
+        }
+
+        .audit-icon-btn.audit-open {
+            color: #ffffff;
+            border-color: var(--reg-blue-700);
+            background: var(--reg-blue-700);
+        }
+
+        .audit-dropdown {
+            display: none;
+            margin-top: 8px;
+            border: 1px solid #cfd8e5;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #ffffff;
+            box-shadow: 0 6px 18px rgba(19, 53, 92, 0.08);
+            max-height: 340px;
+            overflow-y: auto;
+        }
+
+        .audit-dropdown.show {
+            display: block;
+        }
+
+        @media (max-width: 1200px) {
+            .additional-title {
+                font-size: 28px;
+            }
+
+            .additional-section-title {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body.additional-page .main-wrap {
+                width: calc(100vw - 24px);
+                margin: 10px auto 14px;
+                padding: 0 6px 8px;
+            }
+
+            .additional-header {
+                grid-template-columns: 1fr;
+                justify-items: center;
+                text-align: center;
+                padding: 10px 4px;
+            }
+
+            .back-link-btn {
+                justify-self: center;
+                font-size: 13px;
+                padding: 5px 12px;
+            }
+
+            .additional-title {
+                font-size: 22px;
+            }
+
+            .additional-section-title {
+                font-size: 18px;
+            }
+
+            .additional-page .table thead th,
+            .additional-page .table tbody td {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body class="additional-page">
+<div th:replace="fragments/header :: header"></div>
+<div th:replace="fragments/navbar :: navbar"></div>
+
+<div class="main-wrap">
+    <div class="additional-header">
+        <a class="back-link-btn" th:href="@{'/student/registration/edit?strid=' + ${selectedStrid}}">Back to Main</a>
+        <h1 class="additional-title">Add Courses Form</h1>
+        <div></div>
+    </div>
+    <div class="px-2 pb-1">
+            <form th:action="@{/student/registration/additional/save}" method="post" id="additional-courses-form">
+                <input type="hidden" name="strid" th:value="${selectedStrid}">
+
+                <h4 class="additional-section-title mt-3">Eligible Backlog Courses</h4>
+                <div class="mb-3">
+                    <label for="backlog-search-input" class="form-label mb-1">Search Courses (Full Text)</label>
+                    <div id="backlog-search-shell" class="audit-search-shell">
+                        <input id="backlog-search-input"
+                               type="text"
+                               class="form-control audit-search-input"
+                               placeholder="Search by code, title, credits, or course type..."
+                               autocomplete="off">
+                        <div class="audit-search-controls">
+                            <button id="backlog-clear-btn" class="audit-icon-btn" type="button" title="Clear and close">X</button>
+                            <button id="backlog-toggle-btn" class="audit-icon-btn" type="button" title="Show courses" disabled>▼</button>
+                        </div>
+                    </div>
+                    <div id="backlog-search-results" class="list-group audit-dropdown"></div>
+                </div>
+                <div id="backlog-course-pool" class="d-none">
+                    <div th:each="course : ${backlogCourses}"
+                         th:if="${course.srcid == null}"
+                         class="backlog-pool-item"
+                         th:attr="
+                            data-scrid=${course.scrid},
+                            data-tcrid=${course.scrtcrid},
+                            data-srcid=${course.srcid},
+                            data-code=${course.courseCode},
+                            data-title=${course.courseTitle},
+                            data-credits=${course.credits},
+                            data-ctype=${course.courseTypeCode},
+                            data-regtype=${course.regType != null ? course.regType : 'BACKLOG'},
+                            data-remarks=${course.remarks},
+                            data-search=${((course.courseCode != null ? #strings.toLowerCase(course.courseCode) : '') + ' ' + (course.courseTitle != null ? #strings.toLowerCase(course.courseTitle) : '') + ' ' + (course.courseTypeCode != null ? #strings.toLowerCase(course.courseTypeCode) : '') + ' ' + (course.credits != null ? course.credits.toString() : ''))}">
+                    </div>
+                </div>
+
+                <h4 class="additional-section-title mt-3">Selected Backlog Courses</h4>
+                <table class="table table-bordered align-middle">
+                    <thead class="table-light">
+                    <tr>
+                        <th>CCODE</th>
+                        <th>TITLE</th>
+                        <th>CREDITS</th>
+                        <th>C-TYPE*</th>
+                        <th>REMARKS</th>
+                        <th>DROP*</th>
+                    </tr>
+                    </thead>
+                    <tbody id="additional-main-body">
+                    <tr id="additional-main-empty-row">
+                        <td colspan="6" class="text-center text-muted">No selected backlog courses.</td>
+                    </tr>
+                    <tr th:each="course, idx : ${backlogCourses}"
+                        th:if="${course.srcid != null}"
+                        class="additional-course-row"
+                        data-origin-body="additional-main-body">
+                        <td>
+                            <input type="hidden" class="js-srcid" th:value="${course.srcid}">
+                            <input type="hidden" class="js-scrid" th:value="${course.scrid}">
+                            <input type="hidden" class="js-tcrid" th:value="${course.scrtcrid}">
+                            <input type="hidden" class="js-regType" th:value="${course.regType != null ? course.regType : 'BACKLOG'}">
+                            <span th:text="${course.courseCode}">CCODE</span>
+                        </td>
+                        <td th:text="${course.courseTitle}">Title</td>
+                        <td th:text="${course.credits}">0</td>
+                        <td th:text="${course.courseTypeCode}">TYPE</td>
+                        <td>
+                            <select class="form-select form-select-sm js-remarks">
+                                <option value="REGULAR"
+                                        th:selected="${#strings.equalsIgnoreCase(course.remarks, 'REGULAR') or (#strings.isEmpty(course.remarks) and #strings.equalsIgnoreCase(course.regType, 'REGULAR'))}">Regular</option>
+                                <option value="BACKLOG"
+                                        th:selected="${#strings.equalsIgnoreCase(course.remarks, 'BACKLOG') or (#strings.isEmpty(course.remarks) and (course.regType == null or #strings.equalsIgnoreCase(course.regType, 'BACKLOG')))}">Backlog</option>
+                                <option value="GRADE-IMPROVEMENT"
+                                        th:selected="${#strings.equalsIgnoreCase(course.remarks, 'GRADE-IMPROVEMENT') or #strings.equalsIgnoreCase(course.remarks, 'GRADE IMPROVEMENT') or (#strings.isEmpty(course.remarks) and #strings.equalsIgnoreCase(course.regType, 'GRADE-IMPROVEMENT'))}">Grade-Improvement</option>
+                                <option value="AUDIT"
+                                        th:selected="${#strings.equalsIgnoreCase(course.remarks, 'AUDIT') or (#strings.isEmpty(course.remarks) and #strings.equalsIgnoreCase(course.regType, 'AUDIT'))}">Audit</option>
+                            </select>
+                        </td>
+                        <td class="text-center">
+                            <input class="form-check-input js-drop"
+                                   type="checkbox"
+                                   onchange="toggleAdditionalDropRow(this)"
+                                   th:checked="${course.isDrop}">
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <hr class="additional-divider">
+                <h4 class="additional-section-title mt-4">Eligible Grade Improvement Courses</h4>
+                <div class="mb-3">
+                    <label for="gi-search-input" class="form-label mb-1">Search Courses (Full Text)</label>
+                    <div id="gi-search-shell" class="audit-search-shell">
+                        <input id="gi-search-input"
+                               type="text"
+                               class="form-control audit-search-input"
+                               placeholder="Search by code, title, credits, or course type..."
+                               autocomplete="off">
+                        <div class="audit-search-controls">
+                            <button id="gi-clear-btn" class="audit-icon-btn" type="button" title="Clear and close">X</button>
+                            <button id="gi-toggle-btn" class="audit-icon-btn" type="button" title="Show courses" disabled>▼</button>
+                        </div>
+                    </div>
+                    <div id="gi-search-results" class="list-group audit-dropdown"></div>
+                </div>
+                <div id="gi-course-pool" class="d-none">
+                    <div th:each="course : ${gradeImprovementCourses}"
+                         th:if="${course.srcid == null}"
+                         class="gi-pool-item"
+                         th:attr="
+                            data-scrid=${course.scrid},
+                            data-tcrid=${course.scrtcrid},
+                            data-srcid=${course.srcid},
+                            data-code=${course.courseCode},
+                            data-title=${course.courseTitle},
+                            data-credits=${course.credits},
+                            data-ctype=${course.courseTypeCode},
+                            data-regtype=${course.regType != null ? course.regType : 'GRADE-IMPROVEMENT'},
+                            data-remarks=${course.remarks},
+                            data-search=${((course.courseCode != null ? #strings.toLowerCase(course.courseCode) : '') + ' ' + (course.courseTitle != null ? #strings.toLowerCase(course.courseTitle) : '') + ' ' + (course.courseTypeCode != null ? #strings.toLowerCase(course.courseTypeCode) : '') + ' ' + (course.credits != null ? course.credits.toString() : ''))}">
+                    </div>
+                </div>
+
+                <h4 class="additional-section-title mt-3">Selected Grade Improvement Courses</h4>
+                <table class="table table-bordered align-middle">
+                    <thead class="table-light">
+                    <tr>
+                        <th>CCODE</th>
+                        <th>TITLE</th>
+                        <th>CREDITS</th>
+                        <th>C-TYPE*</th>
+                        <th>REMARKS</th>
+                        <th>DROP*</th>
+                    </tr>
+                    </thead>
+                    <tbody id="additional-gi-body">
+                    <tr id="additional-gi-empty-row">
+                        <td colspan="6" class="text-center text-muted">No selected grade improvement courses.</td>
+                    </tr>
+                    <tr th:each="course, idx : ${gradeImprovementCourses}"
+                        th:if="${course.srcid != null}"
+                        class="additional-course-row"
+                        data-origin-body="additional-gi-body">
+                        <td>
+                            <input type="hidden" class="js-srcid" th:value="${course.srcid}">
+                            <input type="hidden" class="js-scrid" th:value="${course.scrid}">
+                            <input type="hidden" class="js-tcrid" th:value="${course.scrtcrid}">
+                            <input type="hidden" class="js-regType" th:value="${course.regType != null ? course.regType : 'GRADE-IMPROVEMENT'}">
+                            <span th:text="${course.courseCode}">CCODE</span>
+                        </td>
+                        <td th:text="${course.courseTitle}">Title</td>
+                        <td th:text="${course.credits}">0</td>
+                        <td th:text="${course.courseTypeCode}">TYPE</td>
+                        <td>
+                            <select class="form-select form-select-sm js-remarks">
+                                <option value="REGULAR"
+                                        th:selected="${#strings.equalsIgnoreCase(course.remarks, 'REGULAR') or (#strings.isEmpty(course.remarks) and #strings.equalsIgnoreCase(course.regType, 'REGULAR'))}">Regular</option>
+                                <option value="BACKLOG"
+                                        th:selected="${#strings.equalsIgnoreCase(course.remarks, 'BACKLOG') or (#strings.isEmpty(course.remarks) and #strings.equalsIgnoreCase(course.regType, 'BACKLOG'))}">Backlog</option>
+                                <option value="GRADE-IMPROVEMENT"
+                                        th:selected="${#strings.equalsIgnoreCase(course.remarks, 'GRADE-IMPROVEMENT') or #strings.equalsIgnoreCase(course.remarks, 'GRADE IMPROVEMENT') or (#strings.isEmpty(course.remarks) and (course.regType == null or #strings.equalsIgnoreCase(course.regType, 'GRADE-IMPROVEMENT')))}">Grade-Improvement</option>
+                                <option value="AUDIT"
+                                        th:selected="${#strings.equalsIgnoreCase(course.remarks, 'AUDIT') or (#strings.isEmpty(course.remarks) and #strings.equalsIgnoreCase(course.regType, 'AUDIT'))}">Audit</option>
+                            </select>
+                        </td>
+                        <td class="text-center">
+                            <input class="form-check-input js-drop"
+                                   type="checkbox"
+                                   onchange="toggleAdditionalDropRow(this)"
+                                   th:checked="${course.isDrop}">
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <hr class="additional-divider">
+                <h4 class="additional-section-title mt-4">Projects and Internships</h4>
+                <table class="table table-bordered align-middle">
+                    <thead class="table-light">
+                    <tr>
+                        <th>CCODE</th>
+                        <th>TITLE</th>
+                        <th>CREDITS</th>
+                        <th>C-TYPE</th>
+                        <th>REG-TYPE</th>
+                        <th>REMARKS</th>
+                        <th>DROP</th>
+                    </tr>
+                    </thead>
+                    <tbody id="additional-project-body">
+                    <tr th:if="${#lists.isEmpty(projectInternshipCourses)}">
+                        <td colspan="7" class="text-center text-muted">No projects or internships available.</td>
+                    </tr>
+                    <tr th:each="course, idx : ${projectInternshipCourses}" class="additional-course-row" data-origin-body="additional-project-body">
+                        <td>
+                            <input type="hidden" class="js-srcid" th:name="${'rows[' + (idx.index + #lists.size(backlogCourses) + #lists.size(gradeImprovementCourses)) + '].srcid'}" th:value="${course.srcid}">
+                            <input type="hidden" class="js-scrid" th:name="${'rows[' + (idx.index + #lists.size(backlogCourses) + #lists.size(gradeImprovementCourses)) + '].scrid'}" th:value="${course.scrid}">
+                            <input type="hidden" class="js-tcrid" th:name="${'rows[' + (idx.index + #lists.size(backlogCourses) + #lists.size(gradeImprovementCourses)) + '].tcrid'}" th:value="${course.scrtcrid}">
+                            <span th:text="${course.courseCode}">CCODE</span>
+                        </td>
+                        <td th:text="${course.courseTitle}">Title</td>
+                        <td th:text="${course.credits}">0</td>
+                        <td th:text="${course.courseTypeCode}">TYPE</td>
+                        <td>
+                            <input class="form-control form-control-sm js-regType"
+                                   th:name="${'rows[' + (idx.index + #lists.size(backlogCourses) + #lists.size(gradeImprovementCourses)) + '].regType'}"
+                                   th:value="${course.regType != null ? course.regType : 'PROJECT'}">
+                        </td>
+                        <td>
+                            <input class="form-control form-control-sm js-remarks"
+                                   type="text"
+                                   th:name="${'rows[' + (idx.index + #lists.size(backlogCourses) + #lists.size(gradeImprovementCourses)) + '].remarks'}"
+                                   th:value="${course.remarks}"
+                                   placeholder="Optional">
+                        </td>
+                        <td class="text-center">
+                            <input class="form-check-input js-drop"
+                                   type="checkbox"
+                                   onchange="toggleAdditionalDropRow(this)"
+                                   th:name="${'rows[' + (idx.index + #lists.size(backlogCourses) + #lists.size(gradeImprovementCourses)) + '].drop'}"
+                                   th:checked="${course.isDrop}">
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <hr class="additional-divider">
+                <h4 class="additional-section-title mt-4">Add Audit Courses</h4>
+                <div class="mb-3">
+                    <label for="audit-search-input" class="form-label mb-1">Search Courses (Full Text)</label>
+                    <div id="audit-search-shell" class="audit-search-shell">
+                        <input id="audit-search-input"
+                               type="text"
+                               class="form-control audit-search-input"
+                               placeholder="Search by code, title, credits, or course type..."
+                               autocomplete="off">
+                        <div class="audit-search-controls">
+                            <button id="audit-clear-btn" class="audit-icon-btn" type="button" title="Clear and close">X</button>
+                            <button id="audit-toggle-btn" class="audit-icon-btn" type="button" title="Show courses" disabled>▼</button>
+                        </div>
+                    </div>
+                    <div id="audit-search-results" class="list-group audit-dropdown"></div>
+                </div>
+                <div id="audit-course-pool" class="d-none">
+                    <div th:each="course : ${auditCourses}"
+                         class="audit-pool-item"
+                         th:attr="
+                            data-scrid=${course.scrid},
+                            data-tcrid=${course.scrtcrid},
+                            data-srcid=${course.srcid},
+                            data-code=${course.courseCode},
+                            data-title=${course.courseTitle},
+                            data-credits=${course.credits},
+                            data-ctype=${course.courseTypeCode},
+                            data-regtype=${course.regType != null ? course.regType : 'AUDIT'},
+                            data-remarks=${course.remarks},
+                            data-search=${((course.courseCode != null ? #strings.toLowerCase(course.courseCode) : '') + ' ' + (course.courseTitle != null ? #strings.toLowerCase(course.courseTitle) : '') + ' ' + (course.courseTypeCode != null ? #strings.toLowerCase(course.courseTypeCode) : '') + ' ' + (course.credits != null ? course.credits.toString() : ''))}">
+                    </div>
+                </div>
+
+                <table class="table table-bordered align-middle">
+                    <thead class="table-light">
+                    <tr>
+                        <th>CCODE</th>
+                        <th>TITLE</th>
+                        <th>CREDITS</th>
+                        <th>C-TYPE</th>
+                        <th>REMARKS</th>
+                        <th>DROP</th>
+                    </tr>
+                    </thead>
+                    <tbody id="additional-audit-body">
+                    <tr id="additional-audit-empty-row">
+                        <td colspan="6" class="text-center text-muted">Search and add audit courses.</td>
+                    </tr>
+                    <tr th:each="course, idx : ${auditCourses}" class="additional-course-row" data-origin-body="additional-audit-body"
+                        th:if="${course.regType != null and #strings.equalsIgnoreCase(course.regType, 'AUDIT') and course.srcid != null}">
+                        <td>
+                            <input type="hidden" class="js-srcid" th:value="${course.srcid}">
+                            <input type="hidden" class="js-scrid" th:value="${course.scrid}">
+                            <input type="hidden" class="js-tcrid" th:value="${course.scrtcrid}">
+                            <input type="hidden" class="js-regType" value="AUDIT">
+                            <span class="js-code" th:text="${course.courseCode}">CCODE</span>
+                        </td>
+                        <td class="js-title" th:text="${course.courseTitle}">Title</td>
+                        <td class="js-credits" th:text="${course.credits}">0</td>
+                        <td class="js-ctype" th:text="${course.courseTypeCode}">TYPE</td>
+                        <td>
+                            <input class="form-control form-control-sm js-remarks"
+                                   type="text"
+                                   th:value="${#strings.isEmpty(course.remarks) or !#strings.equalsIgnoreCase(course.remarks, course.regType) ? course.regType : course.remarks}"
+                                   placeholder="Optional">
+                        </td>
+                        <td class="text-center">
+                            <input class="form-check-input js-drop"
+                                   type="checkbox"
+                                   onchange="toggleAdditionalDropRow(this)"
+                                   th:checked="${course.isDrop}">
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <hr class="additional-divider">
+                <h4 class="additional-section-title mt-4">Dropped Additional Courses</h4>
+                <table class="table table-bordered align-middle">
+                    <thead class="table-warning">
+                    <tr>
+                        <th>CCODE</th>
+                        <th>TITLE</th>
+                        <th>CREDITS</th>
+                        <th>C-TYPE</th>
+                        <th>REG-TYPE</th>
+                        <th>RESTORE</th>
+                        <th>DROP</th>
+                    </tr>
+                    </thead>
+                    <tbody id="dropped-additional-body">
+                    <tr id="dropped-additional-empty-row">
+                        <td colspan="7" class="text-center text-muted">No dropped additional courses.</td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <div class="d-flex gap-2 justify-content-end pt-2" style="border-top: 1px solid var(--reg-gray-200);">
+                    <a class="btn action-neutral-outline" th:href="@{'/student/registration/edit?strid=' + ${selectedStrid}}">Cancel</a>
+                    <button class="btn action-solid-primary" type="submit">Submit</button>
+                </div>
+            </form>
+    </div>
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+<script>
+    function assignFieldClass(input, className) {
+        if (!input.classList.contains(className)) {
+            input.classList.add(className);
+        }
+    }
+
+    function assignNameIfPresent(element, name) {
+        if (!element) {
+            return;
+        }
+        element.setAttribute('name', name);
+    }
+
+    function clearNameIfEmpty(element) {
+        if (!element) {
+            return;
+        }
+        if (element.value === null || element.value === undefined || String(element.value).trim() === '') {
+            element.removeAttribute('name');
+        }
+    }
+
+    function normalizeRemarks(value, fallbackRegType) {
+        const raw = String(value || '').trim().toUpperCase();
+        if (raw === 'REGULAR') {
+            return 'REGULAR';
+        }
+        if (raw === 'BACKLOG') {
+            return 'BACKLOG';
+        }
+        if (raw === 'AUDIT') {
+            return 'AUDIT';
+        }
+        if (raw === 'GRADE IMPROVEMENT' || raw === 'GRADE-IMPROVEMENT') {
+            return 'GRADE-IMPROVEMENT';
+        }
+
+        const fallback = String(fallbackRegType || '').trim().toUpperCase();
+        if (fallback === 'BACKLOG') {
+            return 'BACKLOG';
+        }
+        if (fallback === 'GRADE-IMPROVEMENT') {
+            return 'GRADE-IMPROVEMENT';
+        }
+        if (fallback === 'AUDIT') {
+            return 'AUDIT';
+        }
+        return 'REGULAR';
+    }
+
+    function buildRemarksSelectHtml(selectedValue, regType) {
+        const normalized = normalizeRemarks(selectedValue, regType);
+        return '' +
+            '<select class="form-select form-select-sm js-remarks">' +
+            '<option value="REGULAR"' + (normalized === 'REGULAR' ? ' selected' : '') + '>Regular</option>' +
+            '<option value="BACKLOG"' + (normalized === 'BACKLOG' ? ' selected' : '') + '>Backlog</option>' +
+            '<option value="GRADE-IMPROVEMENT"' + (normalized === 'GRADE-IMPROVEMENT' ? ' selected' : '') + '>Grade-Improvement</option>' +
+            '<option value="AUDIT"' + (normalized === 'AUDIT' ? ' selected' : '') + '>Audit</option>' +
+            '</select>';
+    }
+
+    function getSelectionKey(scrid, tcrid, regType) {
+        return [String(scrid || ''), String(tcrid || ''), String(regType || '').toUpperCase()].join('|');
+    }
+
+    function updateSelectedMainEmptyStates() {
+        const backlogBody = document.getElementById('additional-main-body');
+        const backlogEmpty = document.getElementById('additional-main-empty-row');
+        if (backlogBody && backlogEmpty) {
+            const backlogCount = backlogBody.querySelectorAll('tr.additional-course-row').length;
+            backlogEmpty.style.display = backlogCount > 0 ? 'none' : '';
+        }
+
+        const giBody = document.getElementById('additional-gi-body');
+        const giEmpty = document.getElementById('additional-gi-empty-row');
+        if (giBody && giEmpty) {
+            const giCount = giBody.querySelectorAll('tr.additional-course-row').length;
+            giEmpty.style.display = giCount > 0 ? 'none' : '';
+        }
+    }
+
+    function uncheckEligibleBySelectionKey(selectionKey) {
+        if (!selectionKey) {
+            return;
+        }
+        const picks = Array.from(document.querySelectorAll('tr.eligible-course-row .js-pick'));
+        picks.forEach(function (pick) {
+            const row = pick.closest('tr');
+            if (!row) {
+                return;
+            }
+            const scrid = (row.querySelector('.js-scrid') || {}).value;
+            const tcrid = (row.querySelector('.js-tcrid') || {}).value;
+            const regType = (row.querySelector('.js-regType') || {}).value;
+            const key = getSelectionKey(scrid, tcrid, regType);
+            if (key === selectionKey) {
+                pick.checked = false;
+            }
+        });
+    }
+
+    function removeSelectedRowByKey(selectionKey) {
+        if (!selectionKey) {
+            return;
+        }
+
+        const selectedRows = Array.from(document.querySelectorAll('tr.additional-course-row'));
+        let changed = false;
+        selectedRows.forEach(function (row) {
+            if (row.dataset.selectionKey === selectionKey && !row.querySelector('.js-srcid')?.value) {
+                row.remove();
+                changed = true;
+            }
+        });
+
+        if (changed) {
+            syncAdditionalDropTables();
+            reindexAdditionalRows();
+            updateSelectedMainEmptyStates();
+            hideAuditEmptyRowIfNeeded();
+        }
+    }
+
+    function createSelectedRowFromEligible(eligibleRow) {
+        const scrid = (eligibleRow.querySelector('.js-scrid') || {}).value || '';
+        const tcrid = (eligibleRow.querySelector('.js-tcrid') || {}).value || '';
+        const srcid = (eligibleRow.querySelector('.js-srcid') || {}).value || '';
+        const regType = (eligibleRow.querySelector('.js-regType') || {}).value || '';
+        const selectionKey = getSelectionKey(scrid, tcrid, regType);
+
+        const code = eligibleRow.children[0] ? eligibleRow.children[0].innerText.trim() : '';
+        const title = eligibleRow.children[1] ? eligibleRow.children[1].innerText.trim() : '';
+        const credits = eligibleRow.children[2] ? eligibleRow.children[2].innerText.trim() : '';
+        const ctype = eligibleRow.children[3] ? eligibleRow.children[3].innerText.trim() : '';
+        const remarksSelect = eligibleRow.querySelector('.js-remarks');
+        const remarks = remarksSelect ? remarksSelect.value : '';
+
+        const tr = document.createElement('tr');
+        tr.className = 'additional-course-row';
+        tr.dataset.originBody = eligibleRow.dataset.targetBody || 'additional-main-body';
+        tr.dataset.selectionKey = selectionKey;
+        tr.dataset.rowOrder = getNextRowOrder();
+
+        tr.innerHTML =
+            '<td>' +
+            '<input type="hidden" class="js-srcid" value="' + srcid + '">' +
+            '<input type="hidden" class="js-scrid" value="' + scrid + '">' +
+            '<input type="hidden" class="js-tcrid" value="' + tcrid + '">' +
+            '<input type="hidden" class="js-regType" value="' + regType + '">' +
+            '<span>' + code + '</span>' +
+            '</td>' +
+            '<td>' + title + '</td>' +
+            '<td>' + credits + '</td>' +
+            '<td>' + ctype + '</td>' +
+            '<td>' + buildRemarksSelectHtml(remarks, regType) + '</td>' +
+            '<td class="text-center"><input type="checkbox" class="form-check-input js-drop" onchange="toggleAdditionalDropRow(this)"></td>';
+
+        return tr;
+    }
+
+    function toggleEligibleSelection(checkbox) {
+        const row = checkbox.closest('tr');
+        if (!row) {
+            return;
+        }
+
+        const targetBodyId = row.dataset.targetBody;
+        const targetBody = targetBodyId ? document.getElementById(targetBodyId) : null;
+        if (!targetBody) {
+            checkbox.checked = false;
+            return;
+        }
+
+        const scrid = (row.querySelector('.js-scrid') || {}).value || '';
+        const tcrid = (row.querySelector('.js-tcrid') || {}).value || '';
+        const regType = (row.querySelector('.js-regType') || {}).value || '';
+        const selectionKey = getSelectionKey(scrid, tcrid, regType);
+
+        if (checkbox.checked) {
+            const alreadySelected = Array.from(document.querySelectorAll('tr.additional-course-row'))
+                .some(function (selectedRow) {
+                    return selectedRow.dataset.selectionKey === selectionKey;
+                });
+            if (!alreadySelected) {
+                const selectedRow = createSelectedRowFromEligible(row);
+                targetBody.appendChild(selectedRow);
+            }
+        } else {
+            removeSelectedRowByKey(selectionKey);
+        }
+
+        syncAdditionalDropTables();
+        reindexAdditionalRows();
+        updateSelectedMainEmptyStates();
+        hideAuditEmptyRowIfNeeded();
+    }
+
+    function reindexAdditionalRows() {
+        const rows = Array.from(document.querySelectorAll('tr.additional-course-row'));
+        rows.forEach(function (row, index) {
+            const srcid = row.querySelector('.js-srcid');
+            const scrid = row.querySelector('.js-scrid');
+            const tcrid = row.querySelector('.js-tcrid');
+            const regType = row.querySelector('.js-regType');
+            const remarks = row.querySelector('.js-remarks');
+            const drop = row.querySelector('.js-drop');
+
+            assignNameIfPresent(scrid, 'rows[' + index + '].scrid');
+            assignNameIfPresent(tcrid, 'rows[' + index + '].tcrid');
+            assignNameIfPresent(regType, 'rows[' + index + '].regType');
+            assignNameIfPresent(remarks, 'rows[' + index + '].remarks');
+            assignNameIfPresent(drop, 'rows[' + index + '].drop');
+
+            if (srcid) {
+                assignNameIfPresent(srcid, 'rows[' + index + '].srcid');
+                clearNameIfEmpty(srcid);
+            }
+        });
+    }
+
+    function getExistingAdditionalScrids() {
+        return new Set(Array.from(document.querySelectorAll('tr.additional-course-row .js-scrid'))
+            .map(function (el) { return String(el.value || '').trim(); })
+            .filter(function (v) { return v !== ''; }));
+    }
+
+    function getExistingAdditionalSelectionKeys() {
+        return new Set(Array.from(document.querySelectorAll('tr.additional-course-row'))
+            .map(function (row) {
+                const scrid = (row.querySelector('.js-scrid') || {}).value || '';
+                const tcrid = (row.querySelector('.js-tcrid') || {}).value || '';
+                const regType = (row.querySelector('.js-regType') || {}).value || '';
+                if (String(scrid || '').trim() === '' && String(tcrid || '').trim() === '') {
+                    return '';
+                }
+                return getSelectionKey(scrid, tcrid, regType);
+            })
+            .filter(function (v) { return v !== ''; }));
+    }
+
+    function hideAuditEmptyRowIfNeeded() {
+        const body = document.getElementById('additional-audit-body');
+        const empty = document.getElementById('additional-audit-empty-row');
+        if (!body || !empty) {
+            return;
+        }
+        const hasRows = body.querySelectorAll('tr.additional-course-row').length > 0;
+        empty.style.display = hasRows ? 'none' : '';
+    }
+
+    function getNextRowOrder() {
+        const rows = Array.from(document.querySelectorAll('tr.additional-course-row'));
+        let maxOrder = -1;
+        rows.forEach(function (row) {
+            const val = Number(row.dataset.rowOrder || '0');
+            if (val > maxOrder) {
+                maxOrder = val;
+            }
+        });
+        return String(maxOrder + 1);
+    }
+
+    function appendAuditRow(course) {
+        const auditBody = document.getElementById('additional-audit-body');
+        if (!auditBody) {
+            return;
+        }
+
+        const tr = document.createElement('tr');
+        tr.className = 'additional-course-row';
+        tr.dataset.originBody = 'additional-audit-body';
+        tr.dataset.rowOrder = getNextRowOrder();
+
+        tr.innerHTML =
+            '<td>' +
+            '<input type="hidden" class="js-srcid" value="' + (course.srcid || '') + '">' +
+            '<input type="hidden" class="js-scrid" value="' + (course.scrid || '') + '">' +
+            '<input type="hidden" class="js-tcrid" value="' + (course.tcrid || '') + '">' +
+            '<input type="hidden" class="js-regType" value="AUDIT">' +
+            '<span class="js-code"></span>' +
+            '</td>' +
+            '<td class="js-title"></td>' +
+            '<td class="js-credits"></td>' +
+            '<td class="js-ctype"></td>' +
+            '<td><input type="text" class="form-control form-control-sm js-remarks" placeholder="Optional"></td>' +
+            '<td class="text-center"><input type="checkbox" class="form-check-input js-drop" onchange="toggleAdditionalDropRow(this)"></td>';
+
+        tr.querySelector('.js-code').textContent = course.code || '';
+        tr.querySelector('.js-title').textContent = course.title || '';
+        tr.querySelector('.js-credits').textContent = course.credits || '';
+        tr.querySelector('.js-ctype').textContent = course.ctype || '';
+        tr.querySelector('.js-remarks').value = course.remarks || '';
+
+        auditBody.appendChild(tr);
+        hideAuditEmptyRowIfNeeded();
+        reindexAdditionalRows();
+    }
+
+    function appendBacklogRow(course) {
+        const backlogBody = document.getElementById('additional-main-body');
+        if (!backlogBody) {
+            return;
+        }
+
+        const regType = course.regType || 'BACKLOG';
+        const selectionKey = getSelectionKey(course.scrid, course.tcrid, regType);
+        const existingKeys = getExistingAdditionalSelectionKeys();
+        if (existingKeys.has(selectionKey)) {
+            return;
+        }
+
+        const tr = document.createElement('tr');
+        tr.className = 'additional-course-row';
+        tr.dataset.originBody = 'additional-main-body';
+        tr.dataset.selectionKey = selectionKey;
+        tr.dataset.rowOrder = getNextRowOrder();
+
+        tr.innerHTML =
+            '<td>' +
+            '<input type="hidden" class="js-srcid" value="' + (course.srcid || '') + '">' +
+            '<input type="hidden" class="js-scrid" value="' + (course.scrid || '') + '">' +
+            '<input type="hidden" class="js-tcrid" value="' + (course.tcrid || '') + '">' +
+            '<input type="hidden" class="js-regType" value="' + regType + '">' +
+            '<span>' + (course.code || '') + '</span>' +
+            '</td>' +
+            '<td>' + (course.title || '') + '</td>' +
+            '<td>' + (course.credits || '') + '</td>' +
+            '<td>' + (course.ctype || '') + '</td>' +
+            '<td>' + buildRemarksSelectHtml(course.remarks || '', regType) + '</td>' +
+            '<td class="text-center"><input type="checkbox" class="form-check-input js-drop" onchange="toggleAdditionalDropRow(this)"></td>';
+
+        backlogBody.appendChild(tr);
+        updateSelectedMainEmptyStates();
+        reindexAdditionalRows();
+    }
+
+    function appendGradeImprovementRow(course) {
+        const giBody = document.getElementById('additional-gi-body');
+        if (!giBody) {
+            return;
+        }
+
+        const regType = course.regType || 'GRADE-IMPROVEMENT';
+        const selectionKey = getSelectionKey(course.scrid, course.tcrid, regType);
+        const existingKeys = getExistingAdditionalSelectionKeys();
+        if (existingKeys.has(selectionKey)) {
+            return;
+        }
+
+        const tr = document.createElement('tr');
+        tr.className = 'additional-course-row';
+        tr.dataset.originBody = 'additional-gi-body';
+        tr.dataset.selectionKey = selectionKey;
+        tr.dataset.rowOrder = getNextRowOrder();
+
+        tr.innerHTML =
+            '<td>' +
+            '<input type="hidden" class="js-srcid" value="' + (course.srcid || '') + '">' +
+            '<input type="hidden" class="js-scrid" value="' + (course.scrid || '') + '">' +
+            '<input type="hidden" class="js-tcrid" value="' + (course.tcrid || '') + '">' +
+            '<input type="hidden" class="js-regType" value="' + regType + '">' +
+            '<span>' + (course.code || '') + '</span>' +
+            '</td>' +
+            '<td>' + (course.title || '') + '</td>' +
+            '<td>' + (course.credits || '') + '</td>' +
+            '<td>' + (course.ctype || '') + '</td>' +
+            '<td>' + buildRemarksSelectHtml(course.remarks || '', regType) + '</td>' +
+            '<td class="text-center"><input type="checkbox" class="form-check-input js-drop" onchange="toggleAdditionalDropRow(this)"></td>';
+
+        giBody.appendChild(tr);
+        updateSelectedMainEmptyStates();
+        reindexAdditionalRows();
+    }
+
+    function readAuditPool() {
+        return Array.from(document.querySelectorAll('#audit-course-pool .audit-pool-item')).map(function (item) {
+            return {
+                scrid: item.dataset.scrid || '',
+                tcrid: item.dataset.tcrid || '',
+                srcid: item.dataset.srcid || '',
+                code: item.dataset.code || '',
+                title: item.dataset.title || '',
+                credits: item.dataset.credits || '',
+                ctype: item.dataset.ctype || '',
+                regType: item.dataset.regtype || 'AUDIT',
+                remarks: item.dataset.remarks || '',
+                search: (item.dataset.search || '').toLowerCase()
+            };
+        });
+    }
+
+    function readBacklogPool() {
+        return Array.from(document.querySelectorAll('#backlog-course-pool .backlog-pool-item')).map(function (item) {
+            return {
+                scrid: item.dataset.scrid || '',
+                tcrid: item.dataset.tcrid || '',
+                srcid: item.dataset.srcid || '',
+                code: item.dataset.code || '',
+                title: item.dataset.title || '',
+                credits: item.dataset.credits || '',
+                ctype: item.dataset.ctype || '',
+                regType: item.dataset.regtype || 'BACKLOG',
+                remarks: item.dataset.remarks || '',
+                search: (item.dataset.search || '').toLowerCase()
+            };
+        });
+    }
+
+    function readGradeImprovementPool() {
+        return Array.from(document.querySelectorAll('#gi-course-pool .gi-pool-item')).map(function (item) {
+            return {
+                scrid: item.dataset.scrid || '',
+                tcrid: item.dataset.tcrid || '',
+                srcid: item.dataset.srcid || '',
+                code: item.dataset.code || '',
+                title: item.dataset.title || '',
+                credits: item.dataset.credits || '',
+                ctype: item.dataset.ctype || '',
+                regType: item.dataset.regtype || 'GRADE-IMPROVEMENT',
+                remarks: item.dataset.remarks || '',
+                search: (item.dataset.search || '').toLowerCase()
+            };
+        });
+    }
+
+    function renderAuditSearchResults(query, auditPool) {
+        const list = document.getElementById('audit-search-results');
+        if (!list) {
+            return;
+        }
+        list.innerHTML = '';
+
+        const trimmed = String(query || '').trim().toLowerCase();
+
+        const existingScrids = getExistingAdditionalScrids();
+        const matches = (trimmed.length === 0
+            ? auditPool.slice()
+            : auditPool
+                .map(function (course, index) {
+                    const code = String(course.code || '').toLowerCase();
+                    const title = String(course.title || '').toLowerCase();
+                    const hasAny = course.search.includes(trimmed);
+                    if (!hasAny) {
+                        return null;
+                    }
+
+                    let rank = 99;
+                    if (code.startsWith(trimmed)) {
+                        rank = 1;
+                    } else if (code.includes(trimmed)) {
+                        rank = 2;
+                    } else if (title.startsWith(trimmed)) {
+                        rank = 3;
+                    } else if (title.includes(trimmed)) {
+                        rank = 4;
+                    } else {
+                        rank = 5;
+                    }
+
+                    return {
+                        course: course,
+                        rank: rank,
+                        index: index
+                    };
+                })
+                .filter(function (entry) {
+                    return entry !== null;
+                })
+                .sort(function (a, b) {
+                    if (a.rank !== b.rank) {
+                        return a.rank - b.rank;
+                    }
+                    return a.index - b.index;
+                })
+                .map(function (entry) {
+                    return entry.course;
+                })
+        ).slice(0, 30);
+
+        if (matches.length === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'list-group-item text-muted';
+            empty.textContent = trimmed.length === 0
+                ? 'No audit courses available to suggest.'
+                : 'No matching audit courses found.';
+            list.appendChild(empty);
+            return;
+        }
+
+        matches.forEach(function (course) {
+            const item = document.createElement('div');
+            item.className = 'list-group-item d-flex justify-content-between align-items-center gap-2';
+
+            const left = document.createElement('div');
+            left.innerHTML =
+                '<div><strong>' + course.code + '</strong> - ' + course.title + '</div>' +
+                '<div class="small text-muted">Credits: ' + course.credits + ' | C-Type: ' + course.ctype + '</div>';
+
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'btn btn-sm btn-outline-primary';
+            const alreadyAdded = existingScrids.has(String(course.scrid));
+            button.disabled = alreadyAdded;
+            button.textContent = alreadyAdded ? 'Added' : 'Add';
+
+            button.addEventListener('click', function () {
+                appendAuditRow(course);
+                renderAuditSearchResults(query, auditPool);
+            });
+
+            item.appendChild(left);
+            item.appendChild(button);
+            list.appendChild(item);
+        });
+    }
+
+    function renderBacklogSearchResults(query, backlogPool) {
+        const list = document.getElementById('backlog-search-results');
+        if (!list) {
+            return;
+        }
+        list.innerHTML = '';
+
+        const trimmed = String(query || '').trim().toLowerCase();
+        const existingKeys = getExistingAdditionalSelectionKeys();
+
+        const matches = (trimmed.length === 0
+            ? backlogPool.slice()
+            : backlogPool
+                .map(function (course, index) {
+                    const code = String(course.code || '').toLowerCase();
+                    const title = String(course.title || '').toLowerCase();
+                    const hasAny = course.search.includes(trimmed);
+                    if (!hasAny) {
+                        return null;
+                    }
+
+                    let rank = 99;
+                    if (code.startsWith(trimmed)) {
+                        rank = 1;
+                    } else if (code.includes(trimmed)) {
+                        rank = 2;
+                    } else if (title.startsWith(trimmed)) {
+                        rank = 3;
+                    } else if (title.includes(trimmed)) {
+                        rank = 4;
+                    } else {
+                        rank = 5;
+                    }
+
+                    return {
+                        course: course,
+                        rank: rank,
+                        index: index
+                    };
+                })
+                .filter(function (entry) {
+                    return entry !== null;
+                })
+                .sort(function (a, b) {
+                    if (a.rank !== b.rank) {
+                        return a.rank - b.rank;
+                    }
+                    return a.index - b.index;
+                })
+                .map(function (entry) {
+                    return entry.course;
+                })
+        ).slice(0, 30);
+
+        if (matches.length === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'list-group-item text-muted';
+            empty.textContent = trimmed.length === 0
+                ? 'No backlog courses available to suggest.'
+                : 'No matching backlog courses found.';
+            list.appendChild(empty);
+            return;
+        }
+
+        matches.forEach(function (course) {
+            const item = document.createElement('div');
+            item.className = 'list-group-item d-flex justify-content-between align-items-center gap-2';
+
+            const left = document.createElement('div');
+            left.innerHTML =
+                '<div><strong>' + course.code + '</strong> - ' + course.title + '</div>' +
+                '<div class="small text-muted">Credits: ' + course.credits + ' | C-Type: ' + course.ctype + '</div>';
+
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'btn btn-sm btn-outline-primary';
+            const selectionKey = getSelectionKey(course.scrid, course.tcrid, course.regType || 'BACKLOG');
+            const alreadyAdded = existingKeys.has(selectionKey);
+            button.disabled = alreadyAdded;
+            button.textContent = alreadyAdded ? 'Added' : 'Add';
+
+            button.addEventListener('click', function () {
+                appendBacklogRow(course);
+                renderBacklogSearchResults(query, backlogPool);
+            });
+
+            item.appendChild(left);
+            item.appendChild(button);
+            list.appendChild(item);
+        });
+    }
+
+    function renderGradeImprovementSearchResults(query, giPool) {
+        const list = document.getElementById('gi-search-results');
+        if (!list) {
+            return;
+        }
+        list.innerHTML = '';
+
+        const trimmed = String(query || '').trim().toLowerCase();
+        const existingKeys = getExistingAdditionalSelectionKeys();
+
+        const matches = (trimmed.length === 0
+            ? giPool.slice()
+            : giPool
+                .map(function (course, index) {
+                    const code = String(course.code || '').toLowerCase();
+                    const title = String(course.title || '').toLowerCase();
+                    const hasAny = course.search.includes(trimmed);
+                    if (!hasAny) {
+                        return null;
+                    }
+
+                    let rank = 99;
+                    if (code.startsWith(trimmed)) {
+                        rank = 1;
+                    } else if (code.includes(trimmed)) {
+                        rank = 2;
+                    } else if (title.startsWith(trimmed)) {
+                        rank = 3;
+                    } else if (title.includes(trimmed)) {
+                        rank = 4;
+                    } else {
+                        rank = 5;
+                    }
+
+                    return {
+                        course: course,
+                        rank: rank,
+                        index: index
+                    };
+                })
+                .filter(function (entry) {
+                    return entry !== null;
+                })
+                .sort(function (a, b) {
+                    if (a.rank !== b.rank) {
+                        return a.rank - b.rank;
+                    }
+                    return a.index - b.index;
+                })
+                .map(function (entry) {
+                    return entry.course;
+                })
+        ).slice(0, 30);
+
+        if (matches.length === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'list-group-item text-muted';
+            empty.textContent = trimmed.length === 0
+                ? 'No grade improvement courses available to suggest.'
+                : 'No matching grade improvement courses found.';
+            list.appendChild(empty);
+            return;
+        }
+
+        matches.forEach(function (course) {
+            const item = document.createElement('div');
+            item.className = 'list-group-item d-flex justify-content-between align-items-center gap-2';
+
+            const left = document.createElement('div');
+            left.innerHTML =
+                '<div><strong>' + course.code + '</strong> - ' + course.title + '</div>' +
+                '<div class="small text-muted">Credits: ' + course.credits + ' | C-Type: ' + course.ctype + '</div>';
+
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'btn btn-sm btn-outline-primary';
+            const selectionKey = getSelectionKey(course.scrid, course.tcrid, course.regType || 'GRADE-IMPROVEMENT');
+            const alreadyAdded = existingKeys.has(selectionKey);
+            button.disabled = alreadyAdded;
+            button.textContent = alreadyAdded ? 'Added' : 'Add';
+
+            button.addEventListener('click', function () {
+                appendGradeImprovementRow(course);
+                renderGradeImprovementSearchResults(query, giPool);
+            });
+
+            item.appendChild(left);
+            item.appendChild(button);
+            list.appendChild(item);
+        });
+    }
+
+    function updateDroppedAdditionalEmptyState() {
+        const droppedBody = document.getElementById('dropped-additional-body');
+        const droppedEmpty = document.getElementById('dropped-additional-empty-row');
+        if (!droppedBody || !droppedEmpty) {
+            return;
+        }
+        const hasDroppedRows = droppedBody.querySelectorAll('tr.additional-course-row').length > 0;
+        droppedEmpty.style.display = hasDroppedRows ? 'none' : '';
+    }
+
+    function syncAdditionalDropTables() {
+        const droppedBody = document.getElementById('dropped-additional-body');
+        if (!droppedBody) {
+            return;
+        }
+
+        const allRows = Array.from(document.querySelectorAll('tr.additional-course-row'));
+        const orderedRows = allRows.sort(function (a, b) {
+            const aOrder = Number(a.dataset.rowOrder || '0');
+            const bOrder = Number(b.dataset.rowOrder || '0');
+            return aOrder - bOrder;
+        });
+
+        orderedRows.forEach(function (row) {
+            const checkbox = row.querySelector('input[type="checkbox"]');
+            if (!checkbox) {
+                return;
+            }
+
+            if (checkbox.checked) {
+                droppedBody.appendChild(row);
+                return;
+            }
+
+            const originalBodyId = row.dataset.originBody;
+            const originalBody = originalBodyId ? document.getElementById(originalBodyId) : null;
+            if (originalBody) {
+                originalBody.appendChild(row);
+            }
+        });
+
+        updateDroppedAdditionalEmptyState();
+        updateSelectedMainEmptyStates();
+        hideAuditEmptyRowIfNeeded();
+        reindexAdditionalRows();
+    }
+
+    function toggleAdditionalDropRow(checkbox) {
+        const row = checkbox.closest('tr');
+        if (!row || !row.classList.contains('additional-course-row')) {
+            return;
+        }
+        syncAdditionalDropTables();
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const auditPool = readAuditPool();
+        const backlogPool = readBacklogPool();
+        const giPool = readGradeImprovementPool();
+        const searchInput = document.getElementById('audit-search-input');
+        const searchShell = document.getElementById('audit-search-shell');
+        const toggleBtn = document.getElementById('audit-toggle-btn');
+        const clearBtn = document.getElementById('audit-clear-btn');
+        const results = document.getElementById('audit-search-results');
+
+        const backlogInput = document.getElementById('backlog-search-input');
+        const backlogShell = document.getElementById('backlog-search-shell');
+        const backlogToggleBtn = document.getElementById('backlog-toggle-btn');
+        const backlogClearBtn = document.getElementById('backlog-clear-btn');
+        const backlogResults = document.getElementById('backlog-search-results');
+
+        const giInput = document.getElementById('gi-search-input');
+        const giShell = document.getElementById('gi-search-shell');
+        const giToggleBtn = document.getElementById('gi-toggle-btn');
+        const giClearBtn = document.getElementById('gi-clear-btn');
+        const giResults = document.getElementById('gi-search-results');
+
+        function isAuditDropdownOpen() {
+            return results && results.classList.contains('show');
+        }
+
+        function isBacklogDropdownOpen() {
+            return backlogResults && backlogResults.classList.contains('show');
+        }
+
+        function isGiDropdownOpen() {
+            return giResults && giResults.classList.contains('show');
+        }
+
+        function openAuditDropdown() {
+            if (!results) {
+                return;
+            }
+            results.classList.add('show');
+            if (toggleBtn) {
+                toggleBtn.classList.add('audit-open');
+                toggleBtn.innerText = '▲';
+            }
+        }
+
+        function openBacklogDropdown() {
+            if (!backlogResults) {
+                return;
+            }
+            backlogResults.classList.add('show');
+            if (backlogToggleBtn) {
+                backlogToggleBtn.classList.add('audit-open');
+                backlogToggleBtn.innerText = '▲';
+            }
+        }
+
+        function openGiDropdown() {
+            if (!giResults) {
+                return;
+            }
+            giResults.classList.add('show');
+            if (giToggleBtn) {
+                giToggleBtn.classList.add('audit-open');
+                giToggleBtn.innerText = '▲';
+            }
+        }
+
+        function closeAuditDropdown() {
+            if (!results) {
+                return;
+            }
+            results.classList.remove('show');
+            if (toggleBtn) {
+                toggleBtn.classList.remove('audit-open');
+                toggleBtn.innerText = '▼';
+            }
+        }
+
+        function closeBacklogDropdown() {
+            if (!backlogResults) {
+                return;
+            }
+            backlogResults.classList.remove('show');
+            if (backlogToggleBtn) {
+                backlogToggleBtn.classList.remove('audit-open');
+                backlogToggleBtn.innerText = '▼';
+            }
+        }
+
+        function closeGiDropdown() {
+            if (!giResults) {
+                return;
+            }
+            giResults.classList.remove('show');
+            if (giToggleBtn) {
+                giToggleBtn.classList.remove('audit-open');
+                giToggleBtn.innerText = '▼';
+            }
+        }
+
+        function activateAuditSearchControls() {
+            if (toggleBtn) {
+                toggleBtn.disabled = false;
+            }
+        }
+
+        function activateBacklogSearchControls() {
+            if (backlogToggleBtn) {
+                backlogToggleBtn.disabled = false;
+            }
+        }
+
+        function activateGiSearchControls() {
+            if (giToggleBtn) {
+                giToggleBtn.disabled = false;
+            }
+        }
+
+        if (searchInput) {
+            searchInput.addEventListener('input', function () {
+                activateAuditSearchControls();
+                openAuditDropdown();
+                renderAuditSearchResults(searchInput.value, auditPool);
+            });
+
+            searchInput.addEventListener('focus', function () {
+                activateAuditSearchControls();
+                openAuditDropdown();
+                renderAuditSearchResults(searchInput.value, auditPool);
+            });
+
+            searchInput.addEventListener('click', function () {
+                activateAuditSearchControls();
+                openAuditDropdown();
+                renderAuditSearchResults(searchInput.value, auditPool);
+            });
+        }
+
+        if (backlogInput) {
+            backlogInput.addEventListener('input', function () {
+                activateBacklogSearchControls();
+                openBacklogDropdown();
+                renderBacklogSearchResults(backlogInput.value, backlogPool);
+            });
+
+            backlogInput.addEventListener('focus', function () {
+                activateBacklogSearchControls();
+                openBacklogDropdown();
+                renderBacklogSearchResults(backlogInput.value, backlogPool);
+            });
+
+            backlogInput.addEventListener('click', function () {
+                activateBacklogSearchControls();
+                openBacklogDropdown();
+                renderBacklogSearchResults(backlogInput.value, backlogPool);
+            });
+        }
+
+        if (giInput) {
+            giInput.addEventListener('input', function () {
+                activateGiSearchControls();
+                openGiDropdown();
+                renderGradeImprovementSearchResults(giInput.value, giPool);
+            });
+
+            giInput.addEventListener('focus', function () {
+                activateGiSearchControls();
+                openGiDropdown();
+                renderGradeImprovementSearchResults(giInput.value, giPool);
+            });
+
+            giInput.addEventListener('click', function () {
+                activateGiSearchControls();
+                openGiDropdown();
+                renderGradeImprovementSearchResults(giInput.value, giPool);
+            });
+        }
+
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', function () {
+                if (toggleBtn.disabled) {
+                    return;
+                }
+                if (isAuditDropdownOpen()) {
+                    closeAuditDropdown();
+                } else {
+                    openAuditDropdown();
+                    renderAuditSearchResults(searchInput ? searchInput.value : '', auditPool);
+                }
+            });
+        }
+
+        if (backlogToggleBtn) {
+            backlogToggleBtn.addEventListener('click', function () {
+                if (backlogToggleBtn.disabled) {
+                    return;
+                }
+                if (isBacklogDropdownOpen()) {
+                    closeBacklogDropdown();
+                } else {
+                    openBacklogDropdown();
+                    renderBacklogSearchResults(backlogInput ? backlogInput.value : '', backlogPool);
+                }
+            });
+        }
+
+        if (giToggleBtn) {
+            giToggleBtn.addEventListener('click', function () {
+                if (giToggleBtn.disabled) {
+                    return;
+                }
+                if (isGiDropdownOpen()) {
+                    closeGiDropdown();
+                } else {
+                    openGiDropdown();
+                    renderGradeImprovementSearchResults(giInput ? giInput.value : '', giPool);
+                }
+            });
+        }
+
+        if (clearBtn) {
+            clearBtn.addEventListener('click', function () {
+                if (searchInput) {
+                    searchInput.value = '';
+                    searchInput.blur();
+                }
+                if (results) {
+                    results.innerHTML = '';
+                }
+                closeAuditDropdown();
+            });
+        }
+
+        if (backlogClearBtn) {
+            backlogClearBtn.addEventListener('click', function () {
+                if (backlogInput) {
+                    backlogInput.value = '';
+                    backlogInput.blur();
+                }
+                if (backlogResults) {
+                    backlogResults.innerHTML = '';
+                }
+                closeBacklogDropdown();
+            });
+        }
+
+        if (giClearBtn) {
+            giClearBtn.addEventListener('click', function () {
+                if (giInput) {
+                    giInput.value = '';
+                    giInput.blur();
+                }
+                if (giResults) {
+                    giResults.innerHTML = '';
+                }
+                closeGiDropdown();
+            });
+        }
+
+        document.addEventListener('click', function (event) {
+            if (!searchShell || !results) {
+                return;
+            }
+            if (!searchShell.contains(event.target) && !results.contains(event.target)) {
+                closeAuditDropdown();
+            }
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!backlogShell || !backlogResults) {
+                return;
+            }
+            if (!backlogShell.contains(event.target) && !backlogResults.contains(event.target)) {
+                closeBacklogDropdown();
+            }
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!giShell || !giResults) {
+                return;
+            }
+            if (!giShell.contains(event.target) && !giResults.contains(event.target)) {
+                closeGiDropdown();
+            }
+        });
+
+        const rows = document.querySelectorAll('tr.additional-course-row');
+        rows.forEach(function (row, index) {
+            row.dataset.rowOrder = String(index);
+            if (!row.dataset.originBody) {
+                const parentBody = row.closest('tbody');
+                if (parentBody && parentBody.id) {
+                    row.dataset.originBody = parentBody.id;
+                }
+            }
+        });
+
+        syncAdditionalDropTables();
+        updateSelectedMainEmptyStates();
+
+        const form = document.getElementById('additional-courses-form');
+        if (form) {
+            form.addEventListener('submit', function () {
+                reindexAdditionalRows();
+            });
+        }
+
+        closeAuditDropdown();
+        closeBacklogDropdown();
+        closeGiDropdown();
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>View Elective Registration</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/styleSrs.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <style>
+        :root {
+            --reg-blue-900: #0b3f73;
+            --reg-blue-800: #174f86;
+            --reg-blue-700: #2f679d;
+            --reg-blue-100: #eaf2fb;
+            --reg-gray-100: #f2f5f9;
+            --reg-gray-200: #e3e8ef;
+            --reg-gray-300: #d4dbe5;
+            --reg-gray-700: #334155;
+        }
+
+        body.elective-view-page {
+            background: #e9ebf0;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .elective-card {
+            width: min(1280px, calc(100vw - 72px));
+            margin: 16px auto 20px;
+            background: #f6f7f9;
+            border: 1px solid #d7dce4;
+            border-radius: 10px;
+            padding: 0 10px 12px;
+        }
+
+        .elective-card-header {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #dfe3ea;
+            padding: 12px 6px;
+            margin-bottom: 8px;
+        }
+
+        .elective-title {
+            margin: 0;
+            text-align: center;
+            color: #184a78;
+            font-size: 36px;
+            line-height: 1.15;
+            font-weight: 700;
+        }
+
+        .back-link-btn {
+            justify-self: start;
+            border: 1px solid #ced6e0;
+            background: #f4f7fa;
+            color: #355a7a;
+            text-decoration: none;
+            border-radius: 6px;
+            padding: 6px 14px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .back-link-btn:hover {
+            background: #eaf0f6;
+            color: #274b69;
+        }
+
+        .section-title {
+            color: #22384f;
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 8px !important;
+            margin-top: 8px;
+        }
+
+        .elective-view-page .table {
+            border-color: var(--reg-gray-300);
+        }
+
+        .elective-view-page .table thead th {
+            background: var(--reg-blue-100);
+            border-color: var(--reg-gray-300);
+            text-align: center;
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.25;
+            color: #123f6e;
+            text-transform: none;
+            letter-spacing: 0;
+            font-family: inherit;
+        }
+
+        .elective-view-page .table tbody td {
+            border-color: var(--reg-gray-300);
+            text-align: center;
+            font-size: 15px;
+            font-weight: 500;
+            line-height: 1.35;
+            color: #223a54;
+            font-family: inherit;
+        }
+
+        .elective-view-page .table tbody tr:nth-child(odd) {
+            background: #f2f6fb;
+        }
+
+        .elective-view-page .table tbody tr:nth-child(even) {
+            background: #ffffff;
+        }
+
+        .equal-cols {
+            table-layout: fixed;
+            width: 100%;
+        }
+
+        .equal-cols th,
+        .equal-cols td {
+            width: var(--col-width, 50%);
+        }
+    </style>
+</head>
+
+<body class="elective-view-page">
+<!-- HEADER -->
+<div th:replace="fragments/header :: header"></div>
+
+<!-- NAVBAR -->
+<div th:replace="fragments/navbar :: navbar"></div>
+
+<div class="elective-card">
+    <div class="elective-card-header">
+        <a class="back-link-btn" th:href="@{/student/electiveRegistration}">Back to Elective Registration</a>
+        <h1 class="elective-title">Elective Registration Details</h1>
+        <div></div>
+    </div>
+
+    <!-- ================= COURSE PREFERENCES ================= -->
+    <div class="px-2 pb-2">
+        <div th:each="entry : ${groupedCoursePref}" class="mb-4">
+            <h4 class="section-title" th:text="'Slot ' + ${entry.key}"></h4>
+            <div class="card-body p-0">
+                <table class="table table-bordered align-middle mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th style="width: 15%">Preference Rank</th>
+                        <th style="width: 20%">Course Code</th>
+                        <th style="width: 40%">Course Name</th>
+                        <th style="width: 25%">L-T-P-C</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="cp : ${entry.value}">
+                        <td th:text="${cp.prefIndex}">1</td>
+                        <td th:text="${cp.termCourse.course.crscode}">MATH101</td>
+                        <td th:text="${cp.termCourse.course.crsname}">Mathematics</td>
+                        <td th:text="|${cp.termCourse.course.crslectures}-${cp.termCourse.course.crstutorials}-${cp.termCourse.course.crspracticals}-${cp.termCourse.course.crscreditpoints}|">
+                            3-0-2-4
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
+
+    <!-- ================= SLOT PRIORITIES ================= -->
+        <div class="mb-4">
+            <h4 class="section-title">Slot Priorities</h4>
+
+            <div class="card-body p-0">
+                <table class="table table-bordered align-middle mb-0 equal-cols" style="--col-width: 50%;">
+                    <thead class="table-light">
+                    <tr>
+                        <th style="width: 50%">Priority</th>
+                        <th style="width: 50%">Slot</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="sp : ${slotPref}">
+                        <td th:text="${sp[1]}"></td> <!-- pref_index -->
+                        <td th:text="${sp[0]}"></td> <!-- slot -->
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
+
+    <!-- ================= ELECTIVE REQUIREMENTS ================= -->
+        <div class="mb-3">
+            <h4 class="section-title">Elective Requirements</h4>
+
+            <div class="card-body p-0">
+                <table class="table table-bordered align-middle mb-0 equal-cols" style="--col-width: 50%;">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Elective Type</th>
+                        <th>Required Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="req : ${requirements}">
+                        <td th:text="${req[0]}"></td> <!-- elect_type -->
+                        <td th:text="${req[1]}"></td> <!-- count -->
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>

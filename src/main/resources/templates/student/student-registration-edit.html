@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Semester Registration</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/styleSrs.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <style>
+        :root {
+            --reg-blue-900: #0b3f73;
+            --reg-blue-800: #174f86;
+            --reg-blue-700: #2f679d;
+            --reg-blue-100: #eaf2fb;
+            --reg-gray-050: #f7f9fc;
+            --reg-gray-100: #f2f5f9;
+            --reg-gray-200: #e3e8ef;
+            --reg-gray-300: #d4dbe5;
+            --reg-gray-500: #64748b;
+            --reg-gray-700: #334155;
+        }
+
+        body.registration-edit-page {
+            background: #e9ebf0;
+            background-image: none;
+            background-repeat: no-repeat;
+            background-attachment: scroll;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        body.registration-edit-page::after {
+            display: none;
+            background-image: none;
+        }
+
+        body.registration-edit-page .sidemenu {
+            display: none;
+            width: 0;
+            background-image: none;
+        }
+
+        body.registration-edit-page .content {
+            padding: 0;
+        }
+
+        .registration-edit-card {
+            width: min(1280px, calc(100vw - 72px));
+            margin: 16px auto 20px;
+            background: #f6f7f9;
+            border: 1px solid #d7dce4;
+            border-radius: 10px;
+            padding: 0 10px 12px;
+        }
+
+        .registration-card-header {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #dfe3ea;
+            padding: 12px 6px;
+            margin-bottom: 8px;
+        }
+
+        .registration-back-link {
+            justify-self: start;
+            border: 1px solid #ced6e0;
+            background: #f4f7fa;
+            color: #355a7a;
+            text-decoration: none;
+            border-radius: 6px;
+            padding: 6px 14px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .registration-back-link:hover {
+            background: #eaf0f6;
+            color: #274b69;
+        }
+
+        .registration-card-title {
+            margin: 0;
+            text-align: center;
+            color: #184a78;
+            font-size: 36px;
+            line-height: 1.15;
+            font-weight: 700;
+        }
+
+        .registration-top-info {
+            border: 1px solid #d4d8de;
+            background: linear-gradient(180deg, #f9fbfe 0%, #f3f6fa 100%);
+            border-radius: 2px;
+            padding: 8px 12px 6px;
+            margin-bottom: 12px;
+        }
+
+        .registration-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            color: #222;
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+
+        .registration-top-row .label {
+            color: #1f2e43;
+            font-weight: 700;
+        }
+
+        .registration-top-row .value {
+            color: #5f6b7c;
+            font-weight: 600;
+        }
+
+        .registration-top-row .item {
+            white-space: nowrap;
+        }
+
+        .registration-sub-row {
+            margin-top: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            color: #202a38;
+            font-size: 15px;
+            line-height: 1.2;
+            font-weight: 700;
+        }
+
+        .registration-sub-row .sem-value,
+        .registration-sub-row .date-value {
+            color: #596679;
+            font-weight: 600;
+        }
+
+        .registration-sub-row .date-block {
+            white-space: nowrap;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .registration-main-table {
+            margin-bottom: 10px;
+            border-color: var(--reg-gray-300);
+        }
+
+        .registration-main-table thead th {
+            background: var(--reg-blue-100);
+            border-color: #b9cce3;
+        }
+
+        .registration-main-table tbody td {
+            padding-top: 10px;
+            padding-bottom: 10px;
+            border-color: var(--reg-gray-300);
+        }
+
+        .registration-main-table tbody tr:nth-child(odd) {
+            background: #f2f6fb;
+        }
+
+        .registration-main-table tbody tr:nth-child(even) {
+            background: #ffffff;
+        }
+
+        .registration-edit-page .table {
+            border-color: var(--reg-gray-300);
+        }
+
+        .registration-edit-page .table thead th {
+            border-color: var(--reg-gray-300);
+            border-left-color: transparent !important;
+            border-right-color: transparent !important;
+            text-align: center;
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1.25;
+            color: #123f6e;
+            text-transform: none;
+            letter-spacing: 0;
+            font-family: inherit;
+        }
+
+        .registration-edit-page .table thead th:first-child {
+            border-left-color: var(--reg-gray-300) !important;
+        }
+
+        .registration-edit-page .table thead th:last-child {
+            border-right-color: var(--reg-gray-300) !important;
+        }
+
+        .registration-edit-page .table tbody td {
+            border-color: var(--reg-gray-300);
+            text-align: center;
+            font-size: 15px;
+            font-weight: 500;
+            line-height: 1.35;
+            color: #223a54;
+            font-family: inherit;
+        }
+
+        .registration-edit-page .table-warning,
+        .registration-edit-page .table-warning th,
+        .registration-edit-page .table-warning td,
+        .registration-edit-page .table-secondary,
+        .registration-edit-page .table-secondary th,
+        .registration-edit-page .table-secondary td {
+            background: var(--reg-blue-100) !important;
+            color: var(--reg-blue-900) !important;
+            border-color: #b9cce3 !important;
+        }
+
+        .registration-edit-page .form-control,
+        .registration-edit-page .form-select {
+            border-color: #c6d0de;
+            color: var(--reg-gray-700);
+            background-color: #ffffff;
+        }
+
+        .registration-edit-page .form-control:focus,
+        .registration-edit-page .form-select:focus {
+            border-color: var(--reg-blue-700);
+            box-shadow: 0 0 0 0.18rem rgba(47, 103, 157, 0.16);
+        }
+
+        .registration-edit-page .btn {
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .registration-edit-page .form-check-input {
+            border-color: #a9bfd9;
+        }
+
+        .registration-edit-page .form-check-input:checked {
+            background-color: var(--reg-blue-800);
+            border-color: var(--reg-blue-800);
+        }
+
+        .registration-section-title {
+            color: #22384f;
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 8px !important;
+            margin-top: 2px;
+        }
+
+        .registration-actions {
+            border-top: 1px solid var(--reg-gray-200);
+            padding-top: 14px;
+        }
+
+        .registration-edit-page .action-link-outline {
+            color: var(--reg-blue-800);
+            border: 1px solid #b7cbe3;
+            background: #f5f9fe;
+        }
+
+        .registration-edit-page .action-link-outline:hover {
+            color: #ffffff;
+            border-color: var(--reg-blue-700);
+            background: var(--reg-blue-700);
+        }
+
+        .registration-edit-page .action-danger-outline {
+            color: #d16c78;
+            border: 1px solid #efc2c8;
+            background: #fff7f8;
+        }
+
+        .registration-edit-page .action-danger-outline:hover {
+            color: #ffffff;
+            border-color: #c25564;
+            background: #c25564;
+        }
+
+        .registration-edit-page .action-neutral-outline {
+            color: #3a5f83;
+            border: 1px solid #bfd0e4;
+            background: #f7fbff;
+        }
+
+        .registration-edit-page .action-neutral-outline:hover {
+            color: #ffffff;
+            border-color: #3a5f83;
+            background: #3a5f83;
+        }
+
+        .registration-edit-page .action-solid-primary {
+            color: #ffffff;
+            border: 1px solid #083b72;
+            background: #0b4c8e;
+        }
+
+        .registration-edit-page .action-solid-primary:hover {
+            color: #ffffff;
+            border-color: #072f5a;
+            background: #083b72;
+        }
+
+        .registration-edit-page .btn-outline-dark,
+        .registration-edit-page .btn-secondary {
+            color: var(--reg-blue-900);
+            border-color: #b9cce3;
+            background: #f6f9fd;
+        }
+
+        .registration-edit-page .btn-outline-dark:hover,
+        .registration-edit-page .btn-secondary:hover {
+            color: #ffffff;
+            background: var(--reg-blue-700);
+            border-color: var(--reg-blue-700);
+        }
+
+        .registration-edit-page .btn-success,
+        .registration-edit-page .btn-warning {
+            color: #ffffff;
+            background: var(--reg-blue-800);
+            border-color: var(--reg-blue-800);
+        }
+
+        .registration-edit-page .btn-success:hover,
+        .registration-edit-page .btn-warning:hover {
+            color: #ffffff;
+            background: var(--reg-blue-900);
+            border-color: var(--reg-blue-900);
+        }
+
+        .registration-edit-page .alert-info {
+            border-color: #bdd3ea;
+            background: #edf4fc;
+            color: #214c78;
+        }
+
+        @media (max-width: 1200px) {
+            .registration-card-title {
+                font-size: 28px;
+            }
+
+            .registration-top-row {
+                font-size: 15px;
+            }
+
+            .registration-sub-row {
+                font-size: 14px;
+            }
+
+            .registration-sub-row .date-block {
+                font-size: 14px;
+            }
+
+            .registration-section-title {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .registration-edit-card {
+                width: calc(100vw - 24px);
+                margin: 10px auto 14px;
+                padding: 0 6px 8px;
+            }
+
+            .registration-card-header {
+                grid-template-columns: 1fr;
+                justify-items: center;
+                text-align: center;
+                padding: 10px 4px;
+            }
+
+            .registration-back-link {
+                justify-self: center;
+                font-size: 13px;
+                padding: 5px 12px;
+            }
+
+            .registration-card-title {
+                font-size: 22px;
+            }
+
+            .registration-top-info {
+                padding: 8px 10px 6px;
+            }
+
+            .registration-top-row {
+                font-size: 14px;
+                gap: 8px;
+            }
+
+            .registration-sub-row {
+                font-size: 13px;
+                margin-top: 4px;
+            }
+
+            .registration-sub-row .date-block {
+                font-size: 13px;
+            }
+
+            .registration-section-title {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body class="registration-edit-page">
+<div th:replace="fragments/header :: header"></div>
+<div th:replace="fragments/navbar :: navbar"></div>
+
+<table style="width:100%;">
+    <tr>
+        <td class="sidemenu"></td>
+        <td class="content">
+            <div class="container-fluid">
+                <div class="registration-edit-card">
+                    <div class="registration-card-header">
+                        <a class="registration-back-link" th:href="@{/student/registration}">Back to Registrations</a>
+                        <h1 class="registration-card-title">Main Registration Form</h1>
+                        <div></div>
+                    </div>
+
+                    <div class="registration-top-info">
+                    <div class="registration-top-row">
+                        <div class="item">
+                            <span class="label">Name:</span>
+                            <span class="value" th:text="${studentbean.stdinstid}">202001412</span>
+                        </div>
+                        <div class="item">
+                            <span class="label">Program:</span>
+                            <span class="value" th:text="${studentbean.batch != null and studentbean.batch.programs != null ? studentbean.batch.programs.prgname : 'N/A'}">B Tech (ICT)</span>
+                        </div>
+                        <div class="item">
+                            <span class="label">Batch:</span>
+                            <span class="value" th:text="${studentbean.batch != null ? studentbean.batch.bchname : 'N/A'}">2020</span>
+                        </div>
+                    </div>
+
+                    <div class="registration-sub-row">
+                        <div>
+                            <span>Semester Registration:</span>
+                            <span class="sem-value" th:text="${semesterbean != null ? semesterbean.strname : 'N/A'}">Semester II - 2020-21</span>
+                        </div>
+                        <div class="date-block">
+                            <span>Date:</span>
+                            <span class="date-value"
+                                  th:text="${#temporals.format((registrationHeader != null && registrationHeader.srgregdate != null ? registrationHeader.srgregdate : currentDate), 'dd MMM yyyy')}">09 Apr 2026</span>
+                        </div>
+                    </div>
+                </div>
+
+                <form th:action="@{/student/registration/save}" method="post">
+                    <input type="hidden" name="stdid" th:value="${studentbean.stdid}">
+                    <input type="hidden" name="strid" th:value="${selectedStrid}">
+
+                    <table class="table table-bordered align-middle registration-main-table">
+                        <thead class="table-primary">
+                        <tr>
+                            <th>CCODE</th>
+                            <th>Title</th>
+                            <th>Credits</th>
+                            <th>C-Type*</th>
+                            <th>Reg-Type*</th>
+                            <th>Remarks</th>
+                            <th>DROP*</th>
+                        </tr>
+                        </thead>
+                        <tbody id="core-courses-body">
+                        <tr th:if="${coreCourses.empty}">
+                            <td colspan="7" class="text-center text-muted">No CORE courses found for this semester.</td>
+                        </tr>
+                        <tr th:each="course, idx : ${coreCourses}" class="core-course-row">
+                            <td>
+                                <input type="hidden" th:name="${'rows[' + idx.index + '].srcid'}" th:value="${course.srcid}">
+                                <input type="hidden" th:name="${'rows[' + idx.index + '].scrid'}" th:value="${course.scrid}">
+                                <input type="hidden" th:name="${'rows[' + idx.index + '].tcrid'}" th:value="${course.scrtcrid}">
+                                <span th:text="${course.courseCode}">CCODE</span>
+                            </td>
+                            <td th:text="${course.courseTitle}">Title</td>
+                            <td th:text="${course.credits}">0</td>
+                            <td th:text="${course.courseTypeCode}">CORE</td>
+                            <td>
+                                <select class="form-select form-select-sm"
+                                        th:name="${'rows[' + idx.index + '].regType'}"
+                                        th:disabled="${!editable}">
+                                    <option value="REGULAR" th:selected="${course.regType == 'REGULAR'}">Regular</option>
+                                    <option value="BACKLOG" th:selected="${course.regType == 'BACKLOG'}">Backlog</option>
+                                    <option value="GRADE-IMPROVEMENT" th:selected="${course.regType == 'GRADE-IMPROVEMENT'}">Grade-Improvement</option>
+                                    <option value="AUDIT" th:selected="${course.regType == 'AUDIT'}">Audit</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input class="form-control form-control-sm"
+                                       type="text"
+                                       th:name="${'rows[' + idx.index + '].remarks'}"
+                                       th:value="${course.remarks}"
+                                       th:readonly="${!editable}"
+                                       placeholder="Optional">
+                            </td>
+                            <td class="text-center">
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       onchange="toggleCoreDropRow(this)"
+                                       th:name="${'rows[' + idx.index + '].drop'}"
+                                       th:checked="${course.isDrop}"
+                                       th:disabled="${!editable}">
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="mt-4">
+                        <h5 class="registration-section-title">Dropped Core Courses</h5>
+                        <table class="table table-bordered align-middle">
+                            <thead class="table-warning">
+                            <tr>
+                                <th>CCODE</th>
+                                <th>Title</th>
+                                <th>Credits</th>
+                                <th>C-Type*</th>
+                                <th>Reg-Type*</th>
+                                <th>Remarks</th>
+                                <th>DROP*</th>
+                            </tr>
+                            </thead>
+                            <tbody id="dropped-core-body">
+                            <tr id="dropped-core-empty-row">
+                                <td colspan="7" class="text-center text-muted">No dropped CORE courses.</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div th:if="${not #lists.isEmpty(additionalCourses)}" class="mt-4">
+                        <h5 class="registration-section-title">Additional Courses (Submitted)</h5>
+                        <table class="table table-bordered align-middle">
+                            <thead class="table-secondary">
+                            <tr>
+                                <th>CCODE</th>
+                                <th>Title</th>
+                                <th>Credits</th>
+                                <th>C-Type*</th>
+                                <th>Reg-Type*</th>
+                                <th>Remarks</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="course, idx : ${additionalCourses}">
+                                <td>
+                                    <input type="hidden" th:name="${'rows[' + (idx.index + #lists.size(coreCourses)) + '].srcid'}" th:value="${course.srcid}">
+                                    <input type="hidden" th:name="${'rows[' + (idx.index + #lists.size(coreCourses)) + '].scrid'}" th:value="${course.scrid}">
+                                    <input type="hidden" th:name="${'rows[' + (idx.index + #lists.size(coreCourses)) + '].tcrid'}" th:value="${course.scrtcrid}">
+                                    <span th:text="${course.courseCode}">CCODE</span>
+                                </td>
+                                <td th:text="${course.courseTitle}">Title</td>
+                                <td th:text="${course.credits}">0</td>
+                                <td th:text="${course.courseTypeCode}">TYPE</td>
+                                <td>
+                                    <input class="form-control form-control-sm" th:name="${'rows[' + (idx.index + #lists.size(coreCourses)) + '].regType'}" th:value="${course.regType}" th:readonly="${!editable}">
+                                </td>
+                                <td>
+                                    <input class="form-control form-control-sm"
+                                           type="text"
+                                           th:name="${'rows[' + (idx.index + #lists.size(coreCourses)) + '].remarks'}"
+                                           th:value="${#strings.isEmpty(course.remarks) or !#strings.equalsIgnoreCase(course.remarks, course.regType) ? course.regType : course.remarks}"
+                                           th:readonly="${!editable}"
+                                           placeholder="Optional">
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <div class="text-muted small">Use Add/Remove Additional courses page to drop additional courses.</div>
+                    </div>
+
+                    <div class="registration-actions d-flex flex-wrap gap-3 justify-content-center align-items-center mb-4">
+                        <a class="btn action-link-outline fw-bold" th:href="@{'/student/registration/additional?strid=' + ${selectedStrid}}" th:classappend="${!editable} ? ' disabled' : ''">Add/Remove Additional courses</a>
+                        <a class="btn action-link-outline fw-bold" th:href="@{/student/electiveRegistration}">Elective Registrations</a>
+                        <button type="reset" class="btn action-danger-outline fw-bold" th:disabled="${!editable}">Reset</button>
+                        <a class="btn action-neutral-outline fw-bold" th:href="@{/student/registration}">Back</a>
+                        <button type="submit" class="btn action-solid-primary fw-bold" th:disabled="${!editable}">SUBMIT</button>
+                    </div>
+
+                    <div class="alert alert-info text-center" th:if="${!editable}">
+                        Edit is enabled only for the latest semester during the registration deadline window.
+                    </div>
+                </form>
+                </div>
+            </div>
+        </td>
+        <td class="sidemenu"></td>
+    </tr>
+</table>
+
+<div th:replace="fragments/footer :: footer"></div>
+<script>
+    function updateDroppedCoreEmptyState() {
+        const droppedBody = document.getElementById('dropped-core-body');
+        const droppedEmpty = document.getElementById('dropped-core-empty-row');
+        if (!droppedBody || !droppedEmpty) {
+            return;
+        }
+        const hasDroppedRows = droppedBody.querySelectorAll('tr.core-course-row').length > 0;
+        droppedEmpty.style.display = hasDroppedRows ? 'none' : '';
+    }
+
+    function syncCoreDropTables() {
+        const coreBody = document.getElementById('core-courses-body');
+        const droppedBody = document.getElementById('dropped-core-body');
+        if (!coreBody || !droppedBody) {
+            return;
+        }
+
+        const allRows = Array.from(document.querySelectorAll('tr.core-course-row'));
+
+        const sortedRows = allRows.sort(function (a, b) {
+            const aOrder = Number(a.dataset.rowOrder || '0');
+            const bOrder = Number(b.dataset.rowOrder || '0');
+            return aOrder - bOrder;
+        });
+
+        sortedRows.forEach(function (row) {
+            const checkbox = row.querySelector('input[type="checkbox"]');
+            if (checkbox && checkbox.checked) {
+                droppedBody.appendChild(row);
+            } else {
+                coreBody.appendChild(row);
+            }
+        });
+
+        updateDroppedCoreEmptyState();
+    }
+
+    function toggleCoreDropRow(checkbox) {
+        const row = checkbox.closest('tr');
+        if (!row || !row.classList.contains('core-course-row')) {
+            return;
+        }
+        syncCoreDropTables();
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const coreRows = document.querySelectorAll('tr.core-course-row');
+        coreRows.forEach(function (row, index) {
+            row.dataset.rowOrder = String(index);
+        });
+
+        syncCoreDropTables();
+
+        const form = document.querySelector('form[action*="/student/registration/save"]');
+        if (form) {
+            form.addEventListener('reset', function () {
+                // Let browser reset checkbox state first, then reflow rows.
+                setTimeout(syncCoreDropTables, 0);
+            });
+        }
+    });
+</script>
+</body>
+</html>
