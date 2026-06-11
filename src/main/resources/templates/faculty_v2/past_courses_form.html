@@ -1,0 +1,109 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>Past Courses</title>
+
+    <link rel="stylesheet" th:href="@{/css/base.css}" />
+    <link rel="stylesheet" th:href="@{/css/faculty.css}" />
+  </head>
+
+  <body>
+    <div th:replace="~{fragments/header :: header}"></div>
+    <div th:replace="~{fragments/navbar :: faculty-navbar}"></div>
+
+    <div class="container">
+      <!-- err msg -->
+      <div
+        th:if="${success}"
+        class="message message-success"
+        onclick="this.style.display = 'none'"
+        th:text="${success}"
+      ></div>
+      <div
+        th:if="${error}"
+        class="message message-error"
+        onclick="this.style.display = 'none'"
+        th:text="${error}"
+      ></div>
+      <div
+        th:if="${warning}"
+        class="message message-warning"
+        onclick="this.style.display = 'none'"
+        th:text="${warning}"
+      ></div>
+      <!-- Messages -->
+      <div
+        th:if="${error}"
+        class="message message-error"
+        th:text="${error}"
+      ></div>
+
+      <div class="card stats-card">
+        <h2 style="color: #1f2fb7">Past Courses</h2>
+
+        <form th:action="@{/faculty/past-courses}" method="post">
+          <!-- Academic Yr -->
+          <label>Academic Year</label>
+          <select name="year" id="year" required>
+            <option value="">Select Year</option>
+
+            <option
+              th:each="y : ${academicYears}"
+              th:value="${y}"
+              th:text="${y}"
+            ></option>
+          </select>
+
+          <!-- Semester -->
+          <label>Semester</label>
+          <select name="termName" id="termName" required>
+            <option value="">Select</option>
+            <option>Winter</option>
+            <option>Summer</option>
+            <option>Autumn</option>
+          </select>
+
+          <!-- Course -->
+          <label>Course</label>
+          <select name="tcrid" id="course" required>
+            <option value="">Select Course</option>
+          </select>
+
+          <br /><br />
+          <button class="btn">Search</button>
+        </form>
+      </div>
+    </div>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script>
+      document.getElementById("year").addEventListener("change", loadCourses);
+      document
+        .getElementById("termName")
+        .addEventListener("change", loadCourses);
+
+      function loadCourses() {
+        let year = document.getElementById("year").value;
+        let term = document.getElementById("termName").value;
+
+        if (!year || !term) return;
+
+        fetch(`/faculty/get-courses?year=${year}&termName=${term}`)
+          .then((res) => res.json())
+          .then((data) => {
+            let courseDropdown = document.getElementById("course");
+
+            courseDropdown.innerHTML =
+              '<option value="">Select Course</option>';
+
+            data.forEach((c) => {
+              let option = document.createElement("option");
+              option.value = c.id;
+              option.text = c.name;
+              courseDropdown.appendChild(option);
+            });
+          });
+      }
+    </script>
+  </body>
+</html>

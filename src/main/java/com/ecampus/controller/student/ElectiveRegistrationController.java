@@ -22,6 +22,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.ecampus.model.*;
 import com.ecampus.repository.*;
+import com.ecampus.session.SessionVars;
 import com.ecampus.service.*;
 
 @Controller
@@ -29,6 +30,9 @@ public class ElectiveRegistrationController {
 
     @Autowired
     private UserRepository userRepo;
+
+    @Autowired
+    private SessionVars sessionVars;
 
     @Autowired
     private StudentRegistrationService registrationService;
@@ -57,8 +61,12 @@ public class ElectiveRegistrationController {
         String username = authentication.getName();
         System.out.println("[ELECTIVE DEBUG] Username: " + username);
 
-        Long studentId = userRepo.findIdByUname(username);
+        Long studentId = resolveStudentId(authentication);
         System.out.println("[ELECTIVE DEBUG] Student ID: " + studentId);
+        if (studentId == null) {
+            redirectAttributes.addFlashAttribute("error", "Unable to resolve student account.");
+            return "redirect:/student/dashboard";
+        }
 
         Students st = registrationService.getStudentById(studentId);
         System.out.println("[ELECTIVE DEBUG] Student Batch ID: " + st.getStdbchid());
@@ -161,8 +169,10 @@ public class ElectiveRegistrationController {
         System.out.println("2. Slot Priorities: " + slotPriorities);
         System.out.println("3. Elective Requirements: " + electiveRequirements);
 
-        String username = authentication.getName();
-        Long studentId = userRepo.findIdByUname(username);
+        Long studentId = resolveStudentId(authentication);
+        if (studentId == null) {
+            return "redirect:/student/dashboard";
+        }
 
         List<StudentCourseRequirements> stdCrsReq = studCourseReqRepo.findBySid(studentId);
 
@@ -223,9 +233,11 @@ public class ElectiveRegistrationController {
     @GetMapping("/student/electiveRegistration/view")
     public String viewRegistration(Authentication authentication, Model model, RedirectAttributes redirectAttributes){
 
-        String username = authentication.getName();
-
-        Long studentId = userRepo.findIdByUname(username);
+        Long studentId = resolveStudentId(authentication);
+        if (studentId == null) {
+            redirectAttributes.addFlashAttribute("error", "Unable to resolve student account.");
+            return "redirect:/student/dashboard";
+        }
 
         List<Object[]> requirements = studCourseReqRepo.getBySid(studentId);
         List<Object[]> slotPref = slotPrefRepo.getBySid(studentId);
@@ -256,6 +268,19 @@ public class ElectiveRegistrationController {
         model.addAttribute("requirements", requirements);
 
         return "student/viewElectiveRegistration";
+    }
+
+    private Long resolveStudentId(Authentication authentication) {
+        Users user = sessionVars == null ? null : sessionVars.getLoggedInUser();
+        if (user != null) {
+            return user.getStdid();
+        }
+
+        if (authentication == null || authentication.getName() == null) {
+            return null;
+        }
+
+        return userRepo.findIdByUname(authentication.getName());
     }
 
 }

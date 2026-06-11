@@ -1,0 +1,574 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>Grade Upload - Manual & CSV</title>
+    <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}" />
+    <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : ''}" />
+
+    <link rel="stylesheet" th:href="@{/css/base.css}" />
+    <link rel="stylesheet" th:href="@{/css/faculty.css}" />
+    <style>
+      .nav-tabs {
+        display: flex;
+        border-bottom: 2px solid #1f2fb7;
+        margin-bottom: 20px;
+        gap: 10px;
+      }
+      .nav-tabs button {
+        padding: 10px 20px;
+        border: none;
+        background: #f0f0f0;
+        cursor: pointer;
+        font-weight: 500;
+        border-radius: 5px 5px 0 0;
+      }
+      .nav-tabs button.active {
+        background: #1f2fb7;
+        color: white;
+      }
+      .tab-content {
+        display: none;
+      }
+      .tab-content.active {
+        display: block;
+      }
+      .csv-preview {
+        max-height: 300px;
+        overflow-y: auto;
+        margin: 20px 0;
+        border: 1px solid #ddd;
+        padding: 10px;
+        border-radius: 5px;
+      }
+      .csv-preview table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .csv-preview th, .csv-preview td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+      .csv-preview th {
+        background-color: #1f2fb7;
+        color: white;
+      }
+      .alert {
+        padding: 12px;
+        margin: 15px 0;
+        border-radius: 4px;
+      }
+      .alert.success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .alert.danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      .alert.info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+      }
+      .alert.warning {
+        background-color: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeeba;
+      }
+      .alert.d-none {
+        display: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div th:replace="~{fragments/header :: header}"></div>
+    <div th:replace="~{fragments/navbar :: faculty-navbar}"></div>
+
+    <div class="container">
+      <!-- err msg -->
+      <div
+        th:if="${success}"
+        class="message message-success"
+        onclick="this.style.display = 'none'"
+        th:text="${success}"
+      ></div>
+      <div
+        th:if="${error}"
+        class="message message-error"
+        onclick="this.style.display = 'none'"
+        th:text="${error}"
+      ></div>
+      <div
+        th:if="${warning}"
+        class="message message-warning"
+        onclick="this.style.display = 'none'"
+        th:text="${warning}"
+      ></div>
+      
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin: 5px;
+        "
+      >
+        <h2 style="color: #1f2fb7">Grade Entry & Upload</h2>
+
+        <a
+          th:href="@{/faculty/dashboard}"
+          class="btn btn-primary"
+          style="background: #1f3fb7; border: none"
+        >
+          Home
+        </a>
+      </div>
+
+      <div class="card stats-card">
+        <div class="report-header">
+          <h3>
+            <span th:text="${CourseName}"></span>
+          </h3>
+
+          <p>
+            <span th:text="${TermName}"></span>
+          </p>
+        </div>
+
+        <!-- Alert Box for CSV Upload -->
+        <div id="upload-alert" class="alert d-none"></div>
+
+        <!-- Tab Navigation -->
+        <div class="nav-tabs">
+          <button class="tab-btn active" onclick="switchTab('manual', this)">
+            Manual Entry
+          </button>
+          <button class="tab-btn" onclick="switchTab('csv', this)">
+            Upload CSV
+          </button>
+        </div>
+
+        <!-- TAB 1: Manual Entry -->
+        <div id="manual" class="tab-content active">
+          <form
+            th:action="@{/grades/upload}"
+            method="post"
+            th:object="${gradeForm}"
+          >
+            <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <table class="grade-table">
+              <thead>
+                <tr>
+                  <th>Student ID</th>
+                  <th>Student Name</th>
+                  <th>Grade</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr th:each="g, stat : ${gradeForm.gradesList}">
+                  <td th:text="${g.studentId}"></td>
+
+                  <td th:text="${g.studentName}"></td>
+
+                  <td>
+                    <select
+                      th:field="*{gradesList[__${stat.index}__].modifiedGrade}"
+                    >
+                      <option value="">Select Grade</option>
+
+                      <option
+                        th:each="gr : ${grades}"
+                        th:value="${gr.gradeValue}"
+                        th:text="${gr.gradeValue}"
+                      ></option>
+                    </select>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <br />
+
+            <button class="btn btn-primary" type="submit">Save Grades</button>
+          </form>
+        </div>
+
+        <!-- TAB 2: CSV Upload -->
+        <div id="csv" class="tab-content">
+          <form id="csvUploadForm" method="post" enctype="multipart/form-data">
+            <div style="margin: 20px 0;">
+              <label for="csvFile" style="display: block; margin-bottom: 10px; font-weight: bold;">
+                Select CSV File
+              </label>
+              <input
+                type="file"
+                id="csvFile"
+                name="file"
+                class="form-control"
+                accept=".csv"
+                required
+                style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 100%;"
+              />
+              <small style="color: #666; display: block; margin-top: 5px;">
+                Expected columns: <strong>studentid</strong>, <strong>grade</strong>
+                <br/>
+                <span style="color: #d9534f; font-weight: bold;">
+                </span>
+              </small>
+            </div>
+
+            <div style="text-align: center; margin-top: 20px;">
+              <button type="submit" class="btn btn-primary" id="uploadSubmitBtn">
+                Upload CSV
+              </button>
+            </div>
+          </form>
+
+          <!-- Preview Table after upload -->
+          <div id="csvPreviewContainer" style="display: none; margin-top: 30px;">
+            <h4 style="color: #1f2fb7; margin-bottom: 8px;">Preview - Data Extracted from CSV</h4>
+            <div id="csvPreviewInfo" style="display: none; color: #333; font-size: 0.95rem; margin-bottom: 12px;">
+              Showing <span id="csvPreviewCount">0</span> row(s).
+            </div>
+            <div style="max-height: 550px; overflow-y: auto; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 20px; background: #fff;">
+              <table id="csvPreviewTable" class="grade-table table table-bordered" style="width: 100%; margin: 0; border-collapse: collapse;">
+                <thead>
+                  <tr></tr>
+                </thead>
+                <tbody id="csvPreviewTableBody"></tbody>
+              </table>
+            </div>
+
+            <div class="sticky-submit" style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+              <button type="button" id="confirmSaveBtn" class="btn btn-primary" style="background: #28a745; border: none;">
+                ✓ Confirm & Save Grades
+              </button>
+              <button type="button" id="cancelPreviewBtn" class="btn btn-primary" style="background: #6c757d; border: none;">
+                ✕ Cancel & Upload New File
+              </button>
+            </div>
+          </div>
+        </div>
+    </div>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script>
+      function switchTab(tabName, buttonElement) {
+        document.querySelectorAll('.tab-content').forEach(tab => {
+          tab.classList.remove('active');
+        });
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+          btn.classList.remove('active');
+        });
+
+        const tabElement = document.getElementById(tabName);
+        if (tabElement) {
+          tabElement.classList.add('active');
+        }
+        if (buttonElement) {
+          buttonElement.classList.add('active');
+        }
+
+        console.log('Switched to tab:', tabName);
+      }
+
+      function initializeTab() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const tabParam = urlParams.get('tab');
+        
+        if (tabParam === 'csv') {
+          const csvBtn = document.querySelectorAll('.tab-btn')[1];
+          if (csvBtn) {
+            setTimeout(() => switchTab('csv', csvBtn), 100);
+          }
+        }
+      }
+
+      // CSV Upload Functionality 
+      document.addEventListener('DOMContentLoaded', function () {
+        initializeTab();
+
+        const form = document.getElementById('csvUploadForm');
+        const alertBox = document.getElementById('upload-alert');
+        const fileInput = document.getElementById('csvFile');
+        const previewDiv = document.getElementById('csvPreviewContainer');
+        const previewTable = document.getElementById('csvPreviewTable');
+        const previewTableBody = document.getElementById('csvPreviewTableBody');
+        const submitBtn = document.querySelector('#csvUploadForm button[type="submit"]');
+        const confirmSaveBtn = document.getElementById('confirmSaveBtn');
+        const cancelPreviewBtn = document.getElementById('cancelPreviewBtn');
+        const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+
+        let parsedGrades = [];
+
+        console.log('DOM Loaded - CSV Upload elements:', {
+          form: !!form,
+          alertBox: !!alertBox,
+          fileInput: !!fileInput,
+          previewDiv: !!previewDiv,
+          submitBtn: !!submitBtn,
+          confirmSaveBtn: !!confirmSaveBtn
+        });
+
+        if (!form || !fileInput || !alertBox) {
+          console.error('Required elements not found!');
+          return;
+        }
+
+        // CSV Preview Handler 
+        fileInput.addEventListener('change', function () {
+          const file = fileInput.files[0];
+          if (!file) return;
+
+          console.log('File selected:', file.name, 'Size:', file.size);
+
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            const text = e.target.result;
+            console.log('Raw CSV content (first 500 chars):', text.substring(0, 500));
+
+            const delimiters = [',', '\t', ';', '|'];
+            let delimiter = ',';
+            let lines = text.trim().split('\n');
+            
+            if (lines.length > 0) {
+              let maxCount = 0;
+              for (let delim of delimiters) {
+                let count = (lines[0].match(new RegExp('\\' + delim, 'g')) || []).length;
+                if (count > maxCount) {
+                  maxCount = count;
+                  delimiter = delim;
+                }
+              }
+            }
+
+            console.log('Detected delimiter:', delimiter === '\t' ? 'TAB' : delimiter, 'Count:', maxCount);
+
+            // Parse CSV with detected delimiter
+            const rows = lines.map(line => line.split(delimiter).map(col => col.trim()));
+            
+            console.log('Parsed rows:', rows.length);
+            console.log('First row (header):', rows[0]);
+            console.log('Second row (data):', rows[1]);
+
+            if (rows.length > 0 && previewTable) {
+              // Clear old preview
+              previewTable.querySelector('thead').innerHTML = '';
+              previewTable.querySelector('tbody').innerHTML = '';
+
+              // Header
+              const headerRow = rows[0]
+                .map(col => `<th style="position: sticky; top: 0; background: #f8f9fa; z-index: 1;">${col.trim()}</th>`)
+                .join('');
+              previewTable.querySelector('thead').innerHTML = `<tr>${headerRow}</tr>`;
+
+              // Show all data rows (skip header)
+              rows.slice(1).forEach((row) => {
+                if (row.some(cell => cell && cell.trim() !== '')) {
+                  const rowHtml = row.map(col => `<td>${col.trim()}</td>`).join('');
+                  previewTable.querySelector('tbody').innerHTML += `<tr>${rowHtml}</tr>`;
+                }
+              });
+
+              const rowCount = Math.max(0, rows.length - 1);
+              const previewCount = document.getElementById('csvPreviewCount');
+              const previewInfo = document.getElementById('csvPreviewInfo');
+              if (previewCount) previewCount.textContent = rowCount;
+              if (previewInfo) previewInfo.style.display = 'block';
+
+              if (previewDiv) previewDiv.classList.remove('d-none');
+              console.log('CSV preview loaded successfully with ' + rowCount + ' rows');
+            }
+          };
+          reader.readAsText(file);
+        });
+
+        //  Form Submission Handler 
+        const handleUpload = function (e) {
+          e.preventDefault();
+          console.log('Upload started...');
+
+          if (!fileInput.files || fileInput.files.length === 0) {
+            showAlert('Please select a CSV file first.', 'warning');
+            return;
+          }
+
+          const file = fileInput.files[0];
+          console.log('Uploading file:', file.name, 'Size:', file.size, 'Type:', file.type);
+
+          const formData = new FormData(form);
+          
+          console.log('FormData entries:');
+          for (let [key, value] of formData.entries()) {
+            if (value instanceof File) {
+              console.log(`  ${key}: File(${value.name}, ${value.size} bytes, ${value.type})`);
+            } else {
+              console.log(`  ${key}: ${value}`);
+            }
+          }
+
+          if (submitBtn) submitBtn.disabled = true;
+          showAlert('Uploading... Please wait', 'info');
+
+          const uploadHeaders = {};
+          if (csrfToken && csrfHeader) uploadHeaders[csrfHeader] = csrfToken;
+
+          fetch('/grades/uploadcsv', {
+            method: 'POST',
+            headers: uploadHeaders,
+            body: formData,
+          })
+            .then((res) => {
+              console.log('Response received:');
+              console.log('  Status:', res.status, res.statusText);
+              console.log('  Content-Type:', res.headers.get('content-type'));
+              
+              return res.text().then((text) => {
+                console.log('  Body:', text.substring(0, 300));
+                try {
+                  return { ok: res.ok, status: res.status, data: JSON.parse(text) };
+                } catch (e) {
+                  console.error('Failed to parse JSON:', e);
+                  return { ok: res.ok, status: res.status, data: { message: text } };
+                }
+              });
+            })
+            .then(({ ok, status, data }) => {
+              console.log('Parsed response:', data);
+              if (ok) {
+                parsedGrades = data.gradesList || [];
+                console.log('Stored ' + parsedGrades.length + ' grades for preview');
+
+                showAlert(data.message || 'CSV preview loaded. Please review below.', 'info');
+                
+                displayPreviewTable(parsedGrades);
+                
+                form.style.display = 'none';
+                if (previewDiv) previewDiv.style.display = 'block';
+              } else {
+                showAlert(data.message || `Error (${status}): Upload failed`, 'danger');
+                console.log('Upload failed with status:', status);
+              }
+            })
+            .catch((error) => {
+              console.error('Fetch error:', error);
+              showAlert('Network error: ' + error.message, 'danger');
+            })
+            .finally(() => {
+              if (submitBtn) submitBtn.disabled = false;
+            });
+        };
+
+        function displayPreviewTable(gradesList) {
+          if (!previewTableBody) return;
+          
+          previewTableBody.innerHTML = '';
+          gradesList.forEach((grade, index) => {
+            const row = `
+              <tr>
+                <td>${grade.studentId || '-'}</td>
+                <td>${grade.modifiedGrade || grade.grade || '-'}</td>
+              </tr>
+            `;
+            previewTableBody.innerHTML += row;
+          });
+          console.log('Preview table populated with ' + gradesList.length + ' entries');
+        }
+
+        if (confirmSaveBtn) {
+          confirmSaveBtn.addEventListener('click', function() {
+            console.log('Confirm save clicked. Saving ' + parsedGrades.length + ' grades...');
+            
+            if (parsedGrades.length === 0) {
+              showAlert('No grades to save.', 'warning');
+              return;
+            }
+
+            confirmSaveBtn.disabled = true;
+            showAlert('Saving grades... Please wait', 'info');
+
+            fetch('/grades/savecsv', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                ...(csrfToken && csrfHeader ? { [csrfHeader]: csrfToken } : {})
+              },
+              body: JSON.stringify(parsedGrades)
+            })
+              .then((res) => {
+                return res.text().then((text) => {
+                  try {
+                    return { ok: res.ok, status: res.status, data: JSON.parse(text) };
+                  } catch (e) {
+                    return { ok: res.ok, status: res.status, data: { message: text } };
+                  }
+                });
+              })
+              .then(({ ok, status, data }) => {
+                if (ok) {
+                  showAlert((data.message || 'Grades saved successfully!'), 'success');
+                  
+                  setTimeout(() => {
+                    form.reset();
+                    form.style.display = 'block';
+                    if (previewDiv) previewDiv.style.display = 'none';
+                    parsedGrades = [];
+                    previewTableBody.innerHTML = '';
+                    alertBox.classList.add('d-none');
+                  }, 2000);
+                } else {
+                  showAlert(data.message || 'Error saving grades', 'danger');
+                }
+              })
+              .catch((error) => {
+                console.error('Fetch error:', error);
+                showAlert('Network error: ' + error.message, 'danger');
+              })
+              .finally(() => {
+                confirmSaveBtn.disabled = false;
+              });
+          });
+        }
+
+        if (cancelPreviewBtn) {
+          cancelPreviewBtn.addEventListener('click', function() {
+            console.log('Cancel preview clicked');
+            form.style.display = 'block';
+            if (previewDiv) previewDiv.style.display = 'none';
+            form.reset();
+            parsedGrades = [];
+            previewTableBody.innerHTML = '';
+            alertBox.classList.add('d-none');
+          });
+        }
+
+        form.addEventListener('submit', handleUpload);
+        if (submitBtn) {
+          submitBtn.addEventListener('click', function(e) {
+            if (form) handleUpload.call(form, e);
+          });
+        }
+
+        function showAlert(message, type) {
+          alertBox.className = `alert ${type} `;
+          alertBox.textContent = message;
+          alertBox.classList.remove('d-none');
+          console.log(`Alert [${type}]: ${message}`);
+
+          if (type !== 'info') {
+            setTimeout(() => {
+              alertBox.classList.add('d-none');
+            }, 8000);
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,7 +1,6 @@
 package com.ecampus.model;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 import com.ecampus.auth.user.AuthUserDetails;
 
@@ -14,8 +13,14 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "users", schema="ec2")
+@Table(name = "users", schema = "ec2")
 public class Users implements AuthUserDetails {
+
+    private static final String ROLE_ADMIN = "901";
+    private static final String ROLE_DEAN = "902";
+    private static final String ROLE_REGISTRAR = "905";
+    private static final String ROLE_FACULTY = "913";
+    private static final String ROLE_STUDENT = "914";
 
     @Id
     @Column(name = "uid")
@@ -33,17 +38,8 @@ public class Users implements AuthUserDetails {
     @Column(name = "ufullname")
     private String ufullname;
 
-    @Column(name = "utype")
-    private String utype;
-
-    @Column(name = "utype_0")
-    private String utype0;
-
     @Column(name = "urole")
     private String urole;
-
-    @Column(name = "urole_0")
-    private String urole0;
 
     @Column(name = "uemail")
     private String uemail;
@@ -77,75 +73,148 @@ public class Users implements AuthUserDetails {
     private Role role;
 
     public Users() {
+    }
+
+    public Long getUid() {
+        return uid;
+    }
+
+    public void setUid(Long uid) {
+        this.uid = uid;
+    }
+
+    public String getUnivId() {
+        return univId;
+    }
+
+    public void setUnivId(String univId) {
+        this.univId = univId;
+    }
+
+    public Long getStdid() {
+        return stdid;
+    }
+
+    public void setStdid(Long stdid) {
+        this.stdid = stdid;
+    }
+
+    public String getUname() {
+        return uname;
+    }
+
+    public void setUname(String uname) {
+        this.uname = uname;
+    }
+
+    public String getUfullname() {
+        return ufullname;
+    }
+
+    public void setUfullname(String ufullname) {
+        this.ufullname = ufullname;
+    }
+
+    public String getUrole() {
+        return urole;
+    }
+
+    public void setUrole(String urole) {
+        this.urole = urole;
+    }
+
+    public String getUemail() {
+        return uemail;
+    }
+
+    public void setUemail(String uemail) {
+        this.uemail = uemail;
+    }
+
+    public Long getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(Long createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public LocalDateTime getCreateTs() {
+        return createTs;
+    }
+
+    public void setCreateTs(LocalDateTime createTs) {
+        this.createTs = createTs;
+    }
+
+    public Long getLastUpdatedBy() {
+        return lastUpdatedBy;
+    }
+
+    public void setLastUpdatedBy(Long lastUpdatedBy) {
+        this.lastUpdatedBy = lastUpdatedBy;
+    }
+
+    public LocalDateTime getLastUpdatedTs() {
+        return lastUpdatedTs;
+    }
+
+    public void setLastUpdatedTs(LocalDateTime lastUpdatedTs) {
+        this.lastUpdatedTs = lastUpdatedTs;
+    }
+
+    @Override
+    public String getpassword() {
+        return this.password;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
+
 
     }
 
-    public Users(String userName, String userMailId, String userCategory, Long userId) {
-        this.uname = userName;
-        this.uemail = userMailId;
-        this.urole0 = userCategory;
-        this.uid = userId;
+    public Short getRowState() {
+        return rowState;
     }
-    // Getters and Setters
-    public Long getUid() { return uid; }
-    public void setUid(Long uid) { this.uid = uid; }
 
-    public String getUnivId() { return univId; }
-    public void setUnivId(String univId) { this.univId = univId; }
+    public void setRowState(Short rowState) {
+        this.rowState = rowState;
+    }
 
-    public Long getStdid() { return stdid; }
-    public void setStdid(Long stdid) { this.stdid = stdid; }
+    public Long getUidOlder() {
+        return uidOlder;
+    }
 
-    public String getUname() { return uname; }
-    public void setUname(String uname) { this.uname = uname; }
-
-    public String getUfullname() { return ufullname; }
-    public void setUfullname(String ufullname) { this.ufullname = ufullname; }
-
-    public String getUtype() { return utype; }
-    public void setUtype(String utype) { this.utype = utype; }
-
-    public String getUtype0() { return utype0; }
-    public void setUtype0(String utype0) { this.utype0 = utype0; }
-
-    public String getUrole() { return urole; }
-    public void setUrole(String urole) { this.urole = urole; }
-
-    public String getUrole0() { return urole0; }
-    public void setUrole0(String urole0) { this.urole0 = urole0; }
-
-    public String getUemail() { return uemail; }
-    public void setUemail(String uemail) { this.uemail = uemail; }
-
-    public Long getCreatedBy() { return createdBy; }
-    public void setCreatedBy(Long createdBy) { this.createdBy = createdBy; }
-
-    public LocalDateTime getCreateTs() { return createTs; }
-    public void setCreateTs(LocalDateTime createTs) { this.createTs = createTs; }
-
-    public Long getLastUpdatedBy() { return lastUpdatedBy; }
-    public void setLastUpdatedBy(Long lastUpdatedBy) { this.lastUpdatedBy = lastUpdatedBy; }
-
-    public LocalDateTime getLastUpdatedTs() { return lastUpdatedTs; }
-    public void setLastUpdatedTs(LocalDateTime lastUpdatedTs) { this.lastUpdatedTs = lastUpdatedTs; }
-
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
-
-    public Boolean getStatus() { return status; }
-    public void setStatus(Boolean status) { this.status = status; }
-
-    public Short getRowState() { return rowState; }
-    public void setRowState(Short rowState) { this.rowState = rowState; }
-
-    public Long getUidOlder() { return uidOlder; }
-    public void setUidOlder(Long uidOlder) { this.uidOlder = uidOlder; }
+    public void setUidOlder(Long uidOlder) {
+        this.uidOlder = uidOlder;
+    }
 
     public Role getRole() {
         return role;
     }
 
+    public Role getRoleEntity() {
+        return role;
+    }
+
     public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public void setRoleEntity(Role role) {
         this.role = role;
     }
 
@@ -155,13 +224,27 @@ public class Users implements AuthUserDetails {
     }
 
     @Override
-    public String getpassword() {
-        return this.password;
-    }
-
-    @Override
     public String getrole() {
-        if(Objects.equals(this.urole0, "EMPLOYEE") || Objects.equals(this.urole0, "DEAN")) return "FACULTY";
-        return this.urole0==null ? "ADMIN" : this.urole0;
+        if (ROLE_STUDENT.equals(this.urole)) {
+            return "STUDENT";
+        }
+
+        if (ROLE_FACULTY.equals(this.urole)) {
+            return "FACULTY";
+        }
+
+        if (ROLE_ADMIN.equals(this.urole)) {
+            return "ADMIN";
+        }
+
+        if (ROLE_REGISTRAR.equals(this.urole)) {
+            return "REGISTRAR";
+        }
+
+        if (ROLE_DEAN.equals(this.urole)) {
+            return "DEAN";
+        }
+
+        return "UNKNOWN";
     }
 }

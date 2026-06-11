@@ -67,4 +67,26 @@ public interface TermsRepository extends JpaRepository<Terms, Long> {
 
     @Query(value = "SELECT t.trmname FROM ec2.terms t WHERE t.trmid = :trmid", nativeQuery = true)
     String getTrmById(@Param("trmid") Long trmid);
+
+    @Query(value = """
+            SELECT DISTINCT a.ayrname
+            FROM ec2.academicyears a
+            JOIN ec2.terms t ON t.trmayrid = a.ayrid
+            WHERE a.ayrrowstate > 0
+              AND t.trmrowstate > 0
+            ORDER BY a.ayrname DESC
+            """, nativeQuery = true)
+    List<String> findAllAcademicYears();
+
+    @Query(value = """
+            SELECT t.*
+            FROM ec2.terms t
+            JOIN ec2.academicyears a ON t.trmayrid = a.ayrid
+            WHERE a.ayrname = :year
+              AND LOWER(t.trmname) = LOWER(:termName)
+              AND t.trmrowstate > 0
+            ORDER BY t.trmid DESC
+            LIMIT 1
+            """, nativeQuery = true)
+    Terms findByYearAndTerm(@Param("year") String year, @Param("termName") String termName);
 }

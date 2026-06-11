@@ -1,0 +1,200 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>Faculty Dashboard</title>
+
+    <link rel="stylesheet" th:href="@{/css/base.css}" />
+    <link rel="stylesheet" th:href="@{/css/faculty.css}" />
+  </head>
+
+  <body>
+    <div th:replace="~{fragments/header :: header}"></div>
+    <div th:replace="~{fragments/navbar :: faculty-navbar}"></div>
+
+    <div class="container">
+      <!-- err msg -->
+      <div
+        th:if="${success}"
+        class="message message-success"
+        onclick="this.style.display = 'none'"
+        th:text="${success}"
+      ></div>
+      <div
+        th:if="${error}"
+        class="message message-error"
+        onclick="this.style.display = 'none'"
+        th:text="${error}"
+      ></div>
+      <div
+        th:if="${warning}"
+        class="message message-warning"
+        onclick="this.style.display = 'none'"
+        th:text="${warning}"
+      ></div>
+      <!--faculty info-->
+      <div class="faculty-info">
+        <div class="card">
+          <div
+            class="faculty-avatar"
+            th:text="${#strings.substring(faculty.uname,0,1)}"
+          ></div>
+
+          <div>
+            <b th:text="${faculty.uname}"></b>
+          </div>
+
+          <div>Faculty</div>
+        </div>
+
+        <div class="card">
+          <p>
+            <b>Employee ID:</b>
+            <span th:text="${faculty.univId}"></span>
+          </p>
+          <p>
+            <b>Email:</b>
+            <span th:text="${faculty.uemail}"></span>
+          </p>
+        </div>
+      </div>
+
+      <!--current sem-->
+      <h3 class="section-title">
+        Current Semester Courses (<span th:text="${latestTerm.trmname}"></span>)
+      </h3>
+      <!-- course loop -->
+      <div class="card subject-card" th:each="course : ${termCourses}">
+        <div class="subject-header">
+          <span th:text="${course.course.crscode}"></span>
+          -
+          <span th:text="${course.course.crsname}"></span>
+          (
+          <span
+            th:text="${studentCounts[course.tcrid] != null
+                            ? studentCounts[course.tcrid]
+                            : 0}"
+          >
+          </span>
+          Students)
+        </div>
+
+        <div class="subject-actions">
+          <a
+            th:href="@{/faculty/registrations(tcrid=${course.tcrid})}"
+            class="btn-outline"
+          >
+            View Registrations
+          </a>
+          <a
+            th:href="@{/grades/upload-options(tcrid=${course.tcrid})} "
+            class="btn"
+          >
+            Upload Grades
+          </a>
+          <a
+            th:href="@{/faculty/uploadCourseFile(tcrid=${course.tcrid})}"
+            class="btn-outline"
+          >
+            Upload Course File
+          </a>
+          <a
+            th:href="@{/grades/view(tcrid=${course.tcrid})}"
+            class="btn-outline"
+          >
+            View Grades
+          </a>
+          <th:block th:if="${gradeStatusMap[course.tcrid]}">
+            <a
+              th:href="@{/grades/update(tcrid=${course.tcrid})}"
+              class="btn-outline"
+              >Modify Grade
+            </a>
+
+            <a
+              th:href="@{/grades/reviseIGrade(tcrid=${course.tcrid})}"
+              class="btn-outline"
+            >
+              Revise I-Grade
+            </a>
+            <a th:href="@{/grades/approval/status(tcrid=${course.tcrid})}" class="btn-outline">
+              View Approval Status
+            </a>
+          </th:block>
+
+          <button class="btn-outline">View Feedback</button>
+        </div>
+      </div>
+
+      <!--Previous Sem-->
+
+      <div
+        th:if="${previousCoursesByTerm != null and !previousCoursesByTerm.isEmpty()}"
+      >
+        <div th:each="entry : ${previousCoursesByTerm.entrySet()}">
+          <h3 class="section-title">
+            <span th:text="${entry.key}"></span> Semester
+          </h3>
+
+          <div class="card subject-card" th:each="course : ${entry.value}">
+            <div class="subject-header">
+              <span th:text="${course.course.crscode}"></span>
+              -
+              <span th:text="${course.course.crsname}"></span>
+              (
+              <span
+                th:text="${previousStudentCounts[course.tcrid] != null 
+                         ? previousStudentCounts[course.tcrid] 
+                         : 0}"
+              >
+              </span>
+              Students)
+            </div>
+
+            <div class="subject-actions">
+              <a
+                th:href="@{/faculty/registrations(tcrid=${course.tcrid})}"
+                class="btn-outline"
+              >
+                View Registrations
+              </a>
+              <a
+                th:href="@{/grades/upload-options(tcrid=${course.tcrid})}"
+                class="btn"
+              >
+                Upload Grades
+              </a>
+              <a
+                th:href="@{/grades/view(tcrid=${course.tcrid})}"
+                class="btn-outline"
+              >
+                View Grades
+              </a>
+
+              <th:block th:if="${prevGradeStatusMap[course.tcrid]}">
+                <a
+                  th:href="@{/grades/update(tcrid=${course.tcrid})}"
+                  class="btn-outline"
+                >
+                  Modify Grade
+                </a>
+
+                <a
+                  th:href="@{/grades/reviseIGrade(tcrid=${course.tcrid})}"
+                  class="btn-outline"
+                >
+                  Revise I-Grade
+                </a>
+              </th:block>
+              <a th:href="@{/grades/approval/status(tcrid=${course.tcrid})}" class="btn-outline">
+                View Approval Status
+              </a>
+
+              <button class="btn-outline">View Feedback</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+  </body>
+</html>

@@ -1,0 +1,156 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>View Grades</title>
+
+    <link rel="stylesheet" th:href="@{/css/base.css}" />
+    <link rel="stylesheet" th:href="@{/css/faculty.css}" />
+    <style>
+      .grade-AA,
+      .grade-AB {
+        color: #1e7e34;
+        font-weight: 600;
+      }
+
+      .grade-BB,
+      .grade-BC {
+        color: #0d6efd;
+        font-weight: 600;
+      }
+
+      .grade-CC,
+      .grade-CD {
+        color: #ff9800;
+        font-weight: 600;
+      }
+
+      .grade-DD {
+        color: #e65100;
+        font-weight: 600;
+      }
+
+      .grade-F {
+        color: #d32f2f;
+        font-weight: 700;
+      }
+
+      .grade-I {
+        color: #6c757d;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div th:replace="~{fragments/header :: header}"></div>
+    <div th:replace="~{fragments/navbar :: faculty-navbar}"></div>
+
+    <div class="container">
+      <!-- err msg -->
+      <div
+        th:if="${success}"
+        class="message message-success"
+        onclick="this.style.display = 'none'"
+        th:text="${success}"
+      ></div>
+      <div
+        th:if="${error}"
+        class="message message-error"
+        onclick="this.style.display = 'none'"
+        th:text="${error}"
+      ></div>
+      <div
+        th:if="${warning}"
+        class="message message-warning"
+        onclick="this.style.display = 'none'"
+        th:text="${warning}"
+      ></div>
+      
+      <!-- Page Header -->
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin: 5px;
+        "
+      >
+        <h2 style="color: #1f2fb7">Course Grades</h2>
+
+        <a
+          th:href="@{/faculty/dashboard}"
+          class="btn btn-primary"
+          style="background: #1f3fb7; border: none"
+        >
+          Home
+        </a>
+      </div>
+
+      <!-- Card -->
+      <div class="card stats-card">
+        <div class="report-header">
+          <h3 style="color: #1f2fb7">
+            <span th:text="${CourseCode}"></span>
+            -
+            <span th:text="${CourseName}"></span>
+          </h3>
+        </div>
+
+        <div style="margin-bottom: 15px">
+          <input
+            type="text"
+            id="studentSearch"
+            placeholder="Search Student ID or Name..."
+            style="
+              padding: 8px;
+              width: 250px;
+              border: 1px solid #ccc;
+              border-radius: 4px;
+            "
+            onkeyup="filterStudents()"
+          />
+        </div>
+        <!-- Grades Table -->
+        <table class="grade-table">
+          <thead>
+            <tr>
+              <th>Student ID</th>
+              <th>Student Name</th>
+              <th>Grade</th>
+            </tr>
+          </thead>
+
+          <tbody id="gradesTable">
+            <tr th:each="g : ${studentGrades}">
+              <td th:text="${g.studentId}"></td>
+              <td th:text="${g.studentName}"></td>
+              <td th:text="${g.grade}" th:class="'grade-' + ${g.grade}"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script>
+      function filterStudents() {
+        let input = document.getElementById("studentSearch");
+        let filter = input.value.toLowerCase();
+
+        let table = document.getElementById("gradesTable");
+        let rows = table.getElementsByTagName("tr");
+
+        for (let i = 0; i < rows.length; i++) {
+          let studentId = rows[i].cells[0].textContent.toLowerCase();
+          let studentName = rows[i].cells[1].textContent.toLowerCase();
+
+          if (studentId.includes(filter) || studentName.includes(filter)) {
+            rows[i].style.display = "";
+          } else {
+            rows[i].style.display = "none";
+          }
+        }
+      }
+    </script>
+  </body>
+</html>

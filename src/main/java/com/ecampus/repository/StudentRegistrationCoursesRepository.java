@@ -39,6 +39,32 @@ public interface StudentRegistrationCoursesRepository extends JpaRepository<Stud
     @Query(value = "select * from ec2.studentregistrationcourses src where src.srcsrgid=:srgid and src.srctcrid=:tcrid", nativeQuery = true)
     StudentRegistrationCourses findBySrgidTcrid(@Param("srgid") Long srgid, @Param("tcrid") Long tcrid);
 
+    @Query(value = """
+        SELECT DISTINCT
+            s.stdid,
+            s.stdinstid,
+            TRIM(CONCAT(
+                COALESCE(s.stdfirstname, ''), ' ',
+                COALESCE(s.stdmiddlename, ''), ' ',
+                COALESCE(s.stdlastname, '')
+            )) AS studentName,
+            src.srctype,
+            src.srcstatus,
+            srg.srgregdate
+        FROM ec2.studentregistrationcourses src
+        JOIN ec2.studentregistrations srg
+          ON srg.srgid = src.srcsrgid
+        JOIN ec2.students s
+          ON s.stdid = srg.srgstdid
+        WHERE src.srctcrid = :tcrid
+          AND src.srcrowstate > 0
+          AND src.srcstatus = 'ACTIVE'
+          AND srg.srgrowstate > 0
+          AND s.stdrowstate > 0
+        ORDER BY s.stdinstid
+        """, nativeQuery = true)
+    List<Object[]> findRegisteredStudentsByTcrid(@Param("tcrid") Long tcrid);
+
     @Query(value = "SELECT SUM(g.obt_credits) AS TOTOBTCREDITS, SUM(tcc.tcccreditpoints) AS TOTCRSCREDITS " +
                 "FROM ec2.studentregistrationcourses src " +
                 "JOIN ec2.egcrstt1 g ON src.srctcrid = g.tcrid " +

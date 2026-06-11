@@ -18,6 +18,7 @@ import org.springframework.security.core.Authentication;
 
 import com.ecampus.model.*;
 import com.ecampus.repository.*;
+import com.ecampus.session.SessionVars;
 import com.ecampus.service.*;
 
 @Controller
@@ -25,6 +26,9 @@ public class AddDropController {
 
     @Autowired
     private UserRepository userRepo;
+
+    @Autowired
+    private SessionVars sessionVars;
 
     @Autowired
     private StudentRegistrationService registrationService;
@@ -59,9 +63,11 @@ public class AddDropController {
     @GetMapping("/student/addDrop")
     public String getcourses(Authentication authentication, Model model, RedirectAttributes redirectAttributes){
 
-        String username = authentication.getName();
-
-        Long studentId = userRepo.findIdByUname(username);
+        Long studentId = resolveStudentId(authentication);
+        if (studentId == null) {
+            redirectAttributes.addFlashAttribute("error", "Unable to resolve student account.");
+            return "redirect:/student/dashboard";
+        }
 
         Students st = registrationService.getStudentById(studentId);
 
@@ -118,8 +124,10 @@ public class AddDropController {
         System.out.println("Drop3: " + dropId3);
         System.out.println("Replace List 3: " + replaceIds3);
 
-        String username = authentication.getName();
-        Long studentId = userRepo.findIdByUname(username);
+        Long studentId = resolveStudentId(authentication);
+        if (studentId == null) {
+            return "redirect:/student/dashboard";
+        }
 
         AddDropPreferences exist = addDropPrefRepo.findBySid(studentId);
         if(exist!=null){
@@ -170,8 +178,11 @@ public class AddDropController {
 
     @GetMapping("/student/addDrop/view")
     public String viewAddDropPreferences(Model model, Authentication authentication, RedirectAttributes redirectAttributes) {
-        String username = authentication.getName();
-        Long studentId = userRepo.findIdByUname(username);
+        Long studentId = resolveStudentId(authentication);
+        if (studentId == null) {
+            redirectAttributes.addFlashAttribute("error", "Unable to resolve student account.");
+            return "redirect:/student/dashboard";
+        }
 
         // 1. Fetch the raw preferences
         AddDropPreferences prefs = addDropPrefRepo.findBySid(studentId);
@@ -221,6 +232,19 @@ public class AddDropController {
             map.put(row[0].toString(), row);
         }
         return map;
+    }
+
+    private Long resolveStudentId(Authentication authentication) {
+        Users user = sessionVars == null ? null : sessionVars.getLoggedInUser();
+        if (user != null) {
+            return user.getStdid();
+        }
+
+        if (authentication == null || authentication.getName() == null) {
+            return null;
+        }
+
+        return userRepo.findIdByUname(authentication.getName());
     }
     
 }

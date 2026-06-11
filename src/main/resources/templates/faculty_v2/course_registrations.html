@@ -1,0 +1,79 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>Course Registrations</title>
+    <link rel="stylesheet" th:href="@{/css/base.css}" />
+    <link rel="stylesheet" th:href="@{/css/faculty.css}" />
+  </head>
+
+  <body>
+    <div th:replace="~{fragments/header :: header}"></div>
+    <div th:replace="~{fragments/navbar :: faculty-navbar}"></div>
+
+    <main class="container">
+      <div
+        th:if="${error}"
+        class="message message-error"
+        onclick="this.style.display = 'none'"
+        th:text="${error}"
+      ></div>
+
+      <section class="card stats-card" th:if="${course != null}">
+        <div class="report-header">
+          <h2>
+            <span th:text="${course.course.crsname}">Course Name</span>
+            (<span th:text="${course.course.crscode}">CODE</span>)
+          </h2>
+        </div>
+
+        <div class="table-actions">
+          <div>
+            <strong th:text="${registeredStudents != null ? registeredStudents.size() : 0}">0</strong>
+            <span>registered students</span>
+          </div>
+          <a th:href="@{/faculty/dashboard}" class="btn-outline">Back to Dashboard</a>
+        </div>
+
+        <p
+          class="empty-msg"
+          th:if="${registeredStudents == null or registeredStudents.isEmpty()}"
+        >
+          No students are registered in this course.
+        </p>
+
+        <div
+          class="table-container"
+          th:if="${registeredStudents != null and !registeredStudents.isEmpty()}"
+        >
+          <table class="grade-table registrations-table">
+            <thead>
+              <tr>
+                <th>Sr. No.</th>
+                <th>Institute ID</th>
+                <th>Student Name</th>
+                <th>Registration Type</th>
+                <th>Status</th>
+                <th>Registration Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="student, iter : ${registeredStudents}">
+                <td th:text="${iter.count}">1</td>
+                <td th:text="${student[1]}">2024001</td>
+                <td th:text="${student[2]}">Student Name</td>
+                <td th:text="${student[3] != null ? student[3] : '-'}">REGULAR</td>
+                <td th:text="${student[4] != null ? student[4] : '-'}">ACTIVE</td>
+                <td th:text="${student[5] != null ? student[5] : '-'}">2026-01-01</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="card stats-card" th:if="${course == null}">
+        <a th:href="@{/faculty/dashboard}" class="btn-outline">Back to Dashboard</a>
+      </div>
+    </main>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+  </body>
+</html>

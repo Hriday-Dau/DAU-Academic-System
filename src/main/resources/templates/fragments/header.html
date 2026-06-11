@@ -3,23 +3,57 @@
 <body>
 
 <header class="header" th:fragment="header"
-        style="display:flex; align-items:center; gap:16px; padding:10px 24px;
+        style="display:flex;
+               align-items:center;
+               justify-content:space-between;
+               gap:20px;
+               padding:12px 28px;
+               background:#ffffff;
+               border-bottom:1px solid #e5e7eb;
                font-family:'Segoe UI', Arial, sans-serif;">
 
-    <div class="header-left">
+    <a th:href="@{/faculty/dashboard}"
+       style="display:flex;
+              align-items:center;
+              gap:14px;
+              text-decoration:none;">
         <img th:src="@{/images/logo.png}"
              alt="DA-IICT Logo"
-             style="height:30px; width:auto;">
-    </div>
+             style="height:38px; width:auto;">
 
-    <div class="header-center">
-        <h1 style="margin:0;
-                   font-size:20px;
-                   font-weight:600;
-                   color:#003366;
-                   letter-spacing:0.4px;">
-            Dhirubhai Ambani University
-        </h1>
+        <div>
+            <div style="font-size:20px;
+                        font-weight:700;
+                        color:#003366;
+                        letter-spacing:0.3px;">
+                Dhirubhai Ambani University
+            </div>
+            <div style="font-size:12px;
+                        color:#6b7280;
+                        margin-top:2px;">
+                E-Campus Portal
+            </div>
+        </div>
+    </a>
+
+    <div style="display:flex;
+                align-items:center;
+                gap:16px;
+                font-size:13px;
+                color:#374151;">
+
+        <div style="text-align:right;">
+            <div style="font-weight:600; color:#111827;">Academic Year</div>
+            <div th:text="${currentAcademicYearName}">Not Set</div>
+        </div>
+
+        <div style="height:34px; width:1px; background:#d1d5db;"></div>
+
+        <div style="text-align:right;">
+            <div style="font-weight:600; color:#111827;">Current Term</div>
+            <div th:text="${currentTermName}">Not Set</div>
+        </div>
+
     </div>
 
 </header>

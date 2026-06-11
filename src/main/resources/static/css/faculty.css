@@ -1,0 +1,384 @@
+/* Faculty Dashboard CSS */
+
+/* Logo + Title alignment */
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.logo {
+  height: 38px;
+}
+
+.logo-text {
+  font-size: 18px;
+  font-weight: 600;
+  color: #273586;
+}
+
+/* Sub-header (Navigation Bar) */
+.sub-header {
+  background: linear-gradient(
+    90deg,
+    var(--primary-dark),
+    var(--primary)
+  );
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 54px;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+}
+
+.nav-btn {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 520;
+  cursor: pointer;
+  position: relative;
+}
+
+.sub-header a{
+  text-decoration: none;
+}
+
+.logout-form {
+  margin-left: auto;
+}
+
+.nav-btn::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  width: 0%;
+  height: 2px;
+  background: white;
+  transition: width 0.25s ease;
+}
+
+.nav-btn:hover::after {
+  width: 100%;
+}
+
+.caret {
+  font-size: 10px;
+  margin-left: 4px;
+}
+
+/* Logout looks distinct */
+.logout-btn {
+  margin-left: auto;
+  background: rgba(255,255,255,0.15);
+}
+
+.logout-btn:hover {
+  background: rgba(255,255,255,0.25);
+}
+
+/*Faculty Info Section*/
+.faculty-info {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 24px;
+  margin-top: 28px;
+}
+
+/* Avatar */
+.faculty-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    var(--primary),
+    var(--primary-light)
+  );
+  color: white;
+  font-weight: 600;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+}
+
+/*Subject Cards*/
+.subject-card {
+  margin-bottom: 22px;
+  border-left: 5px solid var(--primary);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.subject-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+.subject-header {
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 14px;
+  color: var(--primary-dark);
+}
+
+.subject-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+
+/*dropdown*/
+.nav-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #ffffff;
+    min-width: 180px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.15);
+    border-radius: 6px;
+    z-index: 1000;
+}
+
+.dropdown-content a {
+    display: block;
+    padding: 10px 14px;
+    text-decoration: none;
+    color: #273586;
+}
+
+.dropdown-content a:hover {
+    background-color: #f2f2f2;
+}
+
+.nav-dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.subject-actions a {
+  text-decoration: none;
+}
+
+.btn, .btn-outline {
+  text-decoration: none;
+}
+
+.grade-table {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.grade-table th,
+.grade-table td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: center;
+}
+
+.grade-table th {
+    background-color: #273586;
+    color: white;
+}
+
+/*Grade Statistics Page */
+
+.stats-card {
+  padding: 24px;
+  margin-top: 20px;
+}
+
+.stats-form {
+  margin-bottom: 24px;
+}
+
+.form-label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 8px;
+  color: var(--primary-dark);
+}
+
+.form-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.form-row select {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  min-width: 320px;
+}
+
+.report-header {
+  margin-bottom: 18px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--primary-light);
+}
+
+.grade-table {
+  width: 70%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.grade-table th,
+.grade-table td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: center;
+}
+
+.grade-table th {
+  background-color: var(--primary);
+  color: white;
+  font-weight: 600;
+}
+
+.registrations-table {
+  width: 100%;
+  max-width: none;
+}
+
+.grade-table tr:nth-child(even) {
+  background-color: #f7f9ff;
+}
+
+.empty-msg {
+  margin-top: 16px;
+  color: #777;
+  font-style: italic;
+}
+
+.sticky-submit {
+    position: sticky;
+    bottom: 0;
+    background: #ffffff;
+    padding: 12px 16px;
+    border-top: 1px solid #ddd;
+    text-align: right;
+    z-index: 100;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+}
+
+.message {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 15px;
+    margin-top: 10px;
+}
+
+.message-success {
+    background: #e8f5e9;
+    color: #1b5e20;
+    border-left: 5px solid #2e7d32;
+}
+
+.message-error {
+    background: #fdecea;
+    color: #b71c1c;
+    border-left: 5px solid #d32f2f;
+}
+
+.message-warning {
+    background: #fff8e1;
+    color: #8d6e63;
+    border-left: 5px solid #f9a825;
+}
+
+/* gradde colors */
+
+.grade-AA { color: #2e7d32; font-weight: 600; }
+.grade-AB { color: #388e3c; font-weight: 600; }
+.grade-BB { color: #1976d2; font-weight: 600; }
+.grade-BC { color: #0288d1; font-weight: 600; }
+.grade-CC { color: #f9a825; font-weight: 600; }
+.grade-CD { color: #fb8c00; font-weight: 600; }
+.grade-DD { color: #e64a19; font-weight: 600; }
+.grade-DE { color: #8e24aa; font-weight: 600; }
+.grade-F  { color: #d32f2f; font-weight: 700; }
+.grade--  { color: #9e9e9e; }  /* for '-' */
+
+.grade-table thead {
+  position: sticky;
+  top: 0;
+  background-color: #1f2fb7;
+  color: white;
+  z-index: 10;
+}
+
+.table-container {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.table-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.table-actions input {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  min-width: 220px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background-color: #1f2fb7;
+  color: white;
+  border: none;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid #1f2fb7;
+  color: #1f2fb7;
+}
+
+.sticky-header {
+  position: sticky;
+  top: 0;
+  background: #ffffff;
+  z-index: 20;
+  padding: 10px 0;
+  border-bottom: 2px solid #1f2fb7;
+}

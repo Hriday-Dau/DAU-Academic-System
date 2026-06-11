@@ -1,0 +1,190 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>Revise I Grade</title>
+
+    <link rel="stylesheet" th:href="@{/css/base.css}" />
+    <link rel="stylesheet" th:href="@{/css/faculty.css}" />
+  </head>
+
+  <body>
+    <div th:replace="~{fragments/header :: header}"></div>
+    <div th:replace="~{fragments/navbar :: faculty-navbar}"></div>
+
+    <div class="container">
+      <!-- 🔔 Messages -->
+      <div
+        th:if="${success}"
+        class="message message-success"
+        onclick="this.style.display = 'none'"
+        th:text="${success}"
+      ></div>
+
+      <div
+        th:if="${error}"
+        class="message message-error"
+        onclick="this.style.display = 'none'"
+        th:text="${error}"
+      ></div>
+
+      <div
+        th:if="${warning}"
+        class="message message-warning"
+        onclick="this.style.display = 'none'"
+        th:text="${warning}"
+      ></div>
+
+      <!-- Header -->
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin: 5px;
+        "
+      >
+        <h2 style="color: #1f2fb7">Revise I Grade</h2>
+        <a th:href="@{/faculty/dashboard}" class="btn">Home</a>
+      </div>
+
+      <div class="card stats-card">
+        <!-- Course Info -->
+        <div class="report-header">
+          <h3>
+            <span th:text="${CourseName}"></span>
+          </h3>
+          <p th:text="${TermName}"></p>
+        </div>
+
+        <!-- Search -->
+        <input
+          type="text"
+          id="searchBox"
+          placeholder="Search student..."
+          onkeyup="filterStudents()"
+          style="margin-bottom: 10px; padding: 8px; width: 250px"
+        />
+
+        <!-- FORM -->
+        <form
+          th:action="@{/grades/reviseIGrade}"
+          method="post"
+          th:object="${gradeForm}"
+        >
+          <table class="grade-table">
+            <thead>
+              <tr>
+                <th>Select</th>
+                <th>Student ID</th>
+                <th>Name</th>
+                <th>Current Grade</th>
+                <th>New Grade</th>
+                <th>Remarks</th>
+              </tr>
+            </thead>
+
+            <tbody id="tableBody">
+              <tr th:each="g, stat : ${gradeForm.gradesList}">
+                <!-- Checkbox -->
+                <td>
+                  <input
+                    type="checkbox"
+                    th:field="*{gradesList[__${stat.index}__].selectedForUpdate}"
+                  />
+                </td>
+
+                <!-- Student -->
+                <td th:text="${g.studentId}"></td>
+                <td th:text="${g.studentName}"></td>
+
+                <!-- Current Grade -->
+                <td th:text="${g.grade}" class="grade-I"></td>
+
+                <!-- New Grade -->
+                <td>
+                  <select
+                    th:field="*{gradesList[__${stat.index}__].modifiedGrade}"
+                  >
+                    <option value="">Select</option>
+                    <option
+                      th:each="gr : ${grades}"
+                      th:value="${gr.gradeValue}"
+                      th:text="${gr.gradeValue}"
+                    ></option>
+                  </select>
+                </td>
+
+                <!-- Remarks -->
+                <td>
+                  <input
+                    type="text"
+                    th:field="*{gradesList[__${stat.index}__].remarks}"
+                    placeholder="Enter remark"
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Sticky Submit -->
+          <div class="sticky-submit">
+            <button class="btn" type="submit">Submit for Approval</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script>
+      function filterStudents() {
+        let input = document.getElementById("searchBox").value.toLowerCase();
+        let rows = document.querySelectorAll("#tableBody tr");
+
+        rows.forEach((row) => {
+          let id = row.cells[1].innerText.toLowerCase();
+          let name = row.cells[2].innerText.toLowerCase();
+
+          row.style.display =
+            id.includes(input) || name.includes(input) ? "" : "none";
+        });
+      }
+    </script>
+
+    <script>
+      document.querySelector("form").addEventListener("submit", function (e) {
+        let rows = document.querySelectorAll("#tableBody tr");
+        let valid = false;
+
+        for (let row of rows) {
+          let checkbox = row.querySelector("input[type='checkbox']");
+          let dropdown = row.querySelector("select");
+
+          let selectedGrade = dropdown.value;
+          let isGradeSelected =
+            selectedGrade !== "" && selectedGrade !== "Select";
+
+          if (isGradeSelected && !checkbox.checked) {
+            showMessage("error", "Select checkbox before modifying grade.");
+            e.preventDefault();
+            return;
+          }
+
+          if (checkbox.checked && !isGradeSelected) {
+            showMessage("error", "Select grade for selected student.");
+            e.preventDefault();
+            return;
+          }
+
+          if (checkbox.checked && isGradeSelected) {
+            valid = true;
+          }
+        }
+
+        if (!valid) {
+          showMessage("warning", "Select at least one student.");
+          e.preventDefault();
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,20 +1,45 @@
 package com.ecampus.auth.service;
 
+import com.ecampus.model.Users;
+import com.ecampus.repository.UserRepository;
+import com.ecampus.session.SessionVars;
+
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 
+import java.io.IOException;
 import java.util.Map;
 
-public class RoleAwareSuccessHandler
-        extends SavedRequestAwareAuthenticationSuccessHandler {
+public class RoleAwareSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 
     private final Map<String, String> defaultSuccessUrls;
+    private final UserRepository userRepository;
+    private final SessionVars sessionVars;
 
-    public RoleAwareSuccessHandler(Map<String, String> defaultSuccessUrls) {
+    public RoleAwareSuccessHandler(
+            Map<String, String> defaultSuccessUrls,
+            UserRepository userRepository,
+            SessionVars sessionVars) {
+
         this.defaultSuccessUrls = defaultSuccessUrls;
+        this.userRepository = userRepository;
+        this.sessionVars = sessionVars;
+    }
+
+    @Override
+    public void onAuthenticationSuccess(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            Authentication authentication) throws IOException, ServletException {
+
+        loadSessionUser(authentication);
+
+        super.onAuthenticationSuccess(request, response, authentication);
     }
 
     @Override
@@ -23,37 +48,39 @@ public class RoleAwareSuccessHandler
             HttpServletResponse response,
             Authentication authentication) {
 
-        // If there was a saved request → use it
-        String saved = super.determineTargetUrl(request, response);
-        if (saved != null && !saved.equals("/") && !saved.isEmpty()) {
-            return saved;
-        }
-
-        // -- soft distinguishing logic - Dean or Registrar for time-being
-        Object principal = authentication.getPrincipal();
-        if (principal instanceof com.ecampus.model.Users user) {
-            String role0 = user.getUrole0();
-            String type0 = user.getUtype0();
-
-            // Professional Implicit Logic
-            if ("U".equals(type0)) {
-                if ("FACULTY".equals(role0)) {
-                    return "/dean/pending-approvals"; // Dean AP
-                } else if ("EMPLOYEE".equals(role0)) {
-                    return "/registrar/pending-approvals"; // Registrar
-                }
-            }
-        }
-
-        // Otherwise, resolve based on role
         for (GrantedAuthority authority : authentication.getAuthorities()) {
-            String role = authority.getAuthority(); // e.g. ROLE1
+            String role = authority.getAuthority();
+
             if (defaultSuccessUrls.containsKey(role)) {
                 return defaultSuccessUrls.get(role);
             }
         }
 
-        // Final fallback (safe default)
-        return "/";
+        return "/login?error";
+    }
+
+    private void loadSessionUser(Authentication authentication) {
+
+        if (authentication == null ||
+                authentication.getName() == null ||
+                authentication.getName().isBlank()) {
+
+            sessionVars.clear();
+            return;
+        }
+
+        String loginValue = authentication.getName();
+
+        Users user = userRepository.findWithName(loginValue).orElse(null);
+
+        if (user == null ||
+                user.getUnivId() == null ||
+                user.getUnivId().isBlank()) {
+
+            sessionVars.clear();
+            return;
+        }
+
+        sessionVars.loadFrom(user);
     }
 }

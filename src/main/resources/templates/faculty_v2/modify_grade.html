@@ -1,0 +1,281 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>Modify Grades</title>
+
+    <link rel="stylesheet" th:href="@{/css/base.css}" />
+    <link rel="stylesheet" th:href="@{/css/faculty.css}" />
+    <style>
+      .grade-AA,
+      .grade-AB {
+        color: #1e7e34;
+        font-weight: 600;
+      }
+      .grade-BB,
+      .grade-BC {
+        color: #0d6efd;
+        font-weight: 600;
+      }
+      .grade-CC,
+      .grade-CD {
+        color: #ff9800;
+        font-weight: 600;
+      }
+      .grade-DD {
+        color: #e65100;
+        font-weight: 600;
+      }
+      .grade-F {
+        color: #d32f2f;
+        font-weight: 700;
+      }
+      .grade-I {
+        color: #6c757d;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div th:replace="~{fragments/header :: header}"></div>
+    <div th:replace="~{fragments/navbar :: faculty-navbar}"></div>
+
+    <div class="container">
+      <!-- err msg -->
+      <div
+        th:if="${success}"
+        class="message message-success"
+        onclick="this.style.display = 'none'"
+        th:text="${success}"
+      ></div>
+      <div
+        th:if="${error}"
+        class="message message-error"
+        onclick="this.style.display = 'none'"
+        th:text="${error}"
+      ></div>
+      <div
+        th:if="${warning}"
+        class="message message-warning"
+        onclick="this.style.display = 'none'"
+        th:text="${warning}"
+      ></div>
+
+      <div id="messageBox" style="display: none"></div>
+
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin: 5px;
+        "
+      >
+        <h2 style="color: #1f2fb7">Modify Grades</h2>
+
+        <a th:href="@{/faculty/dashboard}" class="btn">Home</a>
+      </div>
+
+      <div class="card stats-card">
+        <!-- HEADER -->
+        <div class="report-header">
+          <h3>
+            <span th:text="${CourseName}"></span>
+          </h3>
+          <p th:text="${TermName}"></p>
+        </div>
+
+        <!-- SEARCH -->
+        <input
+          type="text"
+          id="searchBox"
+          placeholder="Search student..."
+          onkeyup="filterStudents()"
+          style="margin-bottom: 10px; padding: 8px; width: 250px"
+        />
+
+        <!-- FORM -->
+        <form
+          th:action="@{/grades/request}"
+          method="post"
+          th:object="${gradeForm}"
+        >
+          <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+          <table class="grade-table">
+            <thead>
+              <tr>
+                <th>Select</th>
+                <th>Student ID</th>
+                <th>Student Name</th>
+                <th>Current Grade</th>
+                <th>Modified Grade</th>
+                <th>Remarks</th>
+              </tr>
+            </thead>
+
+            <tbody id="tableBody">
+              <tr th:each="g, stat : ${gradeForm.gradesList}">
+                <!-- Checkbox -->
+                <td>
+                  <input
+                    type="checkbox"
+                    th:field="*{gradesList[__${stat.index}__].selectedForUpdate}"
+                  />
+                </td>
+
+                <!-- Student ID -->
+                <td>
+                  <span th:text="${g.studentId}"></span>
+                  <input
+                    type="hidden"
+                    th:field="*{gradesList[__${stat.index}__].studentId}"
+                  />
+                </td>
+
+                <!-- Name -->
+                <td th:text="${g.studentName}"></td>
+
+                <!-- Current Grade -->
+                <td>
+                  <span th:text="${g.grade}" th:class="'grade-' + ${g.grade}"></span>
+                  <input
+                    type="hidden"
+                    th:field="*{gradesList[__${stat.index}__].grade}"
+                  />
+                </td>
+
+                <!-- Modified Grade -->
+                <td>
+                  <select
+                    th:field="*{gradesList[__${stat.index}__].modifiedGrade}"
+                  >
+                    <option value="">Select</option>
+                    <option
+                      th:each="gr : ${grades}"
+                      th:value="${gr.gradeValue}"
+                      th:text="${gr.gradeValue}"
+                    ></option>
+                  </select>
+                </td>
+
+                <!-- Remarks -->
+                <td>
+                  <input
+                    type="text"
+                    th:field="*{gradesList[__${stat.index}__].remarks}"
+                    placeholder="Enter remark"
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <br />
+
+          <!-- DEAN REMARK -->
+          <div class="sticky-submit">
+            <label><b>Remarks for Dean:</b></label
+            ><br />
+            <textarea name="deanRemark" rows="3" style="width: 100%"></textarea>
+
+            <br /><br />
+
+            <button class="btn" type="submit">Submit for Approval</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      function filterStudents() {
+        let input = document.getElementById("searchBox").value.toLowerCase();
+        let rows = document.querySelectorAll("#tableBody tr");
+
+        rows.forEach((row) => {
+          let id = row.cells[1].innerText.toLowerCase();
+          let name = row.cells[2].innerText.toLowerCase();
+
+          row.style.display =
+            id.includes(input) || name.includes(input) ? "" : "none";
+        });
+      }
+    </script>
+
+    <script>
+      //sumit validation
+      document.querySelector("form").addEventListener("submit", function (e) {
+        let rows = document.querySelectorAll("#tableBody tr");
+        let valid = false;
+
+        for (let row of rows) {
+          let checkbox = row.querySelector("input[type='checkbox']");
+          let dropdown = row.querySelector("select");
+
+          let selectedGrade = dropdown.value;
+          let isGradeSelected =
+            selectedGrade !== "" && selectedGrade !== "Select";
+
+          // grade selected but checkbox NOT ticked
+          if (isGradeSelected && !checkbox.checked) {
+            showMessage("error", "Select checkbox before modifying grade.");
+            e.preventDefault();
+            return;
+          }
+
+          // checkbox ticked but no grade selected
+          if (checkbox.checked && !isGradeSelected) {
+            showMessage("error", "Select grade for selected student.");
+            e.preventDefault();
+            return;
+          }
+
+          //valid case
+          if (checkbox.checked && isGradeSelected) {
+            valid = true;
+          }
+        }
+
+        //nothing selected
+        if (!valid) {
+          showMessage("warning", "Select at least one student.");
+          e.preventDefault();
+        }
+      });
+
+      //checkbox validation
+      document.querySelectorAll("select").forEach((select) => {
+        select.addEventListener("change", function () {
+          let row = this.closest("tr");
+          row.style.backgroundColor = "#fff3cd";
+        });
+      });
+
+      //modified rows at top
+      document.querySelectorAll("select").forEach((select) => {
+        select.addEventListener("change", function () {
+          let row = this.closest("tr");
+          let table = document.getElementById("tableBody");
+
+          // highlight
+          row.style.backgroundColor = "#fff3cd";
+
+          // move to top
+          table.prepend(row);
+        });
+      });
+
+      function showMessage(type, text) {
+        let box = document.getElementById("messageBox");
+
+        box.className = "message message-" + type;
+        box.innerText = text;
+        box.style.display = "block";
+
+        setTimeout(() => {
+          box.style.display = "none";
+        }, 4000);
+      }
+    </script>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+  </body>
+</html>

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <title>Upload Course Material</title>
+    <link rel="stylesheet" th:href="@{/css/base.css}" />
+    <link rel="stylesheet" th:href="@{/css/faculty.css}" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        .upload-container {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 30px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-section {
+            margin-bottom: 25px;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .file-upload-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+        .file-upload-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+        .file-upload-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            border: 2px dashed #007bff;
+            border-radius: 4px;
+            background-color: #e7f3ff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .file-upload-label:hover {
+            background-color: #cce5ff;
+            border-color: #0056b3;
+        }
+        .file-upload-label.drag-over {
+            background-color: #cce5ff;
+            border-color: #0056b3;
+        }
+        .file-name {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+            display: none;
+        }
+        .file-name.active {
+            display: block;
+        }
+        .alert {
+            margin-bottom: 20px;
+        }
+        .spinner {
+            display: none;
+        }
+        .spinner.active {
+            display: inline-block;
+        }
+        .success-message {
+            display: none;
+            margin-bottom: 20px;
+        }
+        .success-message.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+    <div th:replace="~{fragments/navbar :: faculty-navbar}"></div>
+
+    <div class="container-fluid">
+    <div class="upload-container">
+        <h1 class="mb-4">Upload Course Material</h1>
+
+        <!-- Error Message -->
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Error!</strong> <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <!-- Success Message -->
+        <div id="successMessage" class="alert alert-success alert-dismissible fade show success-message" role="alert">
+            <strong>Success!</strong> <span id="successText"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <form id="uploadForm">
+            <!-- Course Selection -->
+            <div class="form-section">
+                <div class="section-title">Select Course</div>
+                <select id="courseSelect" class="form-control form-control-lg" required>
+                    <option value="">-- Select a Course --</option>
+                    <option th:each="course : ${courses}"
+                            th:value="${course.tcrid}"
+                            th:data-code="${course.course.crscode}"
+                            th:text="${course.course.crsname} + ' (' + ${course.course.crscode} + ')'">
+                    </option>
+                </select>
+                <small class="form-text text-muted" th:if="${currentTerm}">
+                    Current Term: <span th:text="${currentTerm.trmname}"></span> | 
+                    Academic Year: <span th:text="${academicYear.ayrname}"></span>
+                </small>
+            </div>
+
+            <!-- File Upload -->
+            <div class="form-section">
+                <div class="section-title">Upload PDF File</div>
+                <div class="file-upload-wrapper">
+                    <label for="fileInput" class="file-upload-label" id="uploadLabel">
+                        <div>
+                            <div style="font-size: 24px; margin-bottom: 10px;">📄</div>
+                            <div style="font-weight: 500;">Click to select file or drag and drop</div>
+                            <div style="font-size: 12px; color: #666; margin-top: 5px;">PDF files only (Max: 50MB)</div>
+                        </div>
+                    </label>
+                    <input type="file"
+                           id="fileInput"
+                           name="file"
+                           accept=".pdf,application/pdf"
+                           required>
+                </div>
+                <div class="file-name" id="fileName"></div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="form-section">
+                <button type="submit" class="btn btn-primary btn-lg w-100">
+                    <span id="submitText">Upload Course Material</span>
+                    <span id="spinnerLoader" class="spinner">
+                        <span class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></span>
+                    </span>
+                </button>
+            </div>
+
+            <!-- Additional Info -->
+            <div class="alert alert-info mt-3">
+                <strong>Note:</strong> The file will be saved as <code><span id="previewFileName">coursecode.pdf</span></code> 
+                in the directory structure organized by semester and academic year.
+            </div>
+        </form>
+
+        <!-- Back to Dashboard Link -->
+        <div class="text-center mt-4">
+            <a href="/faculty/dashboard" class="btn btn-outline-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const fileInput = document.getElementById('fileInput');
+    const uploadLabel = document.getElementById('uploadLabel');
+    const fileName = document.getElementById('fileName');
+    const courseSelect = document.getElementById('courseSelect');
+    const uploadForm = document.getElementById('uploadForm');
+    const previewFileName = document.getElementById('previewFileName');
+    const successMessage = document.getElementById('successMessage');
+    const successText = document.getElementById('successText');
+    const submitBtn = uploadForm.querySelector('button[type="submit"]');
+    const spinnerLoader = document.getElementById('spinnerLoader');
+    const submitText = document.getElementById('submitText');
+
+    // File input change handler
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            fileName.textContent = 'Selected: ' + file.name;
+            fileName.classList.add('active');
+            updatePreview();
+        }
+    });
+
+    // Drag and drop handlers
+    uploadLabel.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadLabel.classList.add('drag-over');
+    });
+
+    uploadLabel.addEventListener('dragleave', () => {
+        uploadLabel.classList.remove('drag-over');
+    });
+
+    uploadLabel.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadLabel.classList.remove('drag-over');
+        fileInput.files = e.dataTransfer.files;
+        fileInput.dispatchEvent(new Event('change'));
+    });
+
+    // Course select change handler
+    courseSelect.addEventListener('change', updatePreview);
+
+    function updatePreview() {
+        const selectedOption = courseSelect.options[courseSelect.selectedIndex];
+        const courseCode = selectedOption.getAttribute('data-code');
+        if (courseCode) {
+            previewFileName.textContent = courseCode + '.pdf';
+        }
+    }
+
+    // Form submit handler
+    uploadForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // Validation
+        if (!courseSelect.value) {
+            alert('Please select a course');
+            return;
+        }
+
+        if (!fileInput.files[0]) {
+            alert('Please select a file');
+            return;
+        }
+
+        // Prepare form data
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        formData.append('tcrid', courseSelect.value);
+        formData.append('courseCode', courseSelect.options[courseSelect.selectedIndex].getAttribute('data-code'));
+
+        const csrfToken = document.querySelector('meta[name="_csrf"]').content;
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').content;
+
+        // Show loading state
+        submitBtn.disabled = true;
+        spinnerLoader.classList.add('active');
+
+        try {
+            const response = await fetch('/faculty/upload-course', {
+                method: 'POST',
+                headers: {
+                    [csrfHeader]: csrfToken
+                },
+                body: formData
+            });
+
+            const responseText = await response.text();
+            if (!response.ok) {
+                console.error('Server error:', response.status, responseText);
+                alert('Server error: ' + response.status + '\nPlease check the browser console for details.');
+                return;
+            }
+
+            let data;
+            try {
+                data = JSON.parse(responseText);
+            } catch (jsonError) {
+                console.error('JSON parsing error:', jsonError);
+                console.error('Response was:', responseText.substring(0, 200));
+                alert('Error: Received invalid response from server. Check console for details.');
+                return;
+            }
+
+            if (data.success) {
+                // Show success message
+                successText.textContent = data.message + ' File saved as: ' + data.fileName;
+                successMessage.classList.add('active');
+
+                // Reset form
+                uploadForm.reset();
+                fileName.classList.remove('active');
+                previewFileName.textContent = 'coursecode.pdf';
+
+                // Auto-hide success message after 5 seconds
+                setTimeout(() => {
+                    successMessage.classList.remove('active');
+                }, 5000);
+            } else {
+                alert('Error: ' + data.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Upload failed: ' + error.message);
+        } finally {
+            // Hide loading state
+            submitBtn.disabled = false;
+            spinnerLoader.classList.remove('active');
+        }
+    });
+
+    // Click on label handled by the label "for" attribute; no manual click event needed
+</script>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

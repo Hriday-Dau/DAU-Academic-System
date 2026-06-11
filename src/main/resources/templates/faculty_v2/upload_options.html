@@ -1,0 +1,77 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<title>Upload Grades</title>
+
+<link rel="stylesheet" th:href="@{/css/base.css}" />
+<link rel="stylesheet" th:href="@{/css/faculty.css}" />
+
+</head>
+
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+    <div th:replace="~{fragments/navbar :: faculty-navbar}"></div>
+
+
+<div class="container">
+  <!-- err msg -->
+      <div
+        th:if="${success}"
+        class="message message-success"
+        onclick="this.style.display = 'none'"
+        th:text="${success}"
+      ></div>
+      <div
+        th:if="${error}"
+        class="message message-error"
+        onclick="this.style.display = 'none'"
+        th:text="${error}"
+      ></div>
+      <div
+        th:if="${warning}"
+        class="message message-warning"
+        onclick="this.style.display = 'none'"
+        th:text="${warning}"
+      ></div>
+
+<div style="display:flex;justify-content:space-between;align-items:center;margin:5px;">
+
+<h2 style="color:#1f2fb7">Upload Grades</h2>
+
+<a th:href="@{/faculty/dashboard}"
+   class="btn btn-primary"
+   style="background:#1f3fb7;border:none">
+Home
+</a>
+
+</div>
+
+
+<div class="card stats-card">
+
+<div style="text-align:center;padding:40px;">
+
+<h3>Select Upload Method</h3>
+
+<br>
+
+<a th:href="@{/grades/upload(tcrid=${tcrid})}" class="btn btn-primary">
+Manual Entry
+</a>
+
+<br><br>
+
+<a th:href="@{/grades/upload(tcrid=${tcrid}, tab='csv')}" class="btn btn-secondary">
+Upload CSV
+</a>
+
+</div>
+
+</div>
+
+</div>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>Grade Statistics</title>
+    <link rel="stylesheet" th:href="@{/css/base.css}" />
+    <link rel="stylesheet" th:href="@{/css/faculty.css}" />
+  </head>
+
+  <body>
+    <div th:replace="~{fragments/header :: header}"></div>
+    <div th:replace="~{fragments/navbar :: faculty-navbar}"></div>
+
+    <div class="container">
+      <!-- err msg -->
+      <div
+        th:if="${success}"
+        class="message message-success"
+        onclick="this.style.display = 'none'"
+        th:text="${success}"
+      ></div>
+      <div
+        th:if="${error}"
+        class="message message-error"
+        onclick="this.style.display = 'none'"
+        th:text="${error}"
+      ></div>
+      <div
+        th:if="${warning}"
+        class="message message-warning"
+        onclick="this.style.display = 'none'"
+        th:text="${warning}"
+      ></div>
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin: 5px;
+        "
+      >
+        <h2 style="color: #1f2fb7">Grade Statistics Report</h2>
+
+        <a
+          th:href="@{/faculty/dashboard}"
+          class="btn btn-primary"
+          style="background: #1f3fb7; border: none"
+        >
+          Home
+        </a>
+      </div>
+      <div class="card stats-card">
+        <!-- Course Selector -->
+        <form
+          method="get"
+          th:action="@{/faculty/grade-statistics}"
+          class="stats-form"
+        >
+          <label class="form-label">Select Course</label>
+
+          <div class="form-row">
+            <select name="tcrid" required>
+              <option value="">-- Select Course --</option>
+              <option
+                th:each="c : ${courses}"
+                th:value="${c.tcrid}"
+                th:text="${c.course.crscode + ' - ' + c.course.crsname}"
+                th:selected="${selectedTcrid == c.tcrid}"
+              ></option>
+            </select>
+
+            <button type="submit" class="btn">View Report</button>
+          </div>
+        </form>
+
+        <div th:if="${gradeStats != null and gradeStats.size() > 0}">
+          <div class="report-header">
+            <h3 th:text="${courseName}"></h3>
+          </div>
+
+          <table class="grade-table">
+            <thead>
+              <tr>
+                <th>Grade</th>
+                <th>No. of Students</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="entry : ${gradeStats.entrySet()}">
+                <td th:text="${entry.key}"></td>
+                <td th:text="${entry.value}"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div th:if="${gradeStats != null and gradeStats.size() == 0}">
+          <p class="empty-msg">No grades available for selected course.</p>
+        </div>
+      </div>
+    </div>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+  </body>
+</html>

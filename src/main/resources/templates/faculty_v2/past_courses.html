@@ -1,0 +1,168 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>Past Courses</title>
+
+    <link rel="stylesheet" th:href="@{/css/base.css}" />
+    <link rel="stylesheet" th:href="@{/css/faculty.css}" />
+  </head>
+
+  <body>
+    <div th:replace="~{fragments/header :: header}"></div>
+    <div th:replace="~{fragments/navbar :: faculty-navbar}"></div>
+
+    <div class="container">
+      <!-- err msg -->
+      <div
+        th:if="${success}"
+        class="message message-success"
+        onclick="this.style.display = 'none'"
+        th:text="${success}"
+      ></div>
+      <div
+        th:if="${error}"
+        class="message message-error"
+        onclick="this.style.display = 'none'"
+        th:text="${error}"
+      ></div>
+      <div
+        th:if="${warning}"
+        class="message message-warning"
+        onclick="this.style.display = 'none'"
+        th:text="${warning}"
+      ></div>
+      <div class="card stats-card">
+        <!-- Header -->
+        <div class="report-header sticky-header">
+          <h2 th:text="${courseName}"></h2>
+          <p>
+            <span th:text="${termName}"></span> |
+            <span th:text="${year}"></span>
+          </p>
+        </div>
+
+        <!-- Search -->
+        <div class="table-actions">
+          <input
+            id="search"
+            onkeyup="searchTable()"
+            placeholder="Search student..."
+          />
+
+          <div class="action-buttons">
+            <button class="btn btn-primary" onclick="sortTable()">
+              Sort by Grade (AA → F)
+            </button>
+
+            <button class="btn btn-outline" onclick="exportTable()">
+              Export CSV
+            </button>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <table class="grade-table">
+          <thead>
+            <tr>
+              <th>Student ID</th>
+              <th>Name</th>
+              <th>Grade</th>
+              <th>Feedback</th>
+            </tr>
+          </thead>
+
+          <tbody id="tableBody">
+            <tr th:each="s : ${students}">
+              <td th:text="${s[0]}"></td>
+              <td th:text="${s[1]}"></td>
+              <td th:text="${s[2]}" th:class="'grade-' + ${s[2]}"></td>
+              <td th:text="${s[3]}"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script>
+      function searchTable() {
+        let input = document.getElementById("search").value.toLowerCase();
+        let rows = document.querySelectorAll("#tableBody tr");
+
+        rows.forEach((row) => {
+          row.style.display = row.innerText.toLowerCase().includes(input)
+            ? ""
+            : "none";
+        });
+      }
+
+      let isSorted = false;
+
+      function sortTable() {
+        let tbody = document.querySelector("tbody");
+        let rows = Array.from(tbody.querySelectorAll("tr"));
+
+        const order = [
+          "AA",
+          "AB",
+          "BB",
+          "BC",
+          "CC",
+          "CD",
+          "DD",
+          "DE",
+          "F",
+          "-",
+        ];
+
+        if (!isSorted) {
+          // sort ascending (best → worst)
+          rows.sort((a, b) => {
+            let g1 = a.children[2].innerText.trim();
+            let g2 = b.children[2].innerText.trim();
+            return order.indexOf(g1) - order.indexOf(g2);
+          });
+          isSorted = true;
+        } else {
+          // reset to original order
+          rows.sort((a, b) => 0);
+          location.reload(); // simplest reset
+        }
+
+        rows.forEach((r) => tbody.appendChild(r));
+      }
+
+      function exportTable() {
+        let rows = document.querySelectorAll("table tr");
+        let csv = [];
+
+        rows.forEach((row) => {
+          let cols = row.querySelectorAll("td, th");
+          let data = Array.from(cols).map((c) => c.innerText.trim());
+          csv.push(data.join(","));
+        });
+
+        let blob = new Blob([csv.join("\n")], { type: "text/csv" });
+        let url = window.URL.createObjectURL(blob);
+
+        let a = document.createElement("a");
+        a.href = url;
+        // get values from page
+        let course = document
+          .querySelector(".report-header h2")
+          .innerText.trim();
+        let term = document
+          .querySelector(".report-header p span:nth-child(1)")
+          .innerText.trim();
+        let year = document
+          .querySelector(".report-header p span:nth-child(2)")
+          .innerText.trim();
+
+        let fileName = `${course}_${term}_${year}`.replace(/\s+/g, "_");
+
+        a.download = fileName + ".csv";
+        a.click();
+      }
+    </script>
+  </body>
+</html>

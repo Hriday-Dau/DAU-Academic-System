@@ -1,0 +1,143 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>Grade Approval Status</title>
+
+    <link rel="stylesheet" th:href="@{/css/base.css}" />
+    <link rel="stylesheet" th:href="@{/css/faculty.css}" />
+
+    <style>
+      .status-approved {
+        color: #2e7d32;
+        font-weight: 600;
+      }
+      .status-pending {
+        color: #f9a825;
+        font-weight: 600;
+      }
+      .status-rejected {
+        color: #d32f2f;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div th:replace="~{fragments/header :: header}"></div>
+    <div th:replace="~{fragments/navbar :: faculty-navbar}"></div>
+
+    <div class="container">
+      <!-- err msg -->
+      <div
+        th:if="${success}"
+        class="message message-success"
+        onclick="this.style.display = 'none'"
+        th:text="${success}"
+      ></div>
+      <div
+        th:if="${error}"
+        class="message message-error"
+        onclick="this.style.display = 'none'"
+        th:text="${error}"
+      ></div>
+      <div
+        th:if="${warning}"
+        class="message message-warning"
+        onclick="this.style.display = 'none'"
+        th:text="${warning}"
+      ></div>
+
+      <!-- Header -->
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin: 5px;
+        "
+      >
+        <h2 style="color: #1f2fb7">Grade Modification Status</h2>
+        <a th:href="@{/faculty/dashboard}" class="btn">Home</a>
+      </div>
+
+      <div class="card stats-card">
+        <!-- Course Info -->
+        <div class="report-header">
+          <h3 th:text="${courseName}"></h3>
+          <p th:text="${termName}"></p>
+        </div>
+
+        <!-- Table -->
+        <table class="grade-table">
+          <thead>
+            <tr>
+              <th>Student ID</th>
+              <th>Current Grade</th>
+              <th>Modified Grade</th>
+              <th>Faculty Remarks</th>
+              <th>Submission</th>
+              <th>Dean</th>
+              <th>Registrar</th>
+              <th th:if="${isDean or isRegistrar}">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr th:each="g : ${statuses}">
+              <td th:text="${g.studentInstituteId}"></td>
+
+              <td th:text="${g.presentGradeLetter}"></td>
+
+              <td th:text="${g.newGradeLetter}"></td>
+
+              <td th:text="${g.remarks}"></td>
+
+              <td
+                th:text="${g.statusSubmitted}"
+                th:class="|status-${g.statusSubmitted.toLowerCase()}|"
+              ></td>
+
+              <td
+                th:text="${g.statusDean}"
+                th:class="|status-${g.statusDean.toLowerCase()}|"
+              ></td>
+
+              <td
+                th:text="${g.statusRegistrar}"
+                th:class="|status-${g.statusRegistrar.toLowerCase()}|"
+              ></td>
+
+              <td th:if="${isDean or isRegistrar}">
+                <form th:if="${isDean}" th:action="@{/grades/approval/dean/action}" method="post" style="display: inline;">
+                  <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                  <input type="hidden" name="gmdid" th:value="${g.gmdId}" />
+                  <input type="hidden" name="action" value="approve" />
+                  <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                </form>
+                <form th:if="${isDean}" th:action="@{/grades/approval/dean/action}" method="post" style="display: inline;">
+                  <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                  <input type="hidden" name="gmdid" th:value="${g.gmdId}" />
+                  <input type="hidden" name="action" value="reject" />
+                  <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                </form>
+                <form th:if="${isRegistrar}" th:action="@{/grades/approval/registrar/action}" method="post" style="display: inline;">
+                  <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                  <input type="hidden" name="gmdid" th:value="${g.gmdId}" />
+                  <input type="hidden" name="action" value="approve" />
+                  <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                </form>
+                <form th:if="${isRegistrar}" th:action="@{/grades/approval/registrar/action}" method="post" style="display: inline;">
+                  <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                  <input type="hidden" name="gmdid" th:value="${g.gmdId}" />
+                  <input type="hidden" name="action" value="reject" />
+                  <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                </form>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+  </body>
+</html>

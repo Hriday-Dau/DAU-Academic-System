@@ -45,8 +45,15 @@ Thumbs.db
 /surefire-reports/
 
 # Sensitive configuration
+application.properties
 src/main/resources/application.properties
 src/main/resources/application.yml
+# remove info after
+src/main/resources/global-constants.properties
+src/main/resources/session-vars.properties
+src/main/java/com/ecampus/session/SessionVars.java
+src/main/java/com/ecampus/service/GlobalConstantsService.java
+src/main/java/com/ecampus/controller/admin/GlobalConstantsAdminController.java
 
 # Database dumps
 *.sql

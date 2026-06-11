@@ -4,6 +4,7 @@ import com.ecampus.config.RegistrationDeadlineConfig;
 import com.ecampus.dto.CourseRegistrationDTO;
 import com.ecampus.model.*;
 import com.ecampus.repository.UserRepository;
+import com.ecampus.session.SessionVars;
 import com.ecampus.service.*;
 import com.ecampus.util.RomanNumeralUtil;
 
@@ -52,6 +53,9 @@ public class StudentRegistrationController {
 
     @Autowired
     private UserRepository userRepo;
+
+    @Autowired
+    private SessionVars sessionVars;
 
     @GetMapping("/student/registration")
     public String listStudentRegistrations( Authentication authentication, Model model) {
@@ -345,7 +349,6 @@ public class StudentRegistrationController {
      */
     @PostMapping("/student/registration/save")
     public String saveRegistration(
-            @RequestParam Long stdid,
             @RequestParam Long strid,
             @RequestParam(value = "rows[0].scrid", required = false) Long scrid0,
             @RequestParam(defaultValue = "") Map<String, String> allParams,
@@ -353,9 +356,10 @@ public class StudentRegistrationController {
             RedirectAttributes redirectAttributes) {
 
         String username = authentication.getName();
-        Long currentStudentId = resolveStudentId(authentication);
-        if (currentStudentId != null) {
-            stdid = currentStudentId;
+        Long studentId = resolveStudentId(authentication);
+        if (studentId == null) {
+            redirectAttributes.addFlashAttribute("error", "Unable to resolve student account");
+            return "redirect:/student/registration";
         }
 
         Long userId = userRepo.findUidByUname(username);
@@ -369,7 +373,7 @@ public class StudentRegistrationController {
         try {
             // Save registration
             StudentRegistrations savedReg = registrationService.saveStudentRegistration(
-                stdid, strid, submitteeCourses, userId);
+                studentId, strid, submitteeCourses, userId);
             
             redirectAttributes.addFlashAttribute("success", "Registration saved successfully for semester!");
             return "redirect:/student/registration";
@@ -437,8 +441,11 @@ public class StudentRegistrationController {
     }
 
     private Long resolveStudentId(Authentication authentication) {
-        String username = authentication.getName();
-        Users user = userRepo.findByUname(username).orElse(null);
+        String username = authentication == null ? null : authentication.getName();
+        Users user = sessionVars == null ? null : sessionVars.getLoggedInUser();
+        if (user == null && username != null) {
+            user = userRepo.findByUname(username).orElse(null);
+        }
         if (user == null) {
             return null;
         }

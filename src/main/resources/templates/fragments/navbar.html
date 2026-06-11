@@ -71,25 +71,51 @@
         </li>
 
         <li sec:authorize="hasAuthority('FACULTY')">
-            <a th:href="@{/faculty/courses}">Courses</a>
+            <a th:href="@{/faculty/student-info}">Student Info</a>
         </li>
 
         <li sec:authorize="hasAuthority('FACULTY')">
-            <a th:href="@{/faculty/pending-requests}">Grade-Modification Status</a>
+            <a th:href="@{/faculty/past-courses}">Past Courses</a>
+        </li>
+
+        <li class="dropdown" sec:authorize="hasAuthority('FACULTY')">
+            <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
+                Utilities
+            </a>
+            <ul class="dropdown-menu">
+                <li>
+                    <a class="dropdown-item" th:href="@{/faculty/change-password}">
+                        Change Password
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+        <li class="dropdown" sec:authorize="hasAuthority('FACULTY')">
+            <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
+                Reports
+            </a>
+            <ul class="dropdown-menu">
+                <li>
+                    <a class="dropdown-item" th:href="@{/faculty/grade-statistics}">
+                        Grade Statistics
+                    </a>
+                </li>
+            </ul>
         </li>
 
         <!-- Temporary Logic for Dean and Registrar -->
         <!-- Dean Link: Implicit Logic (FACULTY + U) -->
-        <li sec:authorize="hasAuthority('FACULTY')"
+        <!-- <li sec:authorize="hasAuthority('FACULTY')"
             th:if="${currentUser != null and currentUser.urole0 == 'FACULTY' and currentUser.utype0 == 'U'}">
             <a th:href="@{/dean/pending-approvals}">Approve Grade Modifications</a>
-        </li>
+        </li> -->
 
         <!-- Registrar Link: Implicit Logic (EMPLOYEE + U) -->
-        <li sec:authorize="hasAuthority('FACULTY')"
+        <!-- <li sec:authorize="hasAuthority('FACULTY')"
             th:if="${currentUser != null and currentUser.urole0 == 'EMPLOYEE' and currentUser.utype0 == 'U'}">
             <a th:href="@{/registrar/pending-approvals}">Finalize Grade Modifications</a>
-        </li>
+        </li> -->
 
         <!-- ================= ADMIN ================= -->
         <li sec:authorize="hasAuthority('ADMIN')">
@@ -448,6 +474,39 @@
 
     </ul>
 
+</nav>
+
+<nav class="sub-header" th:fragment="faculty-navbar">
+    <div class="container actions">
+        <a th:href="@{/faculty/dashboard}" class="nav-btn">Dashboard</a>
+        <a th:href="@{/faculty/student-info}" class="nav-btn">Student Info</a>
+        <a th:href="@{/faculty/past-courses}" class="nav-btn">Past Courses</a>
+
+        <div class="nav-dropdown">
+            <span class="nav-btn">
+                Utilities
+                <img th:src="@{/images/menu/tridown.gif}" alt="" style="margin-left:4px; vertical-align:middle; filter:brightness(0) invert(1);" />
+            </span>
+            <div class="dropdown-content">
+                <a th:href="@{/faculty/change-password}">Change Password</a>
+            </div>
+        </div>
+
+        <div class="nav-dropdown">
+            <span class="nav-btn">
+                Reports
+                <img th:src="@{/images/menu/tridown.gif}" alt="" style="margin-left:4px; vertical-align:middle; filter:brightness(0) invert(1);" />
+            </span>
+            <div class="dropdown-content">
+                <a th:href="@{/faculty/grade-statistics}">Grade Statistics</a>
+            </div>
+        </div>
+
+        <form th:action="@{/logout}" method="post" class="logout-form">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <button type="submit" class="nav-btn logout-btn">Logout</button>
+        </form>
+    </div>
 </nav>
 
 </html>

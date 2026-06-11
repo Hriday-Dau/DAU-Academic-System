@@ -19,6 +19,8 @@ public interface GradeModRequestsRepository extends JpaRepository<GradeModReques
        // requests created by a specific Faculty
        List<GradeModRequests> findByGmdCreatedBy(Long userId);
 
+       List<GradeModRequests> findByGmdCreatedByAndGmdTcrId(Long userId, Integer tcrId);
+
        // Queries for user display
 
        // -- Fetch Pending reqeusts
