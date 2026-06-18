@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.ecampus.model.StudentGradeDTO;
 import com.ecampus.model.TermCourses;
@@ -35,6 +37,9 @@ public class FacultyDashboardController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private TermsRepository termsRepository;
@@ -62,7 +67,7 @@ public class FacultyDashboardController {
         }
 
         // Terms latestTerm = termsRepository.findLatestMinusThree(0);
-        Terms latestTerm = termsRepository.findById(35L).orElse(null);
+        Terms latestTerm = termsRepository.findById(50L).orElse(null);
         if (latestTerm == null) {
             model.addAttribute("faculty", faculty);
             model.addAttribute("termCourses", List.of());
@@ -117,6 +122,46 @@ public class FacultyDashboardController {
         model.addAttribute("prevGradeStatusMap", previousGradeStatusMap);
 
         return "faculty_v2/dashboard";
+    }
+
+    @GetMapping("/change-password")
+    public String changePassword(Authentication authentication) {
+        if (currentFaculty(authentication) == null) {
+            return "redirect:/login";
+        }
+
+        return "faculty/change-password";
+    }
+
+    @PostMapping("/change-password")
+    public String changePassword(@RequestParam String newPassword,
+                                 @RequestParam String confirmPassword,
+                                 Authentication authentication,
+                                 RedirectAttributes redirectAttributes) {
+
+        Users faculty = currentFaculty(authentication);
+        if (faculty == null) {
+            return "redirect:/login";
+        }
+
+        String pattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&]).{8,}$";
+
+        if (!newPassword.equals(confirmPassword)) {
+            redirectAttributes.addFlashAttribute("error", "Passwords do not match");
+            return "redirect:/faculty/change-password";
+        }
+
+        if (!newPassword.matches(pattern)) {
+            redirectAttributes.addFlashAttribute("error",
+                    "Password must have 8+ chars, uppercase, lowercase, number and special character");
+            return "redirect:/faculty/change-password";
+        }
+
+        faculty.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(faculty);
+
+        redirectAttributes.addFlashAttribute("success", "Password changed successfully");
+        return "redirect:/faculty/change-password";
     }
 
     @GetMapping("/grade-statistics")
