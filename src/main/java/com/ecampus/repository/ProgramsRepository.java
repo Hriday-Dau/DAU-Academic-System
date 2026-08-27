@@ -17,7 +17,7 @@ public interface ProgramsRepository extends JpaRepository<Programs, Long> {
 
     List<Programs> findByPrgrowstateGreaterThanOrderByPrgfield1Asc(short prgrowstate);
 
-    @Query(value = "SELECT prgfield3 FROM ec2.programs WHERE prgid = (SELECT program_id FROM ec2.scheme WHERE scheme_id = :scheme_id);", nativeQuery = true)
+    @Query(value = "SELECT prg_level FROM ec2.programs WHERE prgid = (SELECT program_id FROM ec2.scheme WHERE scheme_id = :scheme_id);", nativeQuery = true)
     String getUGPGByScheme(@Param("scheme_id") Long scheme_id);
     
 }
