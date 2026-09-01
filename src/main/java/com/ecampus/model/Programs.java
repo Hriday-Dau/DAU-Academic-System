@@ -34,8 +34,9 @@ public class Programs {
     @Column(name = "prgfield2")
     private Long prgfield2;
 
-    @Column(name = "prgfield3")
-    private String prgfield3;
+    // renamed from prgfield3 to prg_level in accordance with the DB
+    @Column(name = "prg_level")
+    private String prglevel;
 
     @Column(name = "prgcreatedby")
     private Long prgcreatedby;
@@ -90,8 +91,9 @@ public class Programs {
     public Long getPrgfield2() { return prgfield2; }
     public void setPrgfield2(Long prgfield2) { this.prgfield2 = prgfield2; }
 
-    public String getPrgfield3() { return prgfield3; }
-    public void setPrgfield3(String prgfield3) { this.prgfield3 = prgfield3; }
+    //updated according to column renaming
+    public String getPrglevel() { return prglevel; }
+    public void setPrglevel(String prglevel) { this.prglevel = prglevel; }
 
     public Long getPrgcreatedby() { return prgcreatedby; }
     public void setPrgcreatedby(Long prgcreatedby) { this.prgcreatedby = prgcreatedby; }
