@@ -4,12 +4,18 @@ import com.ecampus.dto.*;
 import com.ecampus.util.RomanNumeralUtil;
 import com.ecampus.model.*;
 import com.ecampus.repository.*;
+import com.ecampus.service.GlobalConstantsService;
+import com.ecampus.session.SessionConstants;
+import com.ecampus.util.LoggedUser;
+import jakarta.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -46,13 +52,61 @@ public class TermsController {
 
     @Autowired
     private SemesterCoursesRepository semesterCoursesRepository;
-    
+
     @Autowired
     private CoursesRepository coursesRepository;
 
-    // Show "Add Term" form
+    // injecting Global Constants for Term Auto-Calculation
+    @Autowired
+    private GlobalConstantsService globalConstantsService;
+
+    // Show "Add Term" form with calculated auto-filled Logic
     @GetMapping("/add")
-    public String showAddTermForm(Model model) {
+    public String showAddTermForm(Model model, RedirectAttributes redirectAttributes) {
+        String currentTermName = globalConstantsService.getCurrentTermName();
+        String currentAyrName = globalConstantsService.getCurrentAcademicYearName();
+        // Long currentAyrId = globalConstantsService.getCurrentAcademicYearId();
+
+        // 1. BULLETPROOF FETCH: Look up the ID dynamically using the Name.
+        // This prevents failures if the properties file ID is null or out-of-sync
+        Long currentAyrId = academicYearRepository.findAcademicYearIdByName(currentAyrName);
+
+        String nextTermName = "Autumn"; // Default fallback
+        Long targetAyrId = currentAyrId;
+
+        // Sequence Logic: Autumn (1) -> Winter (2) -> Summer (3)
+        if ("Autumn".equalsIgnoreCase(currentTermName)) {
+            nextTermName = "Winter";
+        } else if ("Winter".equalsIgnoreCase(currentTermName)) {
+            nextTermName = "Summer";
+        } else if ("Summer".equalsIgnoreCase(currentTermName)) {
+            nextTermName = "Autumn";
+
+            // If summer is over, we need to advance to the next academic year
+            try {
+                int startYear = Integer.parseInt(currentAyrName.split("-")[0]);
+                int nextStart = startYear + 1;
+                String nextAyrName = nextStart + "-" + String.valueOf(nextStart + 1).substring(2);
+
+                Long nextAyrId = academicYearRepository.findAcademicYearIdByName(nextAyrName);
+
+                // If the next year hasn't been created yet, block the user and show an error
+                if (nextAyrId == null) {
+                    redirectAttributes.addFlashAttribute("error",
+                            "No term slots remaining in current acad year (" + currentAyrName +
+                                    "). Please create a new acad year (" + nextAyrName + ") first.");
+                    return "redirect:/";
+                }
+                targetAyrId = nextAyrId;
+            } catch (Exception e) {
+                // Fallback if parsing fails
+            }
+        }
+
+        // Pass calculated pre-fills to the frontend
+        model.addAttribute("prefillTermName", nextTermName);
+        model.addAttribute("prefillAyrId", targetAyrId);
+
         model.addAttribute("academicYears", academicYearRepository.findAllByOrderByAyridDesc());
         model.addAttribute("termNames", List.of("Autumn", "Winter", "Summer"));
         return "admin/term-form";
@@ -66,12 +120,28 @@ public class TermsController {
             @RequestParam("termName") String termName,
             @RequestParam("termStartDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate termStartDate,
             @RequestParam("termEndDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate termEndDate,
-            Model model) {
+            Model model, HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        // --- NEW SESSION LOGIC ---
+        LoggedUser currentUser = (LoggedUser) session.getAttribute(SessionConstants.CURRENT_USER);
+        if (currentUser == null) {
+            return "redirect:/login";
+        }
+        // -------------------------
+
+        // ADDING NEW VALIDATION: Check if this term already exists for this academic year
+        boolean termExists = termRepository.existsByTrmnameAndTrmayrid(termName, academicYearId);
+        if (termExists) {
+            redirectAttributes.addFlashAttribute("error", 
+                "The term '" + termName + "' already exists for the selected Academic Year.");
+            return "redirect:/admin/terms/add";
+        }
 
         // 1. Generate new Term ID (max+1)
         Long maxId = termRepository.findMaxTrmid();
-        Long newTermId = maxId + 1;
-        
+        Long newTermId = (maxId == null ? 0 : maxId) + 1;
+
         // 2. Set trmseqno based on termName
         Long trmSeqNo;
         if ("Autumn".equalsIgnoreCase(termName)) {
@@ -98,7 +168,13 @@ public class TermsController {
         term.setTrmstarts(termStartDate);
         term.setTrmends(termEndDate);
         term.setTrmrowstate(1L);
+
+        // Populate audit fields from session
+        term.setTrmcreatedby(currentUser.getUID());
         term.setTrmcreatedat(LocalDateTime.now());
+        // term.setTrmlastupdatedby(currentUser.getUID());
+        // term.setTrmlastupdatedat(LocalDateTime.now());
+
         termRepository.save(term);
 
         // 5. Extract starting year from academic year name (e.g., "2025-26" -> 2025)
@@ -111,24 +187,28 @@ public class TermsController {
         List<Batches> activeBatches = allBatches.stream()
                 .filter(batch -> {
                     // Skip if schemeId is null
-                    if (batch.getSchemeId() == null) return false;
+                    if (batch.getSchemeId() == null)
+                        return false;
 
                     Long batchAyrId = batch.getBchcalid();
-                    if (batchAyrId == null) return false;
+                    if (batchAyrId == null)
+                        return false;
 
                     Programs program = programsRepository.findById(batch.getBchprgid()).orElse(null);
-                    if (program == null || program.getPrgduration() == null) return false;
+                    if (program == null || program.getPrgduration() == null)
+                        return false;
 
                     // Get batch's academic year
                     AcademicYears batchYear = academicYearRepository.findById(batchAyrId).orElse(null);
-                    if (batchYear == null) return false;
+                    if (batchYear == null)
+                        return false;
 
                     String batchAyrName = batchYear.getAyrname();
                     int batchYearStarting = Integer.parseInt(batchAyrName.split("-")[0]);
 
                     // Calculate year difference
                     int diff = academicYearStarting - batchYearStarting;
-                    
+
                     // Active if diff >= 0 and diff < program duration
                     return diff >= 0 && diff < program.getPrgduration();
                 })
@@ -140,7 +220,8 @@ public class TermsController {
         // 7. For each active batch, create semester and courses
         for (Batches batch : activeBatches) {
             Programs program = programsRepository.findById(batch.getBchprgid()).orElse(null);
-            if (program == null) continue;
+            if (program == null)
+                continue;
 
             // Get batch's academic year
             Long batchAyrId = batch.getBchcalid();
@@ -195,10 +276,10 @@ public class TermsController {
             Long schemeId = batch.getSchemeId();
             Long splid = batch.getSplid();
             // Long splid = batch.getSplid() != null ? batch.getSplid() : 0L;
-            
+
             // Get splids: if splid > 0, include both 0 and splid; otherwise just 0
             List<Long> splids = splid > 0L ? Arrays.asList(0L, splid) : List.of(0L);
-            
+
             // Get scheme courses ordered by splid then courseSrNo
             List<SchemeCourses> schemeCourses = schemeCoursesRepository
                     .findBySchemeIdAndSplidInAndTermNameAndProgramYearOrderBySplidAscCourseSrNoAsc(
@@ -278,6 +359,7 @@ public class TermsController {
             }
         }
 
+        redirectAttributes.addFlashAttribute("success", "Term added successfully!");
         return "redirect:/admin/terms";
     }
 
@@ -292,16 +374,14 @@ public class TermsController {
                         (String) r[1],
                         (String) r[2],
                         (Date) r[3],
-                        (Date) r[4]
-                )).toList();
+                        (Date) r[4]))
+                .toList();
 
-        Map<String, List<TermViewDTO>> termsByAcademicYear =
-                terms.stream()
-                        .collect(Collectors.groupingBy(
-                                TermViewDTO::ayrname,
-                                LinkedHashMap::new, // preserves the order
-                                Collectors.toList()
-                        ));
+        Map<String, List<TermViewDTO>> termsByAcademicYear = terms.stream()
+                .collect(Collectors.groupingBy(
+                        TermViewDTO::ayrname,
+                        LinkedHashMap::new, // preserves the order
+                        Collectors.toList()));
 
         model.addAttribute("termsByAcademicYear", termsByAcademicYear);
         return "admin/terms";

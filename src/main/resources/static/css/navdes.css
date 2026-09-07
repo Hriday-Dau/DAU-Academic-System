@@ -1,14 +1,189 @@
-/* Merges the navbar into the colour gradient pane */
+/* New temporary css to merge the navbar into the colour gradient pane as per the new base css colours */
+
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background-color: white;
+}
+
+.navbar {
+    position: sticky;
+    top: 50px; /* height of header */
+    z-index: 999;
+    background-color: #fff;
+}
+
 .navbar {
     background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-    padding: 0 40px; /* Aligns with header content */
+    /* padding: 0 40px;  */
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 60px; /* Consistent thickness with dashboard */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 0 28px;
+    height: 60px; /* thickness same as dashboard */
+    font-family: "Segoe UI", Arial, sans-serif;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
 }
 
+/* ===== LEFT & RIGHT SECTIONS ===== */
+.nav-left,
+.nav-right {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+}
+
+/* ===== NAV ITEMS ===== */
+.nav-left li,
+.nav-right li {
+    position: relative;
+    margin-right: 18px;
+}
+
+.nav-left li:last-child,
+.nav-right li:last-child {
+    margin-right: 0;
+}
+
+.nav-left a,
+.nav-right a{
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.logout-btn {
+    color: #1f2937;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+/* Hover & Focus */
+.nav-left a:hover,
+.nav-right a:hover,
+.logout-btn:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* ===== ACTIVE LINK (OPTIONAL) ===== */
+.nav-left a.active {
+    background-color: var(--primary-light);
+}
+
+/* ===== DROPDOWN ===== */
+.dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    display: none; /* Bootstrap controls visibility */
+    list-style: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 4px;
+    background-color: #ffffff;
+    min-width: 200px;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    padding: 6px 0;
+    z-index: 1000;
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+.dropdown-menu li {
+    margin: 0;
+}
+
+.dropdown-menu a {
+    display: block;
+    padding: 10px 16px;
+    color: #1f2937;
+    text-decoration: none;
+}
+
+.dropdown-menu a:hover {
+    background-color: #f5f7fa;
+}
+
+/* ===== LOGOUT BUTTON ===== */
+.logout-btn {
+    font-weight: 600;
+}
+
+.logout-btn:hover {
+    background-color: #c0392b;
+}
+
+/* ===== RESPONSIVE (OPTIONAL) ===== */
+@media (max-width: 900px) {
+    .navbar {
+        padding: 0 16px;
+    }
+
+    .nav-left li,
+    .nav-right li {
+        margin-right: 10px;
+    }
+}
+
+/* ============ Desktop View (Large Screens) ============ */
+@media all and (min-width: 992px) {
+
+    /* Ensure the parent List Item is the anchor for positioning */
+    .dropdown-menu .nested-dropdown {
+        position: relative;
+    }
+
+    /* Hide the nested menu by default */
+    .dropdown-menu .nested-dropdown .dropdown-menu {
+        display: none;
+        position: absolute;
+        left: 100%; /* Move it to the right of the parent */
+        top: 0;     /* Align with the top of the item */
+        margin-top: -5px; /* Slight adjustment for alignment */
+    }
+
+    /* Show the nested menu on hover */
+    .dropdown-menu .nested-dropdown:hover > .dropdown-menu {
+        display: block;
+    }
+}
+
+/* ============ Mobile View (Small Screens) ============ */
+@media (max-width: 991px) {
+    /* On mobile, simply indent the nested menu so it looks like a tree */
+    .dropdown-menu .nested-dropdown .dropdown-menu {
+        display: block; /* Always show in mobile if parent is open, or use JS to toggle */
+        position: static;
+        margin-left: 20px;
+        background-color: #f8f9fa;
+        border: none;
+    }
+}
+
+
+/*
 .navbar ul {
     list-style: none;
     display: flex;
@@ -35,7 +210,9 @@
 }
 
 /* for the Logout Button to look like a link */
-.logout-btn {
+
+/* .logout-btn {
     font-family: inherit;
     padding: 0;
 }
+*/

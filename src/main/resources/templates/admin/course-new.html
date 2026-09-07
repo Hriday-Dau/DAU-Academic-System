@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Add (/Edit) Course Form</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- <link rel="stylesheet" th:href="@{/css/ecampus.css}" /> -->
+    <link rel="stylesheet" th:href="@{/css/base.css}">
+    <link rel="stylesheet" th:href="@{/css/navdes.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <!-- NAVBAR -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container main-content">
+        <h2 th:text="${course.crsid != null} ? 'Edit Course' : 'Add New Course'">Course Form</h2>
+
+        <div class="form-container">
+            <div th:if="${error}" class="alert-error" id="flashMessage">
+                <span th:text="${error}"></span>
+            </div>
+
+            <!-- Fixed form action -->
+            <form th:object="${course}" method="post"
+                th:action="${course.crsid != null} ? @{admin/courses/update/{id}(id=${course.crsid})} : @{admin/courses/save}">
+
+                <!-- Hidden fields to preserve ID and crscode -->
+                <input type="hidden" th:field="*{crsid}" />
+                <input type="hidden" th:field="*{crscode}" />
+
+                <!-- Course Name -->
+                <div class="form-group">
+                    <label class="form-label">Course Name</label>
+                    <input type="text" th:field="*{crsname}" class="form-control" required />
+                </div>
+
+                <!-- Course Title -->
+                <div class="form-group">
+                    <label class="form-label">Title</label>
+                    <input type="text" th:field="*{crstitle}" class="form-control" />
+                </div>
+
+                <!-- Course Level -->
+                <div class="form-group">
+                    <label class="form-label">Level</label>
+                    <input type="text" th:field="*{crsdiscipline}" class="form-control" />
+                </div>
+
+                <!-- Assessment Type -->
+                <div class="form-group">
+                    <label class="form-label">Assessment Type</label>
+                    <input type="text" th:field="*{crsassessmenttype}" class="form-control" />
+                </div>
+
+                <!-- L-T-P (C) fields -->
+                <div class="form-group">
+                    <label class="form-label">L-T-P (C)</label>
+                    <div class="d-flex gap-2">
+                        <input type="number" th:field="*{crslectures}" class="form-control" placeholder="L" />
+                        <input type="number" th:field="*{crstutorials}" class="form-control" placeholder="T" />
+                        <input type="number" th:field="*{crspracticals}" class="form-control" placeholder="P" />
+                        <input type="number" th:field="*{crscreditpoints}" class="form-control" placeholder="C" />
+                    </div>
+                </div>
+
+                <!-- Marks -->
+                <div class="form-group">
+                    <label class="form-label">Marks</label>
+                    <input type="number" th:field="*{crsmarks}" class="form-control" defaultValue="100" />
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="form-actions">
+                    <button type="submit" class="btn">Save Course</button>
+                    <a th:href="@{/admin/courses/master-list}" class="btn-danger"
+                        style="text-decoration: none; text-align: center;">Cancel</a>
+                    <!-- <a th:href="@{/admin/courses/master-list}" class="btn btn-dark">Back</a> -->
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div th:replace="fragments/footer :: footer"></div>
+
+    <script>
+        // Auto-hide error message after 5 seconds
+        setTimeout(() => {
+            const alertElement = document.getElementById('flashMessage');
+            if (alertElement) {
+                alertElement.style.display = 'none';
+            }
+        }, 5000);
+    </script>
+
+</body>
+
+</html>

@@ -1,87 +1,92 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <title>Pull from Existing Scheme</title>
     <meta charset="UTF-8">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+
+    <link rel="stylesheet" th:href="@{/css/base.css}">
+    <link rel="stylesheet" th:href="@{/css/navdes.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+
 </head>
+
 <body>
-<!-- HEADER -->
-<div th:replace="fragments/header :: header"></div>
+    <!-- HEADER -->
+    <div th:replace="fragments/header :: header"></div>
 
-<!-- NAVBAR -->
-<div th:replace="fragments/navbar :: navbar"></div>
+    <!-- NAVBAR -->
+    <div th:replace="fragments/navbar :: navbar"></div>
 
-<div class="container mt-3">
-    <h2>Pull from Existing Scheme</h2>
+    <div class="container main-content">
+        <h2 class="section-title" style="margin-top: 0; margin-bottom: 4px;">Pull from Existing Scheme</h2>
+        <p class="text-muted" style="margin-bottom: 24px;">Create a new scheme by copying all data from an existing
+            scheme</p>
 
-    <p class="text-muted">Create a new scheme by copying all data from an existing scheme</p>
+        <div th:if="${error}" class="alert-error" id="flashMessage">
+            <span th:text="${error}"></span>
+        </div>
 
-    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert" id="flashMessage">
-        <span th:text="${error}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-
-    <form th:action="@{/admin/programs/{programId}/schemes/pull(programId=${programId})}" method="post">
-        <div class="card">
-            <div class="card-body">
+        <div class="form-container">
+            <form th:action="@{/admin/programs/{programId}/edit/schemes/pull (programId=${programId})}" method="post">
                 <h5 class="card-title">New Scheme Details</h5>
-
-                <div class="mb-3">
-                    <label for="newSchemeId" class="form-label">New Scheme ID <span class="text-danger">*</span></label>
+                <br>
+                <div class="form-group">
+                    <label class="form-label" for="newSchemeID">New Scheme ID <span style="color: red;">*</span></label>
                     <input type="number" class="form-control" id="newSchemeId" name="newSchemeId" required>
                     <small class="form-text text-muted">Enter a unique identifier for the new scheme</small>
                 </div>
 
-                <div class="mb-3">
-                    <label for="effectiveFromYear" class="form-label">Effective From Year <span class="text-danger">*</span></label>
-                    <input type="number" class="form-control" id="effectiveFromYear" name="effectiveFromYear"
-                           min="2000" max="2100" required>
+                <div class="form-group">
+                    <label class="form-label" for="effectiveFromYear">Effective From Year <span
+                            style="color: red;">*</span></label>
+                    <input type="number" class="form-control" id="effectiveFromYear" name="effectiveFromYear" min="2000"
+                        max="2100" required>
                     <small class="form-text text-muted">The academic year when this scheme becomes effective</small>
                 </div>
 
-                <div class="mb-3">
-                    <label for="sourceSchemeId" class="form-label">Source Scheme <span class="text-danger">*</span></label>
-                    <select class="form-select" id="sourceSchemeId" name="sourceSchemeId" required>
+                <div class="form-group">
+                    <label class="form-label" for="sourceSchemeId">Source Scheme <span
+                            style="color: red;">*</span></label>
+                    <select name="sourceSchemeId" id="sourceSchemeId" class="form-select" required>
                         <option value="">-- Select Scheme to Copy From --</option>
-                        <option th:each="scheme : ${existingSchemes}"
-                                th:value="${scheme.id}"
-                                th:text="'Scheme #' + ${scheme.id} + ' (Effective from ' + ${scheme.effectiveFromYear} + ')'">
+                        <option th:each="scheme : ${existingSchemes}" th:value="${scheme.id}"
+                            th:text="'Scheme #' + ${scheme.id} + ' (Effective from ' + ${scheme.effectiveFromYear} + ')'">
                         </option>
                     </select>
-                    <small class="form-text text-muted">All specializations, course types, and courses will be copied from the selected scheme</small>
+                    <span class="text-muted">All specializations, course types, and courses will be copied from the
+                        selected scheme</span>
                 </div>
 
-                <div class="alert alert-info mt-3" role="alert">
+                <div class="alert-info">
                     <strong>Note:</strong> The following data will be copied:
-                    <ul class="mb-0">
+                    <ul>
                         <li>All specializations (SchemeDetails)</li>
                         <li>All course types for each specialization</li>
                         <li>All scheme courses for each specialization</li>
                     </ul>
                 </div>
-            </div>
-        </div>
 
-        <div class="mt-4 d-flex gap-2">
-            <button type="submit" class="btn btn-primary">Create Scheme</button>
-            <a class="btn btn-secondary" th:href="@{/admin/programs/{id}(id=${programId})}">Cancel</a>
+                <div class="form-actions">
+                    <button type="submit" class="btn">Create Scheme</button>
+                    <a th:href="@{/admin/programs/{id}/edit (id=${programId})}" class="btn-danger"
+                        style="text-decoration: none;">Cancel</a>
+                </div>
+            </form>
         </div>
-    </form>
+    </div>
 
     <!-- FOOTER -->
     <div th:replace="fragments/footer :: footer"></div>
-</div>
-<script>
-    setTimeout(() => {
-        const alertElement = document.getElementById('flashMessage');
-        if (alertElement) {
-            const alert = bootstrap.Alert.getOrCreateInstance(alertElement);
-            alert.close();  // Properly removes it
-        }
-    }, 5000);
-</script>
+
+    <script>
+        setTimeout(() => {
+            const alertElement = document.getElementById('flashMessage');
+            if (alertElement) alertElement.style.display = 'none';
+        }, 5000);
+    </script>
 </body>
+
 </html>

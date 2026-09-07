@@ -23,7 +23,7 @@
         </div>
     </div>
 
-    <form th:action="@{/admin/programs/{programId}/schemes/{schemeId}/{splid}/course-types/save(programId=${programId}, schemeId=${scheme.id}, splid=${splid})}"
+    <form th:action="@{/admin/programs/{programId}/edit/schemes/{schemeId}/{splid}/course-types/save(programId=${programId}, schemeId=${scheme.id}, splid=${splid})}"
           th:object="${courseType}" method="post">
         <input type="hidden" name="editing" th:value="${editing}" />
         <input type="hidden" th:field="*{ctpid}" />
@@ -86,7 +86,7 @@
         <input type="hidden" th:field="*{splid}" />
 
         <button type="submit" class="btn btn-primary">Save</button>
-        <a th:href="@{/admin/programs/{programId}/schemes/{schemeId}/{splid}/course-types(programId=${programId}, schemeId=${scheme.id}, splid=${splid})}"
+        <a th:href="@{/admin/programs/{programId}/edit/schemes/{schemeId}/{splid}/course-types(programId=${programId}, schemeId=${scheme.id}, splid=${splid})}"
            class="btn btn-secondary">Cancel</a>
     </form>
 
