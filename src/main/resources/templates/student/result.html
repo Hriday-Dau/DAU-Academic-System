@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Student Result</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/styleSrs.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <style>
+        :root {
+            --result-navy: #003366;
+            --result-blue: #2f6fb9;
+            --result-page: #e9ebf0;
+            --result-surface: #f7f8fb;
+            --result-border: #d8dde6;
+            --result-heading: #5a6677;
+            --result-text: #222e3f;
+            --result-muted: #667085;
+            --result-row-odd: #ececee;
+            --result-row-even: #f9f9fb;
+        }
+
+        body.result-page {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--result-page);
+            background-image: none;
+            color: var(--result-text);
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        .result-page::after {
+            display: none;
+            background-image: none;
+        }
+
+        .result-page .sidemenu {
+            display: none;
+        }
+
+        .result-page .content {
+            padding: 0;
+        }
+
+        .result-page .header {
+            border-bottom: 1px solid #d7dde7;
+        }
+
+        .result-page .navbar {
+            margin-top: 0;
+            border: 0;
+            border-radius: 0;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-layout {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 34px 26px 24px;
+        }
+
+        .result-surface {
+            overflow: hidden;
+            background: var(--result-surface);
+            border: 1px solid #dde2ea;
+            border-radius: 8px;
+        }
+
+        .result-toolbar {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 18px 20px;
+            border-bottom: 1px solid #dde2ea;
+            background: #ffffff;
+        }
+
+        .result-title {
+            margin: 0;
+            color: #0f1f3a;
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.25;
+        }
+
+        .result-subtitle {
+            margin: 4px 0 0;
+            color: var(--result-muted);
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .semester-switch {
+            display: grid;
+            min-width: 270px;
+            gap: 5px;
+            margin: 0;
+        }
+
+        .semester-switch label {
+            color: #344054;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .semester-switch .form-select {
+            min-height: 36px;
+            border-color: #bfd0e4;
+            border-radius: 6px;
+            color: var(--result-text);
+            font-size: 14px;
+        }
+
+        .semester-switch .form-select:focus {
+            border-color: var(--result-blue);
+            box-shadow: 0 0 0 0.18rem rgba(47, 111, 185, 0.16);
+        }
+
+        .result-empty {
+            margin: 20px;
+            padding: 14px 16px;
+            border: 1px solid #bfd0e4;
+            border-radius: 6px;
+            background: #f5f9fe;
+            color: #214c78;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .result-student-summary {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            margin: 0 20px;
+            padding: 16px 0;
+            border-bottom: 1px solid #dde2ea;
+        }
+
+        .student-summary-item {
+            min-width: 0;
+            padding: 0 16px;
+            border-left: 1px solid #dde2ea;
+        }
+
+        .student-summary-item:first-child {
+            padding-left: 0;
+            border-left: 0;
+        }
+
+        .student-summary-label {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--result-muted);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .student-summary-value {
+            display: block;
+            overflow-wrap: anywhere;
+            color: var(--result-navy);
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.35;
+        }
+
+        .result-section {
+            padding: 18px 20px 20px;
+        }
+
+        .result-section + .result-section {
+            border-top: 1px solid #dde2ea;
+        }
+
+        .result-section-title {
+            margin: 0 0 12px;
+            color: var(--result-navy);
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .result-table {
+            width: 100%;
+            margin: 0;
+            border-collapse: collapse;
+            background: #ffffff;
+        }
+
+        .result-table th,
+        .result-table td {
+            border: 1px solid var(--result-border);
+            padding: 10px 8px;
+            color: var(--result-text);
+            font-size: 14px;
+            line-height: 1.35;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .result-table thead th {
+            background: #f2f4f7;
+            color: var(--result-heading);
+            font-weight: 700;
+        }
+
+        .result-table tbody tr:nth-child(odd) {
+            background: var(--result-row-odd);
+        }
+
+        .result-table tbody tr:nth-child(even) {
+            background: var(--result-row-even);
+        }
+
+        .result-table .course-title {
+            min-width: 240px;
+            text-align: left;
+        }
+
+        .result-table .result-unavailable {
+            color: var(--result-muted);
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .performance-table {
+            min-width: 920px;
+        }
+
+        .performance-table .performance-group {
+            background: #e9f2ff;
+            color: #244a70;
+            font-weight: 700;
+        }
+
+        .performance-table tbody td {
+            font-weight: 600;
+        }
+
+        @media (max-width: 900px) {
+            .result-layout {
+                padding: 20px 12px 16px;
+            }
+
+            .result-student-summary {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                row-gap: 16px;
+            }
+
+            .student-summary-item:nth-child(3) {
+                padding-left: 0;
+                border-left: 0;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .result-toolbar {
+                align-items: stretch;
+                flex-direction: column;
+                gap: 14px;
+                padding: 16px;
+            }
+
+            .semester-switch {
+                min-width: 0;
+                width: 100%;
+            }
+
+            .result-student-summary {
+                grid-template-columns: 1fr;
+                margin: 0 16px;
+                padding: 14px 0;
+                row-gap: 12px;
+            }
+
+            .student-summary-item,
+            .student-summary-item:nth-child(3) {
+                padding: 0;
+                border-left: 0;
+            }
+
+            .result-section {
+                padding: 16px;
+            }
+
+            .result-empty {
+                margin: 16px;
+            }
+
+            .result-table th,
+            .result-table td {
+                padding: 8px 7px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body class="result-page">
+<div th:replace="fragments/header :: header"></div>
+<div th:replace="fragments/navbar :: navbar"></div>
+
+<main class="result-layout">
+    <section class="result-surface" aria-labelledby="result-page-title">
+        <div class="result-toolbar">
+            <div>
+                <h1 id="result-page-title" class="result-title">Result</h1>
+                <p class="result-subtitle">Semester-wise academic performance</p>
+            </div>
+
+            <form class="semester-switch" method="get" th:action="@{/student/result}" th:if="${result.hasSemesters()}">
+                <label for="semesterId">Semester</label>
+                <select id="semesterId" class="form-select" name="semesterId" onchange="this.form.submit()">
+                    <option th:each="sem : ${result.semesters}"
+                            th:value="${sem.semesterId}"
+                            th:selected="${sem.semesterId == result.selectedSemesterId}"
+                            th:text="${sem.label}">
+                        Semester
+                    </option>
+                </select>
+            </form>
+        </div>
+
+        <div th:if="${!result.available}" class="result-empty" role="status" th:text="${result.message}">
+            No result is available.
+        </div>
+
+        <div th:if="${result.available}">
+            <section class="result-student-summary" aria-label="Student and semester details">
+                <div class="student-summary-item">
+                    <span class="student-summary-label">Student Name</span>
+                    <span class="student-summary-value" th:text="${result.studentName}">Student Name</span>
+                </div>
+                <div class="student-summary-item">
+                    <span class="student-summary-label">Student ID</span>
+                    <span class="student-summary-value" th:text="${result.studentInstId}">Student ID</span>
+                </div>
+                <div class="student-summary-item">
+                    <span class="student-summary-label">Program and Batch</span>
+                    <span class="student-summary-value"><span th:text="${result.programName}">Program</span> | <span th:text="${result.batchName}">Batch</span></span>
+                </div>
+                <div class="student-summary-item">
+                    <span class="student-summary-label">Semester</span>
+                    <span class="student-summary-value"><span th:text="${result.semesterName}">Semester</span> | Registered <span th:text="${result.registrationDate}">Date</span></span>
+                </div>
+            </section>
+
+            <section class="result-section" aria-labelledby="registered-courses-title">
+                <h2 id="registered-courses-title" class="result-section-title">Registered Courses</h2>
+                <div class="table-responsive">
+                    <table class="table result-table align-middle">
+                        <thead>
+                        <tr>
+                            <th scope="col">Course Code</th>
+                            <th scope="col">Title</th>
+                            <th scope="col">Course Type</th>
+                            <th scope="col">Credits</th>
+                            <th scope="col">Grade</th>
+                            <th scope="col">Grade Points</th>
+                            <th scope="col">Remarks</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${#lists.isEmpty(result.courses)}">
+                            <td colspan="7" class="result-unavailable">No registered courses found for this semester.</td>
+                        </tr>
+                        <tr th:each="course : ${result.courses}">
+                            <td th:text="${course.courseCode}">CODE</td>
+                            <td class="course-title" th:text="${course.courseTitle}">Course</td>
+                            <td th:text="${course.courseType}">TYPE</td>
+                            <td th:text="${course.creditHours}">0.00</td>
+                            <td th:text="${course.grade}">--</td>
+                            <td th:text="${course.gradePoints}">0.00</td>
+                            <td th:text="${course.remarks}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="result-section" aria-labelledby="performance-summary-title">
+                <h2 id="performance-summary-title" class="result-section-title">Performance Summary</h2>
+                <div class="table-responsive">
+                    <table class="table result-table performance-table align-middle">
+                        <thead>
+                        <tr>
+                            <th class="performance-group" colspan="4" scope="colgroup">Current Semester Performance</th>
+                            <th class="performance-group" colspan="4" scope="colgroup">Cumulative Performance</th>
+                        </tr>
+                        <tr>
+                            <th scope="col">Credits Registered</th>
+                            <th scope="col">Credits Earned</th>
+                            <th scope="col">Grade Points Earned</th>
+                            <th scope="col">SPI</th>
+                            <th scope="col">Credits Registered</th>
+                            <th scope="col">Credits Earned</th>
+                            <th scope="col">Grade Points Earned</th>
+                            <th scope="col">CPI</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td th:text="${result.semesterPerformance.creditsRegistered}">0.00</td>
+                            <td th:text="${result.semesterPerformance.creditsEarned}">0.00</td>
+                            <td th:text="${result.semesterPerformance.gradePointsEarned}">0.00</td>
+                            <td th:text="${result.semesterPerformance.index}">--</td>
+                            <td th:text="${result.cumulativePerformance.creditsRegistered}">0.00</td>
+                            <td th:text="${result.cumulativePerformance.creditsEarned}">0.00</td>
+                            <td th:text="${result.cumulativePerformance.gradePointsEarned}">0.00</td>
+                            <td th:text="${result.cumulativePerformance.index}">--</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </section>
+</main>
+
+<div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>
