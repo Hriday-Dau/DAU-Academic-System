@@ -5,7 +5,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,21 +17,21 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ecampus.model.Batches;
 import com.ecampus.model.Programs;
 import com.ecampus.model.Students;
-import com.ecampus.model.Users;
 import com.ecampus.repository.ProgramsRepository;
 import com.ecampus.repository.StudentsRepository;
-import com.ecampus.repository.UserRepository;
+import com.ecampus.session.SessionConstants;
 import com.ecampus.service.StudentGraduationRequirementsService;
 import com.ecampus.service.StudentRegistrationService;
+import com.ecampus.util.LoggedUser;
+import com.ecampus.util.UnAuthorisedUserException;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/student")
 public class StudentProfileController {
 
     private static final DateTimeFormatter DOB_FORMAT = DateTimeFormatter.ofPattern("dd - MMM - yyyy");
-
-    @Autowired
-    private UserRepository userRepo;
 
     @Autowired
     private StudentsRepository studentsRepo;
@@ -47,8 +46,8 @@ public class StudentProfileController {
     private ProgramsRepository programsRepo;
 
     @GetMapping("/profile")
-    public String profile(Authentication authentication, Model model) {
-        Students student = resolveStudent(authentication, model);
+    public String profile(HttpSession session, Model model) {
+        Students student = resolveStudent(session, model);
         if (student == null) {
             return "student/student-profile";
         }
@@ -58,8 +57,8 @@ public class StudentProfileController {
     }
 
     @GetMapping("/profile/edit")
-    public String editProfile(Authentication authentication, Model model) {
-        Students student = resolveStudent(authentication, model);
+    public String editProfile(HttpSession session, Model model) {
+        Students student = resolveStudent(session, model);
         if (student == null) {
             return "student/student-profile-edit";
         }
@@ -70,11 +69,11 @@ public class StudentProfileController {
 
     @PostMapping("/profile/edit")
     @Transactional
-    public String updateProfile(Authentication authentication,
+    public String updateProfile(HttpSession session,
                                 @RequestParam(required = false) String stdheight,
                                 @RequestParam(required = false) String stdbldgrp,
                                 RedirectAttributes redirectAttributes) {
-        Long studentId = resolveStudentId(authentication);
+        Long studentId = resolveStudentId(session);
         if (studentId == null) {
             redirectAttributes.addFlashAttribute("error", "Unable to resolve student account");
             return "redirect:/student/profile";
@@ -100,8 +99,8 @@ public class StudentProfileController {
         return "redirect:/student/profile";
     }
 
-    private Students resolveStudent(Authentication authentication, Model model) {
-        Long studentId = resolveStudentId(authentication);
+    private Students resolveStudent(HttpSession session, Model model) {
+        Long studentId = resolveStudentId(session);
         if (studentId == null) {
             model.addAttribute("error", "Unable to resolve student account");
             return null;
@@ -115,14 +114,9 @@ public class StudentProfileController {
         return student;
     }
 
-    private Long resolveStudentId(Authentication authentication) {
-        String username = authentication.getName();
-        Users user = userRepo.findByUname(username).orElse(null);
-        if (user == null) {
-            return null;
-        }
-
-        Long studentId = user.getStdid();
+    private Long resolveStudentId(HttpSession session) {
+        LoggedUser user = currentLoggedUser(session);
+        Long studentId = user.getStdId();
         String instituteId = user.getUnivId();
         if (instituteId != null && !instituteId.isBlank()) {
             Long latestStudentId = registrationService.getLatestStudentIdByInstituteId(instituteId);
@@ -131,6 +125,7 @@ public class StudentProfileController {
             }
         }
 
+        String username = user.getUserName();
         if (username != null && username.matches("\\d+")) {
             Long mappedByUsername = registrationService.getLatestStudentIdByInstituteId(username);
             if (mappedByUsername != null) {
@@ -139,6 +134,19 @@ public class StudentProfileController {
         }
 
         return studentId;
+    }
+
+    private LoggedUser currentLoggedUser(HttpSession session) {
+        if (session == null) {
+            throw new UnAuthorisedUserException();
+        }
+
+        LoggedUser user = (LoggedUser) session.getAttribute(SessionConstants.CURRENT_USER);
+        if (user == null) {
+            throw new UnAuthorisedUserException();
+        }
+
+        return user;
     }
 
     private void populateProfileModel(Students student, Model model) {

@@ -13,7 +13,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -35,9 +34,14 @@ import com.ecampus.model.Users;
 import com.ecampus.repository.ProgramsRepository;
 import com.ecampus.repository.StudentSemesterResultRepository;
 import com.ecampus.repository.UserRepository;
+import com.ecampus.session.SessionConstants;
 import com.ecampus.service.StudentGraduationRequirementsService;
 import com.ecampus.service.StudentRegistrationService;
+import com.ecampus.util.LoggedUser;
 import com.ecampus.util.RomanNumeralUtil;
+import com.ecampus.util.UnAuthorisedUserException;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/student")
@@ -65,8 +69,8 @@ public class StudentDashboardController {
         private RegistrationDeadlineConfig deadlineConfig;
 
     @GetMapping("/dashboard")
-        public String dashboard(Authentication authentication, Model model) {
-        Long studentId = resolveStudentId(authentication);
+        public String dashboard(HttpSession session, Model model) {
+        Long studentId = resolveStudentId(session);
         if (studentId == null) {
             model.addAttribute("error", "Unable to resolve student account");
             return "student/student-dashboard";
@@ -189,7 +193,7 @@ public class StudentDashboardController {
     @PostMapping("/change-password")
     public String changePassword(@RequestParam String newPassword,
                                 @RequestParam String confirmPassword,
-                                Authentication authentication,
+                                HttpSession session,
                                 RedirectAttributes redirectAttributes) {
 
         String pattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&]).{8,}$";
@@ -210,8 +214,9 @@ public class StudentDashboardController {
         // Encrypt password using BCrypt
         String encodedPassword = passwordEncoder.encode(newPassword);
 
-        String username = authentication.getName();
-        Users user = userRepo.findByUname(username).orElseThrow(() -> new RuntimeException("User not found"));
+        LoggedUser loggedUser = currentLoggedUser(session);
+        Users user = userRepo.findByUname(loggedUser.getUserName())
+            .orElseThrow(() -> new RuntimeException("User not found"));
 
         // Save password
         user.setPassword(encodedPassword);
@@ -222,14 +227,9 @@ public class StudentDashboardController {
         return "redirect:/student/change-password";
     }
 
-    private Long resolveStudentId(Authentication authentication) {
-        String username = authentication.getName();
-        Users user = userRepo.findByUname(username).orElse(null);
-        if (user == null) {
-            return null;
-        }
-
-        Long studentId = user.getStdid();
+    private Long resolveStudentId(HttpSession session) {
+        LoggedUser user = currentLoggedUser(session);
+        Long studentId = user.getStdId();
         String instituteId = user.getUnivId();
         if (instituteId != null && !instituteId.isBlank()) {
             Long latestStudentId = registrationService.getLatestStudentIdByInstituteId(instituteId);
@@ -238,6 +238,7 @@ public class StudentDashboardController {
             }
         }
 
+        String username = user.getUserName();
         if (username != null && username.matches("\\d+")) {
             Long mappedByUsername = registrationService.getLatestStudentIdByInstituteId(username);
             if (mappedByUsername != null) {
@@ -246,6 +247,19 @@ public class StudentDashboardController {
         }
 
         return studentId;
+    }
+
+    private LoggedUser currentLoggedUser(HttpSession session) {
+        if (session == null) {
+            throw new UnAuthorisedUserException();
+        }
+
+        LoggedUser user = (LoggedUser) session.getAttribute(SessionConstants.CURRENT_USER);
+        if (user == null) {
+            throw new UnAuthorisedUserException();
+        }
+
+        return user;
     }
 
     private String buildStudentName(Students student) {

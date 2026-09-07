@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +20,12 @@ import com.ecampus.dto.CourseTypeProgressDTO;
 import com.ecampus.dto.OverallCourseTypeProgressDTO;
 import com.ecampus.model.Batches;
 import com.ecampus.model.Students;
+import com.ecampus.session.SessionConstants;
 import com.ecampus.service.StudentGraduationRequirementsService;
+import com.ecampus.util.LoggedUser;
+import com.ecampus.util.UnAuthorisedUserException;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/student/graduation-requirements")
@@ -31,8 +35,8 @@ public class GraduationRequirementsController {
     private StudentGraduationRequirementsService srgService;
 
     @GetMapping("/current-semester")
-    public String CurrentSemester(Authentication authentication, Model model) {
-        StudentContext context = buildStudentContext(authentication, model);
+        public String CurrentSemester(HttpSession session, Model model) {
+                StudentContext context = buildStudentContext(session, model);
 
         List<CourseTypeProgressDTO> progressList = srgService
                 .buildCurrentSemesterProgress(context.stdid(), context.batchId(),
@@ -57,8 +61,8 @@ public class GraduationRequirementsController {
     }
 
         @GetMapping("/overall-progress")
-        public String overallProgress(Authentication authentication, Model model) {
-                StudentContext context = buildStudentContext(authentication, model);
+        public String overallProgress(HttpSession session, Model model) {
+                StudentContext context = buildStudentContext(session, model);
 
                 List<OverallCourseTypeProgressDTO> progressList = srgService
                                 .buildOverallProgress(context.stdid(), context.schemeId(), context.splid());
@@ -98,8 +102,8 @@ public class GraduationRequirementsController {
         }
 
         @GetMapping("/course-conversions")
-        public String courseConversions(Authentication authentication, Model model) {
-                StudentContext context = buildStudentContext(authentication, model);
+        public String courseConversions(HttpSession session, Model model) {
+                StudentContext context = buildStudentContext(session, model);
 
                 List<CourseConversionTypeGroupDTO> groups = srgService
                                 .buildCourseConversionGroups(context.stdid(), context.schemeId(), context.splid());
@@ -126,11 +130,11 @@ public class GraduationRequirementsController {
         @PostMapping("/course-conversions/change-type")
         @ResponseBody
         public ResponseEntity<Map<String, Object>> changeCourseType(
-                        Authentication authentication,
+                        HttpSession session,
                         @RequestParam("srcid") Long srcid,
                         @RequestParam("ctpid") Long ctpid) {
 
-                StudentContext context = buildStudentContext(authentication, null);
+                StudentContext context = buildStudentContext(session, null);
                 Map<String, Object> response = new HashMap<>();
                 try {
                         srgService.updateCourseTypeConversion(
@@ -145,9 +149,8 @@ public class GraduationRequirementsController {
                 }
         }
 
-        private StudentContext buildStudentContext(Authentication authentication, Model model) {
-                String username = authentication.getName();
-                Long stdid = srgService.getStudentIdByUsername(username);
+        private StudentContext buildStudentContext(HttpSession session, Model model) {
+                Long stdid = currentLoggedUser(session).getStdId();
                 Students student = srgService.getStudent(stdid);
 
                 Long batchId = student.getStdbchid();
@@ -164,6 +167,19 @@ public class GraduationRequirementsController {
                 }
 
                 return new StudentContext(stdid, batchId, batch.getSchemeId(), batch.getSplid(), currentSemester);
+        }
+
+        private LoggedUser currentLoggedUser(HttpSession session) {
+                if (session == null) {
+                        throw new UnAuthorisedUserException();
+                }
+
+                LoggedUser user = (LoggedUser) session.getAttribute(SessionConstants.CURRENT_USER);
+                if (user == null) {
+                        throw new UnAuthorisedUserException();
+                }
+
+                return user;
         }
 
         private String formatDecimal(BigDecimal value) {
