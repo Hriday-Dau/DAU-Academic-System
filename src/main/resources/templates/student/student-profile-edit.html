@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Edit Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/base.css}">
+    <link rel="stylesheet" th:href="@{/css/student-profile.css}">
+</head>
+<body>
+    <!-- HEADER -->
+    <div th:replace="fragments/header :: header"></div>
+
+    <!-- NAVBAR -->
+    <div th:replace="fragments/navbar :: navbar"></div>
+
+    <main class="profile-container">
+        <div th:if="${error}" class="alert alert-danger">
+            <span th:text="${error}"></span>
+        </div>
+
+        <div th:if="${error == null}" class="profile-grid">
+            <aside class="profile-sidebar">
+                <div class="card profile-card">
+                    <div class="profile-photo">
+                        <img th:src="@{${studentPhotoPath}}" th:alt="${studentName}" />
+                    </div>
+                    <div class="profile-name" th:text="${studentName}">Student Name</div>
+                    <div class="profile-meta">ID: <span th:text="${studentInstId}">--</span></div>
+                    <div class="profile-meta">Program: <span th:text="${programmeName}">--</span></div>
+                    <div class="profile-meta">Batch: <span th:text="${batchName}">--</span></div>
+
+                    <div class="profile-actions">
+                        <a class="btn-outline" th:href="@{/student/profile}">Back to Profile</a>
+                    </div>
+                </div>
+            </aside>
+
+            <section class="profile-main">
+                <form class="card details-card" method="post" th:action="@{/student/profile/edit}">
+                    <div class="card-title">Student Personal Details</div>
+                    <div class="details-grid">
+                        <div class="detail-row">
+                            <div class="detail-label">Date of Birth</div>
+                            <div class="detail-value">
+                                <input type="text" class="detail-input" th:value="${dobValue}" disabled>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Gender</div>
+                            <div class="detail-value">
+                                <input type="text" class="detail-input" th:value="${genderValue}" disabled>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Qualifying Percentage / CGPA</div>
+                            <div class="detail-value">
+                                <input type="text" class="detail-input" th:value="${qualPercentValue}" disabled>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Qualifying Board</div>
+                            <div class="detail-value">
+                                <input type="text" class="detail-input" th:value="${qualBoardValue}" disabled>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Qualifying Year</div>
+                            <div class="detail-value">
+                                <input type="text" class="detail-input" th:value="${qualYearValue}" disabled>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Height</div>
+                            <div class="detail-value">
+                                <input type="text" class="detail-input" name="stdheight" th:value="${heightValue}">
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Identification Mark</div>
+                            <div class="detail-value">
+                                <input type="text" class="detail-input" th:value="${idMarkValue}" disabled>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Blood Group</div>
+                            <div class="detail-value">
+                                <input type="text" class="detail-input" name="stdbldgrp" th:value="${bloodGroupValue}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-title address-title">Student Address Info</div>
+                    <div class="details-grid">
+                        <div class="detail-row">
+                            <div class="detail-label">Current Local Address</div>
+                            <div class="detail-value">
+                                <input type="text" class="detail-input" value="--" disabled>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Parent Communication Address</div>
+                            <div class="detail-value">
+                                <input type="text" class="detail-input" value="--" disabled>
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-label">Emergency Address</div>
+                            <div class="detail-value">
+                                <input type="text" class="detail-input" value="--" disabled>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn">Submit</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <div th:replace="fragments/footer :: footer"></div>
+</body>
+</html>

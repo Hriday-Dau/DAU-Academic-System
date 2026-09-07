@@ -29,6 +29,12 @@ public interface StudentSemesterResultRepository extends
     @Query(value = "SELECT ssr.SSRCPI FROM ec2.STUDENTSEMESTERRESULT ssr WHERE ssr.SSRSRGID in (SELECT srg.SRGID FROM ec2.STUDENTREGISTRATIONS srg WHERE srg.SRGSTDID=:studentId) ORDER BY ssr.SSRSRGID DESC LIMIT 1 OFFSET 1", nativeQuery = true)
     String getlcpi(@Param("studentId") Long studentId);
 
+        @Query(value = "SELECT ssr.* FROM ec2.STUDENTSEMESTERRESULT ssr "
+            + "JOIN ec2.STUDENTREGISTRATIONS srg ON ssr.SSRSRGID = srg.SRGID "
+            + "WHERE srg.SRGSTDID = :studentId "
+            + "ORDER BY ssr.SSRSRGID DESC LIMIT 1", nativeQuery = true)
+        StudentSemesterResult findLatestByStudentId(@Param("studentId") Long studentId);
+
     @Query(value = "SELECT * FROM ec2.STUDENTSEMESTERRESULT ssr WHERE ssr.SSRSRGID = :srgid", nativeQuery = true)
     StudentSemesterResult getBySrgid(@Param("srgid") Long srgid);
 

@@ -63,7 +63,7 @@ public class StudentRegistrationController {
     public String listStudentRegistrations( HttpSession session, Model model) {
         Long studentId = resolveStudentId(session);
         if (studentId == null) {
-            model.addAttribute("error", "Unable to resolve student account");
+            model.addAttribute("error", "Internal Error");    //Unable to resolve student account
             return "student/student-registration";
         }
 

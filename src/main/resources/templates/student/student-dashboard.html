@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/base.css}">
+    <link rel="stylesheet" th:href="@{/css/student-dashboard.css}">
+</head>
+<body>
+    <!-- HEADER -->
+    <div th:replace="fragments/header :: header"></div>
+
+    <!-- NAVBAR -->
+    <div th:replace="fragments/navbar :: navbar"></div>
+
+    <main class="dashboard-container">
+        <div th:if="${error}" class="alert alert-danger">
+            <span th:text="${error}"></span>
+        </div>
+
+        <div th:if="${error == null}" class="dashboard-grid">
+            <section class="dashboard-main">
+                <div class="main-column">
+                    <div class="card profile-overview-card">
+                        <div class="profile-left">
+                            <div class="profile-photo">
+                                <img th:src="@{${studentPhotoPath}}" th:alt="${studentName}" />
+                            </div>
+                            <div class="profile-name" th:text="${studentName}">Student Name</div>
+                            <div class="profile-id" th:text="${studentInstId}">ID</div>
+                        </div>
+                        <div class="profile-right">
+                            <div class="overview-panel">
+                                <div class="info-header">Program:</div>
+                                <div class="info-value" th:text="${programmeName}">Programme Name</div>
+                                <div class="info-sub" th:text="${batchName}">Batch</div>
+                            </div>
+                            <div class="overview-snapshot">
+                                <div class="card-title">Academic Snapshot</div>
+                                <div class="snapshot-grid">
+                                    <div class="snapshot-item">
+                                        <div class="snapshot-label">CPI</div>
+                                        <div class="snapshot-value" th:text="${currentCpi}">--</div>
+                                    </div>
+                                    <div class="snapshot-item">
+                                        <div class="snapshot-label">SPI</div>
+                                        <div class="snapshot-value" th:text="${currentSpi}">--</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card registration-card">
+                        <div class="registration-header">
+                            <div>
+                                <div class="card-title">Registration Status</div>
+                                <div class="registration-term" th:text="${registrationTermLabel}">Term</div>
+                            </div>
+                            <a th:if="${registrationActionUrl != null}" class="btn"
+                               th:href="@{${registrationActionUrl}}" th:text="${registrationActionLabel}">View</a>
+                        </div>
+                        <div class="registration-status">
+                            <span th:class="${registrationOpen} ? 'status-dot open' : 'status-dot closed'"></span>
+                            <span th:text="${registrationStatusText}">Status</span>
+                        </div>
+                    </div>
+
+                    <div class="card announcement-card">
+                        <div class="card-title">Announcements</div>
+                        <div class="empty-state">No announcements yet.</div>
+                    </div>
+                </div>
+
+                <div class="main-column">
+                    <div class="card credits-card">
+                        <div class="card-title">Credits &amp; Electives</div>
+                        <div class="credit-summary">
+                            <div>
+                                <div class="summary-label">Credit Earned</div>
+                                <div class="summary-value" th:text="${totalCompletedCredits}">0</div>
+                            </div>
+                            <div>
+                                <div class="summary-label">Total Credit</div>
+                                <div class="summary-value" th:text="${totalRequiredCredits}">0</div>
+                            </div>
+                            <div>
+                                <div class="summary-label">Remaining</div>
+                                <div class="summary-value" th:text="${totalRemainingCredits}">0</div>
+                            </div>
+                        </div>
+
+                        <div class="credit-list" th:if="${overallProgressList != null && !#lists.isEmpty(overallProgressList)}">
+                            <div class="credit-row" th:each="row : ${overallProgressList}"
+                                 th:attr="data-completed=${row.completedCourses},data-total=${row.minCourses}">
+                                <div class="credit-top">
+                                    <div class="credit-name" th:text="${row.ctpname}">Requirement</div>
+                                    <div class="credit-count" th:text="${row.completedCourses} + '/' + ${row.minCourses}">0/0</div>
+                                </div>
+                                <div class="credit-bar">
+                                    <span class="credit-fill"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="empty-state" th:if="${overallProgressList == null || #lists.isEmpty(overallProgressList)}">
+                            No requirement data available.
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <div th:replace="fragments/footer :: footer"></div>
+
+    <script>
+        (function () {
+            const calendar = document.querySelector("[data-calendar]");
+            if (!calendar) return;
+
+            const calendarCard = calendar.closest(".calendar-card");
+            const monthLabel = calendarCard.querySelector(".calendar-month-button");
+            const picker = calendarCard.querySelector("[data-calendar-picker]");
+            const monthSelect = calendarCard.querySelector("#calendar-month-select");
+            const yearSelect = calendarCard.querySelector("#calendar-year-select");
+            const pickerApply = calendarCard.querySelector("[data-action='picker-apply']");
+            const grid = calendar.querySelector(".calendar-grid");
+            const prevBtn = calendarCard.querySelector("[data-action='prev']");
+            const nextBtn = calendarCard.querySelector("[data-action='next']");
+            const toggleBtn = calendarCard.querySelector("[data-action='toggle']");
+            const pickerToggle = calendarCard.querySelector("[data-action='picker']");
+
+            const today = new Date();
+            let viewYear = today.getFullYear();
+            let viewMonth = today.getMonth();
+            let expanded = false;
+            let selectedDate = null;
+            const monthNames = [
+                "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+            ];
+
+            function monthTitle(year, month) {
+                return monthNames[month] + " " + year;
+            }
+
+            function getWeeks(year, month) {
+                const first = new Date(year, month, 1);
+                const last = new Date(year, month + 1, 0);
+                const weeks = [];
+                let current = new Date(first);
+                current.setDate(current.getDate() - current.getDay());
+
+                while (current <= last || current.getDay() !== 0) {
+                    const week = [];
+                    for (let i = 0; i < 7; i++) {
+                        week.push(new Date(current));
+                        current.setDate(current.getDate() + 1);
+                    }
+                    weeks.push(week);
+                }
+                return weeks;
+            }
+
+            function render() {
+                monthLabel.textContent = monthTitle(viewYear, viewMonth);
+                grid.innerHTML = "";
+
+                monthSelect.value = String(viewMonth);
+                yearSelect.value = String(viewYear);
+
+                const weeks = getWeeks(viewYear, viewMonth);
+                const isCurrentMonth = viewYear === today.getFullYear() && viewMonth === today.getMonth();
+                const currentWeekIndex = isCurrentMonth
+                    ? weeks.findIndex(week => week.some(date => date.toDateString() === today.toDateString()))
+                    : 0;
+
+                const visibleWeeks = expanded ? weeks : [weeks[Math.max(0, currentWeekIndex)]];
+
+                visibleWeeks.forEach(week => {
+                    const row = document.createElement("div");
+                    row.className = "calendar-week";
+                    week.forEach(date => {
+                        const cell = document.createElement("button");
+                        cell.type = "button";
+                        cell.className = "calendar-day";
+                        if (date.getMonth() !== viewMonth) {
+                            cell.classList.add("muted");
+                        }
+                        if (date.toDateString() === today.toDateString()) {
+                            cell.classList.add("today");
+                        }
+                        if (selectedDate && date.toDateString() === selectedDate.toDateString()) {
+                            cell.classList.add("selected");
+                        }
+                        cell.textContent = date.getDate();
+                        cell.addEventListener("click", () => {
+                            selectedDate = date;
+                            render();
+                        });
+                        row.appendChild(cell);
+                    });
+                    grid.appendChild(row);
+                });
+
+                toggleBtn.textContent = expanded ? "Collapse calendar" : "Expand calendar";
+            }
+
+            prevBtn.addEventListener("click", () => {
+                if (viewMonth === 0) {
+                    viewMonth = 11;
+                    viewYear -= 1;
+                } else {
+                    viewMonth -= 1;
+                }
+                render();
+            });
+
+            nextBtn.addEventListener("click", () => {
+                if (viewMonth === 11) {
+                    viewMonth = 0;
+                    viewYear += 1;
+                } else {
+                    viewMonth += 1;
+                }
+                render();
+            });
+
+            toggleBtn.addEventListener("click", () => {
+                expanded = !expanded;
+                calendar.classList.toggle("expanded", expanded);
+                render();
+            });
+
+            function buildPickerOptions() {
+                monthSelect.innerHTML = "";
+                yearSelect.innerHTML = "";
+                monthNames.forEach((name, index) => {
+                    const option = document.createElement("option");
+                    option.value = String(index);
+                    option.textContent = name;
+                    monthSelect.appendChild(option);
+                });
+
+                for (let year = 2000; year <= 2100; year += 1) {
+                    const option = document.createElement("option");
+                    option.value = String(year);
+                    option.textContent = String(year);
+                    yearSelect.appendChild(option);
+                }
+            }
+
+            function closePicker() {
+                picker.classList.remove("open");
+                pickerToggle.setAttribute("aria-expanded", "false");
+            }
+
+            pickerToggle.addEventListener("click", (event) => {
+                event.stopPropagation();
+                picker.classList.toggle("open");
+                const isOpen = picker.classList.contains("open");
+                pickerToggle.setAttribute("aria-expanded", String(isOpen));
+            });
+
+            pickerApply.addEventListener("click", () => {
+                const monthValue = parseInt(monthSelect.value, 10);
+                const yearValue = parseInt(yearSelect.value, 10);
+                if (!Number.isNaN(monthValue) && !Number.isNaN(yearValue)) {
+                    viewMonth = Math.min(11, Math.max(0, monthValue));
+                    viewYear = Math.min(2100, Math.max(2000, yearValue));
+                    render();
+                }
+                closePicker();
+            });
+
+            document.addEventListener("click", (event) => {
+                if (!calendarCard.contains(event.target)) {
+                    closePicker();
+                }
+            });
+
+            buildPickerOptions();
+            render();
+        })();
+    </script>
+    <script>
+        (function () {
+            const rows = document.querySelectorAll(".credit-row[data-completed][data-total]");
+            rows.forEach((row) => {
+                const completed = parseFloat(row.dataset.completed);
+                const total = parseFloat(row.dataset.total);
+                const fill = row.querySelector(".credit-fill");
+                if (!fill || Number.isNaN(completed) || Number.isNaN(total) || total <= 0) {
+                    return;
+                }
+                const ratio = Math.min(1, Math.max(0, completed / total));
+                fill.style.width = (ratio * 100).toFixed(1) + "%";
+            });
+        })();
+    </script>
+</body>
+</html>
