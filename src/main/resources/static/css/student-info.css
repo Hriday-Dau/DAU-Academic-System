@@ -1,0 +1,303 @@
+/* Container Spacing */
+.main-content {
+  margin-top: 30px;
+  margin-bottom: 50px;
+}
+
+/* == Search Section == */
+.search-section {
+  background: var(--white);
+  padding: 24px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  margin-bottom: 30px;
+}
+
+.search-form {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.search-dropdown,
+.search-input {
+  padding: 10px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-family: var(--font-main);
+  outline: none;
+}
+
+.search-dropdown:focus,
+.search-input:focus {
+  border-color: var(--primary-light);
+}
+
+.search-dropdown {
+  background-color: #f9fafb;
+  cursor: pointer;
+  min-width: 150px;
+  color: var(--text-dark);
+}
+
+.search-input {
+  flex: 1;
+  /* Takes up the remaining horizontal space */
+}
+
+/* == Tabbed Menu Section == */
+/* .tabs-container {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  overflow: visible; 
+} */
+
+.tabs-container {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  margin-top: 20px;
+}
+
+.tab-menu {
+  /* position: sticky;
+  top: 0; */
+  z-index: 100;
+  display: flex;
+  background-color: #f9fafb;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.tab-btn {
+  flex: 1;
+  /* Distributes buttons evenly */
+  background: none;
+  border: none;
+  padding: 16px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 3px solid transparent;
+}
+
+.tab-btn:hover {
+  color: var(--primary);
+  background-color: #f3f4f6;
+}
+
+/* Styling for the currently active tab */
+.tab-btn.active {
+  color: var(--primary-dark);
+  border-bottom-color: var(--primary-dark);
+  background-color: var(--white);
+}
+
+/* == Tab Content Area == */
+.tab-content {
+  display: none;
+  /* Hide all contents by default */
+  padding: 32px;
+}
+
+.tab-content.active-content {
+  display: block;
+  /* Show only the active content */
+  animation: fadeIn 0.3s ease;
+}
+
+/* Simple animation for smooth tab switching */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* == Student Summary Table == */
+.summary-container {
+  background: var(--white);
+  padding: 24px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+  margin-bottom: 30px;
+  animation: fadeIn 0.4s ease;
+}
+
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.summary-table th {
+  padding: 12px 16px;
+  background-color: #f9fafb;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 14px;
+  border: 1px solid #e5e7eb;
+  width: 15%;
+}
+
+.summary-table td {
+  padding: 12px 16px;
+  color: var(--text-dark);
+  font-size: 15px;
+  border: 1px solid #e5e7eb;
+  width: 35%;
+}
+
+.error-msg {
+  color: #d32f2f;
+  background-color: #fdecea;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 20px;
+  font-weight: 500;
+  border-left: 4px solid #d32f2f;
+}
+
+
+/* == Data Grid Tables (Tabs) == */
+.data-table {
+  width: 100%;
+  border-collapse: separate;
+  text-align: left;
+  /* text-align: center; */
+}
+
+.data-table th {
+  padding: 12px 16px;
+  background-color: var(--primary-dark);
+  color: var(--white);
+  font-weight: 500;
+  font-size: 14px;
+  border-left: none;
+  border-right: none;
+  /* border: 1px solid #e5e7eb; */
+}
+
+.data-table td {
+  padding: 12px 16px;
+  color: var(--text-dark);
+  font-size: 14px;
+  border-left: none;
+  border-right: none;
+  /* border: 1px solid #e5e7eb; */
+}
+
+.data-table tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+.result-summary {
+  background-color: #f3f4f6;
+  padding: 12px 16px;
+  border: 1px solid #e5e7eb;
+  border-top: none;
+  /* Merges smoothly with the table bottom */
+  text-align: right;
+  font-size: 15px;
+  color: var(--primary-dark);
+}
+
+/* == Semester Card == */
+/* Not needed for now */
+/* .semester-section {
+  margin-bottom: 30px;
+} */
+
+.semester-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  margin-bottom: 30px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .04);
+}
+
+.semester-header {
+  /* position: sticky;
+  top: 135px;
+  z-index: 50; */
+  background: white;
+
+  /* padding: 12px 20px; */
+  padding: 14px 20px;
+  /* border: 1px solid #e5e7eb; */
+  border-bottom:1px solid #e5e7eb;
+  /* border-radius: 10px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .05); */
+}
+
+.semester-header h4 {
+  margin: 0;
+  color: var(--primary-dark);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+
+.student-context-bar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .08);
+  margin-bottom: 20px;
+}
+
+/* == Student Profile Card == */
+.student-profile-card {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  border-radius: var(--radius-md);
+  background: white;
+}
+
+.student-name {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+
+.student-id {
+  margin-top: 4px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.student-meta {
+  display: flex;
+  gap: 40px;
+  margin-top: 18px;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.meta-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.meta-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-dark);
+}

@@ -1,0 +1,230 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Student Information - Faculty</title>
+    <link rel="stylesheet" th:href="@{/css/base.css}" />
+    <link rel="stylesheet" th:href="@{/css/faculty.css}" />
+    <link rel="stylesheet" th:href="@{/css/student-info.css}" />
+</head>
+
+<body style="display:flex; flex-direction:column; min-height:100vh;">
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <!-- <nav class="navbar" th:replace="~{fragments/navbar :: navbar}"></nav> -->
+    <div th:replace="~{fragments/navbar :: faculty-navbar}"></div>
+
+    <div class="container main-content" style="flex:1;">
+        <h2 class="section-title" style="margin-top: 10px;">Student Information Search</h2>
+
+        <div th:if="${errorMessage}" class="error-msg" th:text="${errorMessage}"></div>
+
+        <div class="search-section">
+            <form class="search-form" th:action="@{/faculty/student-info}" method="GET">
+                <select name="searchType" class="search-dropdown">
+                    <option value="studentId" th:selected="${searchType == 'studentId'}">Student ID</option>
+                    <option value="studentName" th:selected="${searchType == 'studentName'}">Student Name</option>
+                </select>
+
+                <input type="text" name="searchQuery" id="studentSearchInput" class="search-input"
+                    placeholder="Search for a student..." required th:value="${searchQuery}"
+                    list="studentSuggestionsList" autocomplete="off">
+
+                <datalist id="studentSuggestionsList">
+                    <option th:each="student : ${studentSuggestions}" th:value="${student.stdinstid}"
+                        th:label="${student.stdinstid + ' - ' + student.stdfirstname + ' ' + (student.stdmiddlename != null ? student.stdmiddlename + ' ' : '') + student.stdlastname}"
+                        th:attr="data-id=${student.stdinstid}, data-name=${student.stdfirstname + ' ' + (student.stdmiddlename != null ? student.stdmiddlename + ' ' : '') + student.stdlastname}">
+                    </option>
+                    <option th:each="student : ${studentSuggestions}"
+                        th:value="${student.stdfirstname + ' ' + (student.stdmiddlename != null ? student.stdmiddlename + ' ' : '') + student.stdlastname}"
+                        th:label="${student.stdfirstname + ' ' + (student.stdmiddlename != null ? student.stdmiddlename + ' ' : '') + student.stdlastname + ' (' + student.stdinstid + ')'}"
+                        th:attr="data-id=${student.stdinstid}, data-name=${student.stdfirstname + ' ' + (student.stdmiddlename != null ? student.stdmiddlename + ' ' : '') + student.stdlastname}">
+                    </option>
+                </datalist>
+
+                <button type="submit" class="btn search-btn">Search</button>
+            </form>
+        </div>
+
+        <th:block th:if="${student != null}">
+
+            <div class="student-context-bar">
+
+                <!-- <div class="summary-container">
+                    <table class="summary-table">
+                        <tr>
+                            <th>Student ID</th>
+                            <td th:text="${student.stdinstid}"></td>
+
+                            <th>Name</th>
+                            <td
+                                th:text="${student.stdfirstname + ' ' + (student.stdmiddlename != null ? student.stdmiddlename + ' ' : '') + student.stdlastname}">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Program & Batch</th>
+                            <td
+                                th:text="${(student.batch != null and student.batch.programs != null ? student.batch.programs.prgname : '') + ' - ' + (student.batch != null ? student.batch.bchname : 'N/A')}">
+                            </td>
+
+                            <th>Semester</th>
+                            <td th:text="${currentSemester}"></td>
+                        </tr>
+                    </table>
+                </div> -->
+
+                <div class="student-profile-card">
+
+                    <div class="student-main">
+                        <div class="student-name" th:text="${student.stdfirstname + ' ' +
+             (student.stdmiddlename != null ?
+             student.stdmiddlename + ' ' : '') +
+             student.stdlastname}">
+                        </div>
+
+                        <div class="student-id" th:text="'Student ID: ' + ${student.stdinstid}">
+                        </div>
+                    </div>
+
+                    <div class="student-meta">
+
+                        <div class="meta-item">
+                            <span class="meta-label">Program</span>
+                            <span class="meta-value" th:text="${student.batch.programs.prgname}">
+                            </span>
+                        </div>
+
+                        <div class="meta-item">
+                            <span class="meta-label">Batch</span>
+                            <span class="meta-value" th:text="${student.batch.bchname}">
+                            </span>
+                        </div>
+
+                        <div class="meta-item">
+                            <span class="meta-label">Current Semester</span>
+                            <span class="meta-value" th:text="${currentSemester}">
+                            </span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="tab-menu">
+                    <button class="tab-btn active" data-tab="profile">Profile</button>
+                    <button class="tab-btn" data-tab="registration">Registration</button>
+                    <button class="tab-btn" data-tab="result">Result</button>
+                    <button class="tab-btn" data-tab="attendance">Attendance</button>
+                </div>
+
+            </div>
+
+            <div class="tabs-container">
+
+                <!-- </div> -->
+
+                <div class="tab-content-area">
+
+                    <div id="profile" class="tab-content active-content">
+                        <h3 class="section-title" style="margin-top: 0;">Student Profile</h3>
+                        <p>Student profile page will be visible here.</p>
+                    </div>
+
+                    <div id="registration" class="tab-content">
+                        <h3 class="section-title" style="margin-top: 0;">Course Registration History</h3>
+
+                        <div th:each="entry : ${recordsBySemester}" class="semester-card">
+                            <div class="semester-header">
+                                <h4 th:text="${entry.key}">Semester Name
+                                </h4>
+                            </div>
+
+                            <!-- <div class="semester-card"> -->
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Course Code</th>
+                                        <th>Course Title</th>
+                                        <th>Course Type</th>
+                                        <th>Credits</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="course : ${entry.value}">
+                                        <td th:text="${course.courseCode}"></td>
+                                        <td th:text="${course.courseTitle}"></td>
+                                        <td th:text="${course.courseType != null ? course.courseType : 'Core'}">
+                                        </td>
+                                        <td th:text="${course.credits}"></td>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <!-- </div> -->
+
+                        </div>
+                        <div th:if="${#maps.isEmpty(recordsBySemester)}">
+                            <p>No academic records found for this student.</p>
+                        </div>
+                    </div>
+
+                    <div id="result" class="tab-content">
+                        <h3 class="section-title" style="margin-top: 0;">Academic Results</h3>
+
+                        <div th:each="entry : ${recordsBySemester}" class="semester-card">
+
+                            <div class="semester-header">
+                                <h4 th:text="${entry.key}">Semester Name
+                                </h4>
+                            </div>
+
+                            <!-- <div class="semester-card"> -->
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Course Code</th>
+                                        <th>Course Title</th>
+                                        <th>Course Type</th>
+                                        <th>Credits</th>
+                                        <th>Grade</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="course : ${entry.value}">
+                                        <td th:text="${course.courseCode}"></td>
+                                        <td th:text="${course.courseTitle}"></td>
+                                        <td th:text="${course.courseType != null ? course.courseType : 'Core'}">
+                                        </td>
+                                        <td th:text="${course.credits}"></td>
+                                        </td>
+                                        <td style="text-align: center; width: 10%;"
+                                            th:text="${course.grade != null ? course.grade : 'Pending'}"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div class="result-summary" th:if="${performanceMap[entry.key] != null}">
+                                <strong>SPI: </strong> <span th:text="${performanceMap[entry.key].spi}"></span>
+                                <span style="margin: 0 15px; color: #d1d5db;">|</span>
+                                <strong>CPI: </strong> <span th:text="${performanceMap[entry.key].cpi}"></span>
+                            </div>
+                            <!-- </div> -->
+                        </div>
+                    </div>
+
+                    <div id="attendance" class="tab-content">
+                        <h3 class="section-title" style="margin-top: 0;">Attendance Records</h3>
+                        <p>Course-wise attendance statistics will appear here.</p>
+                    </div>
+
+                </div>
+            </div>
+        </th:block>
+    </div>
+
+    <script th:src="@{/js/student-info.js}"></script>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+
+</html>
