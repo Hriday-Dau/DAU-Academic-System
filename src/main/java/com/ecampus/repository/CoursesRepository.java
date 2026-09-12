@@ -13,17 +13,17 @@ import org.springframework.data.domain.Pageable;
 @Repository
 public interface CoursesRepository extends JpaRepository<Courses, Long> {
 
-//    @Query(value = "SELECT * FROM ec2.COURSES crs WHERE crs.CRSID = :crsid AND crs.CRSROWSTATE > 0", nativeQuery = true)
-//    Courses getbycrsid(@Param("crsid") Long crsid);
+      @Query(value = "SELECT * FROM ec2.COURSES crs WHERE crs.CRSID = :crsid AND crs.CRSROWSTATE > 0 AND crs.CRSROWSTATE < 900", nativeQuery = true)
+   Courses getbycrsid(@Param("crsid") Long crsid);
 
-//    @Query(value = "SELECT * FROM ec2.COURSEGROUPCOURSES cgc, ec2.COURSES crs WHERE cgc.CGCROWSTATE > 0 AND crs.CRSROWSTATE > 0 AND crs.CRSID = cgc.CGCCRSID AND cgc.CGCCGPID = :cgpId AND crs.CRSID IN (SELECT tc.tcrcrsid FROM ec2.TERMCOURSEAVAILABLEFOR tca, ec2.TERMCOURSES tc WHERE tca.tcaprgid = :prgId AND tca.tcatcrid = tc.tcrid AND tcastatus = 'T' AND tca.tcarowstate > 0 AND tc.tcrrowstate > 0 AND tc.tcrtrmid = :trmId) ORDER BY crs.crsname", nativeQuery = true)
-//    List<Courses> getbycgpId(@Param("cgpId") Long cgpId, @Param("prgId") Long prgId, @Param("trmId") Long trmId);
+      @Query(value = "SELECT * FROM ec2.COURSEGROUPCOURSES cgc, ec2.COURSES crs WHERE cgc.CGCROWSTATE > 0 AND crs.CRSROWSTATE > 0 AND crs.CRSROWSTATE < 900 AND crs.CRSID = cgc.CGCCRSID AND cgc.CGCCGPID = :cgpId AND crs.CRSID IN (SELECT tc.tcrcrsid FROM ec2.TERMCOURSEAVAILABLEFOR tca, ec2.TERMCOURSES tc WHERE tca.tcaprgid = :prgId AND tca.tcatcrid = tc.tcrid AND tcastatus = 'T' AND tca.tcarowstate > 0 AND tc.tcrrowstate > 0 AND tc.tcrtrmid = :trmId) ORDER BY crs.crsname", nativeQuery = true)
+   List<Courses> getbycgpId(@Param("cgpId") Long cgpId, @Param("prgId") Long prgId, @Param("trmId") Long trmId);
 
     @Query("SELECT COALESCE(MAX(c.crsid), 0) FROM Courses c")
     Long findMaxCrsid();
 
-//    @Query(value = "SELECT crs.CRSID FROM ec2.COURSES crs WHERE crs.CRSROWSTATE > 0 AND crs.CRSCODE = :courseCode", nativeQuery = true)
-//    Long findCourseIdByName(@Param("courseCode") String courseCode);
+      @Query(value = "SELECT crs.CRSID FROM ec2.COURSES crs WHERE crs.CRSROWSTATE > 0 AND crs.CRSROWSTATE < 900 AND crs.CRSCODE = :courseCode", nativeQuery = true)
+   Long findCourseIdByName(@Param("courseCode") String courseCode);
 
     // Fetch archived courses where rowstate >= 900
     @Query("SELECT c FROM Courses c WHERE c.crsrowstate >= 900")
@@ -31,12 +31,13 @@ public interface CoursesRepository extends JpaRepository<Courses, Long> {
 
     List<Courses> findByTerm_Trmid(Long trmId);
     List<Courses> findByCrsrowstateGreaterThan(Long rowState);
-    Page<Courses> findByCrsrowstateGreaterThan(int rowState, Pageable pageable);
+            Page<Courses> findByCrsrowstateGreaterThan(int rowState, Pageable pageable);
+            Page<Courses> findByCrsrowstateGreaterThanAndCrsrowstateLessThan(int lowerRowState, int upperRowState, Pageable pageable);
 
     @Query(
             value = """
         SELECT * FROM ec2.COURSES 
-        WHERE CRSROWSTATE > 0 
+      WHERE CRSROWSTATE > 0 AND CRSROWSTATE < 900 
           AND to_tsvector('english',
                 coalesce(CRSNAME, '') || ' ' ||
                 coalesce(CRSDISCIPLINE, '') || ' ' ||
@@ -50,7 +51,7 @@ public interface CoursesRepository extends JpaRepository<Courses, Long> {
         """,
             countQuery = """
         SELECT count(*) FROM ec2.COURSES 
-        WHERE CRSROWSTATE > 0 
+      WHERE CRSROWSTATE > 0 AND CRSROWSTATE < 900 
           AND to_tsvector('english',
                 coalesce(CRSNAME, '') || ' ' ||
                 coalesce(CRSDISCIPLINE, '') || ' ' ||
@@ -65,6 +66,69 @@ public interface CoursesRepository extends JpaRepository<Courses, Long> {
     )
     Page<Courses> searchCourses(@Param("keyword") String keyword, Pageable pageable);
 
+      @Query(
+                  value = """
+            SELECT * FROM ec2.COURSES c
+            WHERE c.CRSROWSTATE > 0 AND c.CRSROWSTATE < 900
+              AND (
+                        :keyword IS NULL OR :keyword = '' OR
+                        to_tsvector('english',
+                              coalesce(c.CRSNAME, '') || ' ' ||
+                              coalesce(c.CRSDISCIPLINE, '') || ' ' ||
+                              coalesce(c.CRSASSESSMENTTYPE, '') || ' ' ||
+                              coalesce(c.CRSCODE, '')
+                        ) @@ to_tsquery(
+                              'english',
+                              regexp_replace(:keyword, '\\s+', ' & ', 'g') || ':*'
+                        )
+              )
+              AND (
+                        :discipline IS NULL OR :discipline = '' OR
+                        LOWER(COALESCE(c.CRSDISCIPLINE, '')) = LOWER(:discipline)
+              )
+              AND (
+                        :stream IS NULL OR :stream = '' OR
+                        LOWER(COALESCE(c.CRS_STREAM, '')) = LOWER(:stream)
+              )
+            ORDER BY c.CRSNAME
+            """,
+                  countQuery = """
+            SELECT count(*) FROM ec2.COURSES c
+            WHERE c.CRSROWSTATE > 0 AND c.CRSROWSTATE < 900
+              AND (
+                        :keyword IS NULL OR :keyword = '' OR
+                        to_tsvector('english',
+                              coalesce(c.CRSNAME, '') || ' ' ||
+                              coalesce(c.CRSDISCIPLINE, '') || ' ' ||
+                              coalesce(c.CRSASSESSMENTTYPE, '') || ' ' ||
+                              coalesce(c.CRSCODE, '')
+                        ) @@ to_tsquery(
+                              'english',
+                              regexp_replace(:keyword, '\\s+', ' & ', 'g') || ':*'
+                        )
+              )
+              AND (
+                        :discipline IS NULL OR :discipline = '' OR
+                        LOWER(COALESCE(c.CRSDISCIPLINE, '')) = LOWER(:discipline)
+              )
+              AND (
+                        :stream IS NULL OR :stream = '' OR
+                        LOWER(COALESCE(c.CRS_STREAM, '')) = LOWER(:stream)
+              )
+            """,
+                  nativeQuery = true
+      )
+      Page<Courses> searchCoursesWithFilters(@Param("keyword") String keyword,
+                                                               @Param("discipline") String discipline,
+                                                               @Param("stream") String stream,
+                                                               Pageable pageable);
+
+      @Query(value = "SELECT DISTINCT c.CRSDISCIPLINE FROM ec2.COURSES c WHERE c.CRSROWSTATE > 0 AND c.CRSROWSTATE < 900 AND c.CRSDISCIPLINE IS NOT NULL AND TRIM(c.CRSDISCIPLINE) <> '' ORDER BY c.CRSDISCIPLINE", nativeQuery = true)
+      List<String> findDistinctDisciplines();
+
+      @Query(value = "SELECT DISTINCT c.CRS_STREAM FROM ec2.COURSES c WHERE c.CRSROWSTATE > 0 AND c.CRSROWSTATE < 900 AND c.CRS_STREAM IS NOT NULL AND TRIM(c.CRS_STREAM) <> '' ORDER BY c.CRS_STREAM", nativeQuery = true)
+      List<String> findDistinctStreams();
+
     Page<Courses> findByCrsrowstateEquals(int rowState, Pageable pageable);
 
     @Query(value = """
@@ -72,7 +136,8 @@ SELECT crs.*
 FROM ec2.COURSEGROUPCOURSES cgc
 JOIN ec2.COURSES crs ON crs.CRSID = cgc.CGCCRSID
 WHERE cgc.CGCROWSTATE > 0
-  AND crs.CRSROWSTATE > 0
+      AND crs.CRSROWSTATE > 0
+      AND crs.CRSROWSTATE < 900
   AND cgc.CGCCGPID = :cgpid
   AND crs.CRSID IN (
       SELECT tc.tcrcrsid
@@ -81,7 +146,8 @@ WHERE cgc.CGCROWSTATE > 0
       WHERE tca.tcaprgid = :prgid
         AND tcastatus = 'T'
         AND tca.tcarowstate > 0
-        AND tc.tcrrowstate > 0
+      AND tc.tcrrowstate > 0
+      AND tc.tcrrowstate < 900
         AND tc.tcrtrmid = :trmid
   )
 """, nativeQuery = true)

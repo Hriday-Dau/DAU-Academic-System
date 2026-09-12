@@ -17,7 +17,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Controller
-@RequestMapping("/admin/programs/{programId}/schemes/{schemeId}/{splid}/course-types")
+// @RequestMapping("/admin/programs/{programId}/schemes/{schemeId}/{splid}/course-types")
+@RequestMapping("/admin/programs/{programId}")
 public class CourseTypesController {
 
     @Autowired
@@ -29,7 +30,8 @@ public class CourseTypesController {
     @Autowired
     private ProgramsRepository programsRepository;
 
-    @GetMapping
+    // Course Types view-only page
+    @GetMapping("/view/schemes/{schemeId}/{splid}/course-types")
     public String viewCourseTypes(@PathVariable Long programId,
                                   @PathVariable Long schemeId,
                                   @PathVariable Long splid,
@@ -52,10 +54,43 @@ public class CourseTypesController {
         model.addAttribute("courseTypes", courseTypes);
         model.addAttribute("programName", programName);
 
+        // Pass the mode state to the frontend
+        model.addAttribute("isEditable", false);
+
         return "admin/course-types";
     }
 
-    @GetMapping("/add")
+    //Course Types editable page
+    @GetMapping("/edit/schemes/{schemeId}/{splid}/course-types")
+    public String editCourseTypes(@PathVariable Long programId,
+                                  @PathVariable Long schemeId,
+                                  @PathVariable Long splid,
+                                  Model model) {
+        Scheme scheme = schemeRepository.findById(schemeId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid scheme ID"));
+
+        List<CourseTypes> courseTypes =
+                courseTypesRepository.findBySchemeIdAndSplidOrderByCtpid(schemeId, splid);
+
+        Optional<Programs> program = programsRepository.findById(programId);
+        if (program.isEmpty()) {
+            return "redirect:/admin/programs";
+        }
+        String programName = program.get().getPrgname();
+
+        model.addAttribute("scheme", scheme);
+        model.addAttribute("programId", programId);
+        model.addAttribute("splid", splid);
+        model.addAttribute("courseTypes", courseTypes);
+        model.addAttribute("programName", programName);
+
+        // Pass the mode state to the frontend
+        model.addAttribute("isEditable", true);
+
+        return "admin/course-types";
+    }
+
+    @GetMapping("/edit/schemes/{schemeId}/{splid}/course-types/add")
     public String showAddCourseTypeForm(@PathVariable Long programId,
                                         @PathVariable Long schemeId,
                                         @PathVariable Long splid,
@@ -69,10 +104,14 @@ public class CourseTypesController {
         model.addAttribute("programId", programId);
         model.addAttribute("scheme", schemeRepository.findById(schemeId).orElse(null));
         model.addAttribute("splid", splid);
+
+        // Pass the mode state to the frontend
+        model.addAttribute("isEditable", true);
+
         return "admin/course-type-form";
     }
 
-    @GetMapping("/{ctpid}/edit")
+    @GetMapping("/edit/schemes/{schemeId}/{splid}/course-types/{ctpid}/edit")
     public String showEditCourseTypeForm(@PathVariable Long programId,
                                          @PathVariable Long schemeId,
                                          @PathVariable Long splid,
@@ -82,7 +121,7 @@ public class CourseTypesController {
         Optional<CourseTypes> ctOpt = courseTypesRepository.findById(ctpid);
         if (ctOpt.isEmpty()) {
             redirectAttributes.addFlashAttribute("error", "Course type not found.");
-            return "redirect:/admin/programs/" + programId + "/schemes/" + schemeId + "/" + splid + "/course-types";
+            return "redirect:/admin/programs/" + programId + "/edit/schemes/" + schemeId + "/" + splid + "/course-types";
         }
         CourseTypes ct = ctOpt.get();
 
@@ -91,10 +130,14 @@ public class CourseTypesController {
         model.addAttribute("programId", programId);
         model.addAttribute("scheme", schemeRepository.findById(schemeId).orElse(null));
         model.addAttribute("splid", splid);
+
+        // Pass the mode state to the frontend
+        model.addAttribute("isEditable", true);
+
         return "admin/course-type-form";
     }
 
-    @PostMapping("/save")
+    @PostMapping("/edit/schemes/{schemeId}/{splid}/course-types/save")
     public String saveCourseType(@PathVariable Long programId,
                                  @PathVariable Long schemeId,
                                  @PathVariable Long splid,
@@ -113,14 +156,14 @@ public class CourseTypesController {
 
         if (!editing && courseType.getCtpid() != null && courseTypesRepository.existsById(courseType.getCtpid())) {
             redirectAttributes.addFlashAttribute("error", "Course Type with this ID already exists.");
-            return "redirect:/admin/programs/" + programId + "/schemes/" + schemeId + "/" + splid + "/course-types/add";
+            return "redirect:/admin/programs/" + programId + "/edit/schemes/" + schemeId + "/" + splid + "/course-types/add";
         }
 
         courseTypesRepository.save(courseType);
-        return "redirect:/admin/programs/" + programId + "/schemes/" + schemeId + "/" + splid + "/course-types";
+        return "redirect:/admin/programs/" + programId + "/edit/schemes/" + schemeId + "/" + splid + "/course-types";
     }
 
-    @GetMapping("/{ctpid}/delete")
+    @GetMapping("/edit/schemes/{schemeId}/{splid}/course-types/{ctpid}/delete")
     public String deleteCourseType(@PathVariable Long programId,
                                    @PathVariable Long schemeId,
                                    @PathVariable Long splid,
@@ -135,6 +178,6 @@ public class CourseTypesController {
                 redirectAttributes.addFlashAttribute("error", "Cannot delete this course type because it is already in use.");
             }
         }
-        return "redirect:/admin/programs/" + programId + "/schemes/" + schemeId + "/" + splid + "/course-types";
+        return "redirect:/admin/programs/" + programId + "/edit/schemes/" + schemeId + "/" + splid + "/course-types";
     }
 }

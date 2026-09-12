@@ -1,93 +1,109 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <title>Scheme Details</title>
     <meta charset="UTF-8">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+
+    <link rel="stylesheet" th:href="@{/css/base.css}">
+    <link rel="stylesheet" th:href="@{/css/navdes.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+
 </head>
+
 <body>
-<!-- HEADER -->
-<div th:replace="fragments/header :: header"></div>
+    <!-- HEADER -->
+    <div th:replace="fragments/header :: header"></div>
 
-<!-- NAVBAR -->
-<div th:replace="fragments/navbar :: navbar"></div>
+    <!-- NAVBAR -->
+    <div th:replace="fragments/navbar :: navbar"></div>
 
-<div class="container mt-3">
+    <div class="container main-content">
 
-    <h2 class="mb-4">Scheme</h2>
+        <div style="margin-bottom: 15px; font-size: 14px; color: var(--text-muted);">
+            <span th:if="${isEditable}" style="color: #f59e0b; font-weight: 600;">⬤ Edit Mode Active</span>
+            <span th:if="${!isEditable}">⬤ View Mode (Read-Only)</span>
+        </div>
 
-    <table class="table table-bordered">
-        <tbody>
-        <tr>
-            <th scope="row">Scheme ID</th>
-            <td th:text="${scheme.id}">1</td>
-        </tr>
-        <tr>
-            <th scope="row">Program</th>
-            <td th:text="${programName}">B Tech (ICT)</td>
-        </tr>
-        <tr>
-            <th scope="row">Effective From Year</th>
-            <td th:text="${scheme.effectiveFromYear}">2022</td>
-        </tr>
-        </tbody>
-    </table>
+        <h2 class="section-title" style="margin-top: 0;">Scheme Details</h2>
 
-    <!--    Degrees-->
-    <div class="row row-cols-1 row-cols-md-3 g-4">
-        <!-- Loop through general and specializations -->
-        <div class="col" th:each="degree : ${degrees}">
-            <div class="card border-info h-100">
-                <div class="card-body">
-                    <h5 class="card-title" th:text="${degree.splname}">Degree</h5>
-                    <p class="card-text" th:text="${degree.spldesc}">Description</p>
-
-                    <!-- Action buttons -->
-                    <div class="mb-2 d-flex gap-2">
-                        <a class="btn btn-outline-primary w-100"
-                           th:href="@{/admin/programs/{programId}/schemes/{schemeId}/{splid}/graduation-requirements(programId=${programId}, schemeId=${scheme.id}, splid=${degree.splid})}">
-                            Graduation Requirements
-                        </a>
-                    </div>
-                    <!-- Inner boxes for Course Requirements and Semester Courses -->
-                    <div class="mt-3">
-                        <div class="row">
-                            <div class="col">
-                                <a class="btn btn-outline-primary w-100"
-                                   th:href="@{'/admin/programs/' + ${programId} + '/schemes/' + ${scheme.id} + '/' + ${degree.splid} + '/course-types'}">
-                                    Course<br>Types
-                                </a>
-                            </div>
-                            <div class="col">
-                                <a class="btn btn-outline-primary w-100"
-                                   th:href="@{/admin/programs/{programId}/schemes/{schemeId}/{splid}/scheme-courses(programId=${programId}, schemeId=${scheme.id}, splid=${degree.splid})}">
-                                    Scheme<br>Courses
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+        <!-- <div class="info-container">
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Scheme ID</span>
+                    <span class="info-value" th:text="${scheme.id}">1</span>
                 </div>
+                <div class="info-item">
+                    <span class="info-label">Program</span>
+                    <span class="info-value" th:text="${programName}">B Tech (ICT)</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Effective From Year</span>
+                    <span class="info-value" th:text="${scheme.effectiveFromYear}">2022</span>
+                </div>
+            </div>
+        </div> -->
+
+        <div class="scheme-summary">
+            Scheme for Program:
+            <strong th:text="${programName}">M Tech (ICT)</strong>
+
+            <span class="summary-separator">•</span>
+
+            <span>
+                Effective from Year:
+                <strong th:text="${scheme.effectiveFromYear}">2022</strong>
+            </span>
+        </div>
+
+
+        <h3 class="section-header">Specializations</h3>
+
+        <div class="degrees-grid">
+            <div class="degree-card" th:each="degree : ${degrees}"
+                th:classappend="${degree.splid == 0} ? ' core-degree-card' : ''">
+                <span class="core-badge" th:if="${degree.splid == 0}">
+                    Main Program
+                </span>
+                <h4 th:text="${degree.splname}">Specialization Name</h4>
+                <p style="font-size: 14px; color: var(--text-muted); margin-bottom:12px; line-height:1.45;"
+                    th:text="${degree.spldesc}">
+                    Description...</p>
+
+                <div class="degree-actions">
+                    <a class="btn-outline-primary" style="text-align: center; text-decoration: none;"
+                        th:href="${isEditable} ? @{/admin/programs/{programId}/edit/schemes/{schemeId}/{splid}/course-types (programId=${programId}, schemeId=${scheme.id}, splid=${degree.splid})} : @{/admin/programs/{programId}/view/schemes/{schemeId}/{splid}/course-types (programId=${programId}, schemeId=${scheme.id}, splid=${degree.splid})}">
+                        Course<br>Types
+                    </a>
+                    <a class="btn-outline-primary" style="text-align: center; text-decoration: none;"
+                        th:href="${isEditable} ? @{/admin/programs/{programId}/edit/schemes/{schemeId}/{splid}/scheme-courses (programId=${programId}, schemeId=${scheme.id}, splid=${degree.splid})} : @{/admin/programs/{programId}/view/schemes/{schemeId}/{splid}/scheme-courses (programId=${programId}, schemeId=${scheme.id}, splid=${degree.splid})}">
+                        Scheme<br>Courses
+                    </a>
+                    <a class="btn-outline-primary btn-full-width" style="text-decoration: none; text-align: center;"
+                        th:href="${isEditable} ? @{/admin/programs/{programId}/edit/schemes/{schemeId}/{splid}/graduation-requirements (programId=${programId}, schemeId=${scheme.id}, splid=${degree.splid})} : @{/admin/programs/{programId}/view/schemes/{schemeId}/{splid}/graduation-requirements (programId=${programId}, schemeId=${scheme.id}, splid=${degree.splid})}">
+                        Graduation Requirements
+                    </a>
+                </div>
+            </div>
+
+            <div class="degree-card action-card">
+                <a th:href="@{/admin/programs/{id}/edit/schemes/{schemeId}/add (id=${programId}, schemeId=${scheme.id})}"
+                    class="btn-success" th:classappend="${!isEditable} ? 'disabled-link' : ''"
+                    style="text-decoration: none;">
+                    + Add Specialization
+                </a>
             </div>
         </div>
 
-        <!-- Add Degree card -->
-        <div class="col">
-            <div class="card h-100 border-success text-center">
-                <div class="card-body d-flex flex-column justify-content-center">
-                    <a th:href="@{/admin/programs/{id}/schemes/{schemeId}/add(id=${programId}, schemeId=${scheme.id})}" class="btn btn-success">Add Specialization</a>
-                </div>
-            </div>
+        <div style="margin-top: 20px;">
+            <a class="btn-outline" style="text-decoration: none;"
+                th:href="${isEditable} ? @{/admin/programs/{programId}/edit (programId=${programId})} : @{/admin/programs/{programId}/view (programId=${programId})}">←
+                Back to Schemes Dashboard</a>
         </div>
-    </div>
 
-    <div class="d-flex mt-3">
-        <a class="btn btn-secondary" th:href="@{/admin/programs/{programId}(programId=${programId})}">← Back to Schemes</a>
     </div>
-
-    <!-- FOOTER -->
-    <div th:replace="fragments/footer :: footer"></div>
-</div>
 </body>
+
 </html>

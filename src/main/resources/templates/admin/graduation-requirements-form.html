@@ -18,7 +18,7 @@
 
     <h2 class="mb-4">Edit Graduation Requirements - <span th:text="${degree.splname}">Specialization</span></h2>
 
-    <form th:action="@{/admin/programs/{programId}/schemes/{scheme.id}/{splid}/graduation-requirements/save(programId=${programId}, scheme.id=${scheme.id}, splid=${degree.splid})}" th:object="${degree}" method="post">
+    <form th:action="@{/admin/programs/{programId}/edit/schemes/{scheme.id}/{splid}/graduation-requirements/save (programId=${programId}, scheme.id=${scheme.id}, splid=${degree.splid})}" th:object="${degree}" method="post">
         <input type="hidden" th:field="*{schemeId}" />
         <input type="hidden" th:field="*{splid}" />
         <input type="hidden" th:field="*{splname}" />
@@ -68,7 +68,7 @@
 
         <div class="d-flex gap-2">
             <button type="submit" class="btn btn-primary">Save</button>
-            <a class="btn btn-secondary" th:href="@{/admin/programs/{programId}/schemes/{schemeId}/{splid}/graduation-requirements(programId=${programId}, schemeId=${scheme.id}, splid=${degree.splid})}">Cancel</a>
+            <a class="btn btn-secondary" th:href="@{/admin/programs/{programId}/edit/schemes/{schemeId}/{splid}/graduation-requirements (programId=${programId}, schemeId=${scheme.id}, splid=${degree.splid})}">Cancel</a>
         </div>
 
     </form>

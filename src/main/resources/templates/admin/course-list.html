@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Master Course List</title>
+    <meta charset="UTF-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/base.css}" />
+    <link rel="stylesheet" th:href="@{/css/navdes.css}" />
+    <link rel="stylesheet" th:href="@{/css/admin.css}" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <script>
+        function confirmDelete(courseId) {
+            return confirm('Are you sure you want to delete course ID ' + courseId + '?');
+        }
+    </script>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <!-- NAVBAR -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container main-content" style="margin-top: 10px;">
+        <!-- <h2 class="section-title">Courses</h2> -->
+        <div class="page-title-bar">
+
+            <h2 class="section-title">
+                Courses
+            </h2>
+
+            <div class="title-actions">
+
+                <a class="btn btn-primary" th:href="@{/admin/courses/new}">
+
+                    <i class="bi bi-plus-circle"></i>
+
+                    Add Course
+
+                </a>
+
+                <a class="btn btn-success" th:href="@{/admin/courses/excel}">
+
+                    <i class="bi bi-download"></i>
+
+                    Export
+
+                </a>
+
+                <a class="btn btn-outline" th:href="@{/admin/courses/archived}">
+
+                    Archived
+
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- Search & Filter Toolbar -->
+
+        <div class="course-toolbar">
+
+            <form th:action="@{/admin/courses/master-list}" method="get" class="course-toolbar-form">
+
+                <input type="hidden" name="size" th:value="${pageSize}" />
+
+                <div class="toolbar-row">
+
+                    <!-- Search -->
+
+                    <div class="toolbar-search">
+
+                        <i class="bi bi-search"></i>
+
+                        <input type="search" name="keyword" class="form-control border-0 shadow-none"
+                            placeholder="Search by course code or name..." th:value="${keyword}" />
+
+                    </div>
+
+                    <!-- Toggle -->
+
+                    <button class="btn btn-light" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#advancedFilters">
+
+                        <i class="bi bi-funnel"></i>
+                        Filters
+
+                    </button>
+
+                    <button class="btn btn-primary-custom">
+
+                        Search
+
+                    </button>
+
+                </div>
+
+                <!-- Advanced Filters -->
+
+                <div class="collapse mt-3" id="advancedFilters">
+
+                    <div class="toolbar-filters">
+
+                        <div>
+
+                            <label class="form-label">
+                                Level
+                            </label>
+
+                            <select class="form-select" name="discipline">
+
+                                <option value="">
+                                    All Disciplines
+                                </option>
+
+                                <option th:each="item : ${disciplines}" th:value="${item}" th:text="${item}"
+                                    th:selected="${item == selectedDiscipline}">
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <div>
+
+                            <label class="form-label">
+                                Stream
+                            </label>
+
+                            <select class="form-select" name="stream">
+
+                                <option value="">
+                                    All Streams
+                                </option>
+
+                                <option th:each="item : ${streams}" th:value="${item}" th:text="${item}"
+                                    th:selected="${item == selectedStream}">
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <div class="filter-buttons">
+
+                            <button class="btn btn-primary-custom">
+
+                                Apply
+
+                            </button>
+
+                            <a class="btn btn-outline" th:href="@{/admin/courses/master-list(size=${pageSize})}">
+
+                                Reset
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+        <div class="mt-2">
+
+            <span th:if="${keyword!=null and !keyword.isEmpty()}" class="badge text-bg-primary">
+
+                Keyword:
+                <span th:text="${keyword}"></span>
+
+            </span>
+
+            <span th:if="${selectedDiscipline!=null and !selectedDiscipline.isEmpty()}" class="badge text-bg-secondary">
+
+                Level:
+                <span th:text="${selectedDiscipline}"></span>
+
+            </span>
+
+            <span th:if="${selectedStream!=null and !selectedStream.isEmpty()}" class="badge text-bg-success">
+
+                Stream:
+                <span th:text="${selectedStream}"></span>
+
+            </span>
+
+        </div>
+
+        <div class="table-container course-table-shell">
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Sr. No.</th>
+                            <th>Course Code</th>
+                            <th>Course Name</th>
+                            <th>Level</th>
+                            <th>L</th>
+                            <th>T</th>
+                            <th>P</th>
+                            <th>C</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="course, iterStat : ${coursesPage.content}">
+                            <td th:text="${iterStat.index + 1 + (currentPage * pageSize)}"></td>
+                            <td th:text="${course.crscode}"></td>
+                            <td class="course-name-cell" th:text="${course.crsname}"></td>
+                            <td th:text="${course.crsdiscipline}"></td>
+                            <td th:text="${course.crslectures}"></td>
+                            <td th:text="${course.crstutorials}"></td>
+                            <td th:text="${course.crspracticals}"></td>
+                            <td th:text="${course.crscreditpoints}"></td>
+                            <td>
+                                <div class="course-actions">
+                                    <a class="btn btn-warning btn-action"
+                                        th:href="@{'/admin/courses/edit/' + ${course.crsid}}">
+                                        <i class="bi bi-pencil-square"></i> Edit
+                                    </a>
+                                    <a class="btn btn-success btn-action"
+                                        th:href="@{/admin/courses/archive/{crsid}(crsid=${course.crsid})}"
+                                        onclick="return confirm('Archive this course?');">
+                                        <i class="bi bi-archive"></i> Archive
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(coursesPage.content)}">
+                            <td colspan="9" class="course-empty-state">No courses found.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="course-pagination">
+            <nav th:if="${totalPages > 1}">
+                <ul class="pagination pagination-wrap justify-content-center">
+                    <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                        <a class="page-link"
+                            th:href="@{/admin/courses/master-list(page=${currentPage - 1}, size=${pageSize}, keyword=${keyword}, discipline=${selectedDiscipline}, stream=${selectedStream})}">
+                            Previous
+                        </a>
+                    </li>
+
+                    <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                        th:classappend="${i == currentPage} ? 'active'">
+                        <a class="page-link"
+                            th:href="@{/admin/courses/master-list(page=${i}, size=${pageSize}, keyword=${keyword}, discipline=${selectedDiscipline}, stream=${selectedStream})}"
+                            th:text="${i + 1}"></a>
+                    </li>
+
+                    <li class="page-item" th:classappend="${currentPage + 1 == totalPages} ? 'disabled'">
+                        <a class="page-link"
+                            th:href="@{/admin/courses/master-list(page=${currentPage + 1}, size=${pageSize}, keyword=${keyword}, discipline=${selectedDiscipline}, stream=${selectedStream})}">
+                            Next
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div th:replace="fragments/footer :: footer"></div>
+
+</body>
+
+</html>

@@ -10,17 +10,17 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TermsRepository extends JpaRepository<Terms, Long> {
 
-//    @Query(value = "SELECT * FROM ec2.terms trm, ec2.academicyears acdy " +
-//            "WHERE trm.trmrowstate > 0 AND acdy.ayrrowstate > 0 " +
-//            "AND trm.trmayrid = acdy.ayrid " +
-//            "AND trm.trmid = :termId", nativeQuery = true)
-//    Terms gettrmId(@Param("termId") Long termId);
+   @Query(value = "SELECT * FROM ec2.terms trm, ec2.academicyears acdy " +
+           "WHERE trm.trmrowstate > 0 AND acdy.ayrrowstate > 0 " +
+           "AND trm.trmayrid = acdy.ayrid " +
+           "AND trm.trmid = :termId", nativeQuery = true)
+   Terms gettrmId(@Param("termId") Long termId);
 
-//    @Query(value = "SELECT trm.trmid FROM ec2.terms trm, ec2.academicyears acdy " +
-//            "WHERE trm.trmrowstate > 0 AND acdy.ayrrowstate > 0 " +
-//            "AND trm.trmayrid = acdy.ayrid " +
-//            "AND trm.trmname = :name AND acdy.ayrid = :ayrid", nativeQuery = true)
-//    Long findTermIdByName(@Param("name") String name, @Param("ayrid") Long ayrid);
+   @Query(value = "SELECT trm.trmid FROM ec2.terms trm, ec2.academicyears acdy " +
+           "WHERE trm.trmrowstate > 0 AND acdy.ayrrowstate > 0 " +
+           "AND trm.trmayrid = acdy.ayrid " +
+           "AND trm.trmname = :name AND acdy.ayrid = :ayrid", nativeQuery = true)
+   Long findTermIdByName(@Param("name") String name, @Param("ayrid") Long ayrid);
 
     List<Terms> findByAcademicYear_Ayrid(Long academicYearId);
 
@@ -89,4 +89,6 @@ public interface TermsRepository extends JpaRepository<Terms, Long> {
             LIMIT 1
             """, nativeQuery = true)
     Terms findByYearAndTerm(@Param("year") String year, @Param("termName") String termName);
+
+    boolean existsByTrmnameAndTrmayrid(String trmname, Long trmayrid);
 }

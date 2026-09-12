@@ -11,7 +11,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.Optional;
 import java.util.List;
 @Controller
-@RequestMapping("/admin/programs/{programId}/schemes")
+// @RequestMapping("/admin/programs/{programId}/schemes")
+@RequestMapping("/admin/programs/{programId}")
 public class SchemesController {
 
     @Autowired
@@ -26,7 +27,7 @@ public class SchemesController {
     @Autowired
     private SchemeDetailsRepository schemeDetailsRepository;
     // Show Add Scheme form
-    @GetMapping("/add")
+    @GetMapping("/edit/schemes/add")
     public String showAddSchemeForm(@PathVariable("programId") Short programId, Model model) {
         Optional<Programs> program = programsRepository.findById(Long.valueOf(programId));
         if (program.isEmpty()) {
@@ -41,21 +42,22 @@ public class SchemesController {
     }
 
     // Handle Scheme submission
-    @PostMapping("/save")
+    @PostMapping("/edit/schemes/save")
     public String saveScheme(@ModelAttribute("scheme") Scheme scheme,
                              @RequestParam("editing") boolean editing,
                              RedirectAttributes redirectAttributes) {
 
         if (!editing && schemeRepository.existsById(scheme.getId())) {
             redirectAttributes.addFlashAttribute("error", "Scheme with this ID already exists.");
-            return "redirect:/admin/programs/" + scheme.getProgram().getPrgid() + "/schemes/add";
+            return "redirect:/admin/programs/" + scheme.getProgram().getPrgid() + "/edit/schemes/add";
         }
 
         schemeRepository.save(scheme);
-        return "redirect:/admin/programs/" + scheme.getProgram().getPrgid();
+        return "redirect:/admin/programs/" + scheme.getProgram().getPrgid() + "/edit";
     }
 
-    @GetMapping("/{schemeId}")
+    //View Scheme Page
+    @GetMapping("/view/schemes/{schemeId}")
     public String viewSchemeDetails(@PathVariable Long programId,
                                     @PathVariable Long schemeId,
                                     Model model) {
@@ -75,10 +77,43 @@ public class SchemesController {
         model.addAttribute("programId", programId);
         model.addAttribute("degrees", degrees);
         model.addAttribute("programName", programName);
+
+        // Pass the mode state to the frontend
+        model.addAttribute("isEditable", false);
+
         return "admin/schemes";
     }
 
-    @GetMapping("/{schemeId}/{splid}/graduation-requirements")
+    //Edit Scheme Page
+    @GetMapping("/edit/schemes/{schemeId}")
+    public String editSchemeDetails(@PathVariable Long programId,
+                                    @PathVariable Long schemeId,
+                                    Model model) {
+        Scheme scheme = schemeRepository.findById(schemeId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid scheme ID"));
+
+        List<SchemeDetails> degrees =
+                schemeDetailsRepository.findBySchemeId(schemeId);
+
+        Optional<Programs> program = programsRepository.findById(programId);
+        if (program.isEmpty()) {
+            return "redirect:/admin/programs";
+        }
+        String programName = program.get().getPrgname();
+
+        model.addAttribute("scheme", scheme);
+        model.addAttribute("programId", programId);
+        model.addAttribute("degrees", degrees);
+        model.addAttribute("programName", programName);
+
+        // Pass the mode state to the frontend
+        model.addAttribute("isEditable", true);
+
+        return "admin/schemes";
+    }
+
+    // View-only Graduation requirements page
+    @GetMapping("/view/schemes/{schemeId}/{splid}/graduation-requirements")
     public String viewGraduationRequirements(@PathVariable Long programId,
                                              @PathVariable Long schemeId,
                                              @PathVariable Long splid,
@@ -94,7 +129,40 @@ public class SchemesController {
 
         Optional<SchemeDetails> degreeOpt = schemeDetailsRepository.findBySchemeIdAndSplid(schemeId, splid);
         if (degreeOpt.isEmpty()) {
-            return "redirect:/admin/programs/" + programId + "/schemes/" + schemeId;
+            return "redirect:/admin/programs/" + programId + "/view/schemes/" + schemeId;
+        }
+        SchemeDetails degree = degreeOpt.get();
+ 
+        model.addAttribute("scheme", scheme);
+        model.addAttribute("programId", programId);
+        model.addAttribute("degree", degree);
+        model.addAttribute("programName", programName);
+
+        // Pass the mode state to the frontend
+        model.addAttribute("isEditable", false);
+
+
+        return "admin/graduation-requirements";
+    }
+
+    // Open Graduation requirements in Edit Mode
+    @GetMapping("/edit/schemes/{schemeId}/{splid}/graduation-requirements")
+    public String editGraduationRequirements(@PathVariable Long programId,
+                                             @PathVariable Long schemeId,
+                                             @PathVariable Long splid,
+                                             Model model) {
+        Scheme scheme = schemeRepository.findById(schemeId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid scheme ID"));
+
+        Optional<Programs> program = programsRepository.findById(programId);
+        if (program.isEmpty()) {
+            return "redirect:/admin/programs";
+        }
+        String programName = program.get().getPrgname();
+
+        Optional<SchemeDetails> degreeOpt = schemeDetailsRepository.findBySchemeIdAndSplid(schemeId, splid);
+        if (degreeOpt.isEmpty()) {
+            return "redirect:/admin/programs/" + programId + "/edit/schemes/" + schemeId;
         }
         SchemeDetails degree = degreeOpt.get();
 
@@ -103,27 +171,35 @@ public class SchemesController {
         model.addAttribute("degree", degree);
         model.addAttribute("programName", programName);
 
+        // Pass the mode state to the frontend
+        model.addAttribute("isEditable", true);
+
+
         return "admin/graduation-requirements";
     }
 
-    @GetMapping("/{schemeId}/{splid}/graduation-requirements/edit")
+    @GetMapping("/edit/schemes/{schemeId}/{splid}/graduation-requirements/edit")
     public String showEditGraduationForm(@PathVariable Long programId,
                                          @PathVariable Long schemeId,
                                          @PathVariable Long splid,
                                          Model model) {
         Optional<SchemeDetails> degreeOpt = schemeDetailsRepository.findBySchemeIdAndSplid(schemeId, splid);
         if (degreeOpt.isEmpty()) {
-            return "redirect:/admin/programs/" + programId + "/schemes/" + schemeId;
+            return "redirect:/admin/programs/" + programId + "/edit/schemes/" + schemeId;
         }
         SchemeDetails degree = degreeOpt.get();
 
         model.addAttribute("degree", degree);
         model.addAttribute("programId", programId);
         model.addAttribute("scheme", schemeRepository.findById(schemeId).orElse(null));
+
+        // Pass the mode state to the frontend
+        model.addAttribute("isEditable", true);
+
         return "admin/graduation-requirements-form";
     }
 
-    @PostMapping("/{schemeId}/{splid}/graduation-requirements/save")
+    @PostMapping("/edit/schemes/{schemeId}/{splid}/graduation-requirements/save")
     public String saveGraduationRequirements(@PathVariable Long programId,
                                              @PathVariable Long schemeId,
                                              @PathVariable Long splid,
@@ -132,10 +208,10 @@ public class SchemesController {
         degree.setSchemeId(schemeId);
         degree.setSplid(splid);
         schemeDetailsRepository.save(degree);
-        return "redirect:/admin/programs/" + programId + "/schemes/" + schemeId + "/" + splid + "/graduation-requirements";
+        return "redirect:/admin/programs/" + programId + "/edit/schemes/" + schemeId + "/" + splid + "/graduation-requirements";
     }
 
-    @GetMapping("/{schemeId}/add")
+    @GetMapping("/edit/schemes/{schemeId}/add")
     public String showAddSpecializationForm(@PathVariable Long programId,
                                             @PathVariable Long schemeId,
                                             Model model) {
@@ -152,19 +228,23 @@ public class SchemesController {
         model.addAttribute("programId", programId);
         model.addAttribute("scheme", schemeRepository.findById(schemeId).orElse(null));
         model.addAttribute("editing", false);
+
+        // Pass the mode state to the frontend
+        model.addAttribute("isEditable", true);
+
         return "admin/degree-form";
     }
 
-    @PostMapping("/{schemeId}/degree/save")
+    @PostMapping("/edit/schemes/{schemeId}/degree/save")
     public String saveSpecialization(@PathVariable Long programId,
                                      @PathVariable Long schemeId,
                                      @ModelAttribute("degree") SchemeDetails degree) {
         degree.setSchemeId(schemeId);
         schemeDetailsRepository.save(degree);
-        return "redirect:/admin/programs/" + programId + "/schemes/" + schemeId;
+        return "redirect:/admin/programs/" + programId + "/edit/schemes/" + schemeId;
     }
 
-    @GetMapping("/pull")
+    @GetMapping("/edit/schemes/pull")
     public String showPullSchemeForm(@PathVariable Long programId, Model model) {
         Optional<Programs> program = programsRepository.findById(programId);
         if (program.isEmpty()) {
@@ -179,7 +259,7 @@ public class SchemesController {
         return "admin/pull-scheme-form";
     }
 
-    @PostMapping("/pull")
+    @PostMapping("/edit/schemes/pull")
     public String pullFromScheme(@PathVariable Long programId,
                                  @RequestParam Long newSchemeId,
                                  @RequestParam Long effectiveFromYear,
@@ -189,14 +269,14 @@ public class SchemesController {
         // Check if new scheme ID already exists
         if (schemeRepository.existsById(newSchemeId)) {
             redirectAttributes.addFlashAttribute("error", "Scheme with ID " + newSchemeId + " already exists.");
-            return "redirect:/admin/programs/" + programId + "/schemes/pull";
+            return "redirect:/admin/programs/" + programId + "/edit/schemes/pull";
         }
 
         // Fetch the source scheme
         Optional<Scheme> sourceSchemeOpt = schemeRepository.findById(sourceSchemeId);
         if (sourceSchemeOpt.isEmpty()) {
             redirectAttributes.addFlashAttribute("error", "Source scheme not found.");
-            return "redirect:/admin/programs/" + programId + "/schemes/pull";
+            return "redirect:/admin/programs/" + programId + "/edit/schemes/pull";
         }
         // Scheme sourceScheme = sourceSchemeOpt.get();
 
@@ -271,7 +351,7 @@ public class SchemesController {
         }
 
         redirectAttributes.addFlashAttribute("success", "Scheme Pulled Successfully!");
-        return "redirect:/admin/programs/" + programId;
+        return "redirect:/admin/programs/" + programId + "/edit";
     }
 
 }

@@ -118,90 +118,206 @@
         </li> -->
 
         <!-- ================= ADMIN ================= -->
-        <li sec:authorize="hasAuthority('ADMIN')">
+        <!-- New Admin Format -->
+         <li sec:authorize="hasAuthority('ADMIN')">
             <a th:href="@{/admin/dashboard}">Dashboard</a>
         </li>
 
-        <!-- Admin Dropdown for Open Dates -->
-        <li class="dropdown" sec:authorize="hasAuthority('ADMIN')">
+        <li sec:authorize="hasAuthority('ADMIN')">
             <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
-                Open Registration
+                Masters
             </a>
             <ul class="dropdown-menu">
                 <li>
-                    <a class="dropdown-item" th:href="@{/admin/registrationopen}">
-                        Semester Registration
+                    <a class="dropdown-item" th:href="@{/admin/programs}">
+                        Programs
                     </a>
                 </li>
                 <li>
-                    <a class="dropdown-item" th:href="@{/admin/electiveregistrationopen}">
-                        Elective Registration
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item" th:href="@{/admin/adddropopen}">
-                        Add/Drop
+                    <a class="dropdown-item" th:href="@{/admin/courses/master-list}">
+                        Courses
                     </a>
                 </li>
             </ul>
         </li>
 
         <li sec:authorize="hasAuthority('ADMIN')">
-            <a th:href="@{/admin/programs}">Programs</a>
-        </li>
-
-        <li sec:authorize="hasAuthority('ADMIN')">
-            <a th:href="@{/admin/academicyears}">Academic Years</a>
-        </li>
-
-        <li sec:authorize="hasAuthority('ADMIN')">
-            <a th:href="@{/admin/batches}">Batches</a>
-        </li>
-
-        <!-- Admin Dropdown for Semesters -->
-        <li class="dropdown" sec:authorize="hasAuthority('ADMIN')">
-            <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
-                Semesters
-            </a>
-            <ul class="dropdown-menu">
-                <li>
-                    <a class="dropdown-item" th:href="@{/admin/semesters}">
-                        Semesters
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item" th:href="@{/admin/semesters/semestercourses}">
-                        Semester Courses
-                    </a>
-                </li>
-            </ul>
-        </li>
-
-        <!-- Admin Dropdown for Terms -->
-        <li class="dropdown" sec:authorize="hasAuthority('ADMIN')">
             <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
                 Terms
             </a>
             <ul class="dropdown-menu">
                 <li>
-                    <a class="dropdown-item" th:href="@{/admin/terms}">
-                        Terms
+                    <a class="dropdown-item" th:href="@{/admin/academicyears/add}">
+                        Define Next Acad-Year
+                    </a>
+                </li>
+
+                <li>
+                    <a class="dropdown-item" th:href="@{/admin/terms/add}">
+                        Add Next Term
+                    </a>
+                </li>
+
+                <!-- <li class="dropend nested-dropdown">
+                    <a href="@{/admin/terms/add}" class="dropdown-toggle dropdown-item">
+                        Add Next Term
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" th:href="@{#}">Define Term Core Courses</a></li>
+                        <li><a class="dropdown-item" th:href="@{#}">Define Term Elective Courses</a></li>
+                    </ul>
+                </li> -->
+
+                <!-- <li>
+                    <a class="dropdown-item" th:href="@{#}">
+                        <s>Remove a Term</s>
+                    </a>
+                </li> -->
+
+                <li>
+                    <a class="dropdown-item" th:href="@{#}">
+                        Move to Next Acad-Year
+                    </a>
+                </li>
+
+                <!-- <li>
+                    <a class="dropdown-item" th:href="@{#}">
+                        <s>Specify Open For</s>
+                    </a>
+                </li> -->
+
+            </ul>
+        </li>
+
+        <li sec:authorize="hasAuthority('ADMIN')">
+            <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
+                Registration
+            </a>
+            <ul class="dropdown-menu">
+                <li class="dropend nested-dropdown">
+                    <a class="dropdown-toggle dropdown-item" th:href="@{#}">
+                        Open Registration
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" th:href="@{/admin/registrationopen}">Semester Registration</a></li>
+                        <li><a class="dropdown-item" th:href="@{/admin/electiveregistrationopen}">Elective Registration</a></li>
+                    </ul>
+                </li>
+                <!-- <li>
+                    <a class="dropdown-item" th:href="@{#}">
+                        <s>Extend Date</s>
+                    </a>
+                </li> -->
+                <li>
+                    <a class="dropdown-item" th:href="@{/admin/adddropopen}">
+                        Open Add/Drop
                     </a>
                 </li>
                 <li>
-                    <a class="dropdown-item" th:href="@{/admin/term-courses}">
-                        Term Courses
+                    <a class="dropdown-item" th:href="@{/admin/droponlyopen}">
+                        Open Drop Only
                     </a>
                 </li>
             </ul>
         </li>
 
-        <li sec:authorize="hasAuthority('ADMIN')">
-            <a th:href="@{/admin/graduation-requirements/batches}">Graduation Requirements</a>
+        <li class="dropdown" sec:authorize="hasAuthority('ADMIN')">
+            <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
+                <b>Result</b>
+            </a>
+            <ul class="dropdown-menu">
+                <li>
+                    <a class="dropdown-item" th:href="@{#}">
+                        Upload Grade
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" th:href="@{#}">
+                        Revise I-Grade
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" th:href="@{#}">
+                        Modify Grade
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" th:href="@{#}">
+                        Compute SPI[/CPI]
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" th:href="@{#}">
+                        Compute Final CPI
+                    </a>
+                </li>
+            </ul>
         </li>
 
-        <li sec:authorize="hasAuthority('ADMIN')">
-            <a th:href="@{/admin/computeResult}">Compute Result</a>
+        <li class="dropdown" sec:authorize="hasAuthority('ADMIN')">
+            <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
+                Reports
+            </a>
+            <ul class="dropdown-menu">
+                <li>
+                    <a class="dropdown-item" th:href="@{#}">
+                        Results
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" th:href="@{#}">
+                        Registrations
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" th:href="@{#}">
+                        Students Data
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" th:href="@{#}">
+                        Course Data
+                    </a>
+                </li>
+            </ul>
+        </li>
+        
+        <li class="dropdown" sec:authorize="hasAuthority('ADMIN')">
+            <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
+                <b>Admin</b>
+            </a>
+            <ul class="dropdown-menu">
+                <li>
+                    <a class="dropdown-item" th:href="@{#}">
+                        Users
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" th:href="@{#}">
+                        Roles
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" th:href="@{#}">
+                        Admit New Batch
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" th:href="@{#}">
+                        Import Faculty
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" th:href="@{#}">
+                        Import Students
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" th:href="@{#}">
+                        Security
+                    </a>
+                </li>
+            </ul>
         </li>
 
         <!--===================== Rit ==========================-->
@@ -457,19 +573,39 @@
             <a th:href="@{/faculty/change-password}">Change Password</a>
         </li>
 
-        <li sec:authorize="hasAuthority('ADMIN')">
+        <!-- <li sec:authorize="hasAuthority('ADMIN')">
             <a th:href="@{/admin/change-password}">Change Password</a>
-        </li>
+        </li> -->
 
         <!-- <li sec:authorize="isAuthenticated()">
             <a th:href="@{/auth/change-password}">Change Password</a>
         </li> -->
 
-        <li sec:authorize="isAuthenticated()">
+        <!-- <li sec:authorize="isAuthenticated()">
             <form th:action="@{/logout}" method="post" style="display:inline;">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <button type="submit" class="logout-btn">Logout</button>
             </form>
+        </li> -->
+
+        <!-- New -->
+        <li sec:authorize="hasAuthority('ADMIN')">
+            <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown">
+                Utilities
+            </a>
+            <ul class="dropdown-menu">
+                <li>
+                    <a class="dropdown-item" th:href="@{/admin/change-password}">
+                        Change Password
+                    </a>
+                </li>
+                <li sec:authorize="isAuthenticated()">
+                    <form th:action="@{/logout}" method="post" style="display:inline;">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <button type="submit" class="logout-btn">Logout</button>
+                    </form>
+                </li>
+            </ul>
         </li>
 
     </ul>

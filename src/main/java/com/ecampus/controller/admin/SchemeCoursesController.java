@@ -68,7 +68,7 @@ class SemesterKey implements Comparable<SemesterKey> {
 }
 
 @Controller
-@RequestMapping("/admin/programs/{programId}/schemes/{schemeId}/{splid}/scheme-courses")
+@RequestMapping("/admin/programs/{programId}")
 public class SchemeCoursesController {
 
     @Autowired
@@ -81,8 +81,9 @@ public class SchemeCoursesController {
     @Autowired
     private CoursesRepository coursesRepository;
 
-    @GetMapping
-    public String listSchemeCourses(@PathVariable Long programId,
+    //view-only page
+    @GetMapping("/view/schemes/{schemeId}/{splid}/scheme-courses")
+    public String viewlistSchemeCourses(@PathVariable Long programId,
                                     @PathVariable Long schemeId,
                                     @PathVariable Long splid,
                                     Model model) {
@@ -156,10 +157,97 @@ public class SchemeCoursesController {
         model.addAttribute("programId", programId);
         model.addAttribute("schemeId", schemeId);
         model.addAttribute("splid", splid);
+
+        // Pass the mode state to the frontend
+        model.addAttribute("isEditable", false);
+
         return "admin/scheme-courses";
     }
 
-    @GetMapping("/add")
+    //editable page
+    @GetMapping("/edit/schemes/{schemeId}/{splid}/scheme-courses")
+    public String editlistSchemeCourses(@PathVariable Long programId,
+                                    @PathVariable Long schemeId,
+                                    @PathVariable Long splid,
+                                    Model model) {
+        // include general degree (splid = 0) and the requested specialization
+        List<Long> splids = (splid == 0L) ? List.of(0L) : Arrays.asList(0L, splid);
+
+        // Fetch courses sorted by programYear and termSeqNo
+        List<SchemeCourses> courses = schemeCoursesRepository.findBySchemeIdAndSplidInOrderByProgramYearAscTermSeqNoAsc(schemeId, splids);
+
+        // Group by SemesterKey (programYear + termName)
+        Map<SemesterKey, List<SchemeCourses>> groupedCourses = new TreeMap<>();
+        for (SchemeCourses course : courses) {
+            SemesterKey key = new SemesterKey(
+                    course.getProgramYear(),
+                    course.getTermName(),
+                    course.getTermSeqNo(),
+                    course.getSemesterName()
+            );
+            groupedCourses.computeIfAbsent(key, k -> new ArrayList<>()).add(course);
+        }
+
+        // Sort each list by splid then courseSrNo
+        for (List<SchemeCourses> courseList : groupedCourses.values()) {
+            courseList.sort(Comparator
+                    .comparingLong(SchemeCourses::getSplid)
+                    .thenComparingLong(SchemeCourses::getCourseSrNo)
+            );
+        }
+
+        // Get program duration in years
+        Optional<Programs> progOpt = programsRepository.findById(programId);
+        long durationYears = 0;
+        if (progOpt.isPresent()) {
+            Programs prog = progOpt.get();
+            long prgdur = prog.getPrgduration() != null ? prog.getPrgduration() : 0;
+            String units = prog.getPrgdurationunits();
+            if (units != null && units.equalsIgnoreCase("Semesters")) {
+                durationYears = prgdur / 2; // semesters -> years
+            } else {
+                durationYears = prgdur; // assume already in years
+            }
+        }
+
+        // Generate all semesters (Autumn, Winter, Summer) for each year
+        // No Summer for the last year
+        int semesterCounter = 1;
+        int summerCounter = 1;
+        for (int year = 1; year <= durationYears; year++) {
+            // Autumn
+            String autumnSemName = "Semester " + RomanNumeralUtil.toRoman(semesterCounter);
+            SemesterKey autumnKey = new SemesterKey((long) year, "Autumn", 1L, autumnSemName);
+            groupedCourses.putIfAbsent(autumnKey, new ArrayList<>());
+            semesterCounter++;
+
+            // Winter
+            String winterSemName = "Semester " + RomanNumeralUtil.toRoman(semesterCounter);
+            SemesterKey winterKey = new SemesterKey((long) year, "Winter", 2L, winterSemName);
+            groupedCourses.putIfAbsent(winterKey, new ArrayList<>());
+            semesterCounter++;
+
+            // Summer (not for last year)
+            if (year < durationYears) {
+                String summerSemName = "Summer " + RomanNumeralUtil.toRoman(summerCounter);
+                SemesterKey summerKey = new SemesterKey((long) year, "Summer", 3L, summerSemName);
+                groupedCourses.putIfAbsent(summerKey, new ArrayList<>());
+                summerCounter++;
+            }
+        }
+
+        model.addAttribute("groupedCourses", groupedCourses);
+        model.addAttribute("programId", programId);
+        model.addAttribute("schemeId", schemeId);
+        model.addAttribute("splid", splid);
+
+        // Pass the mode state to the frontend
+        model.addAttribute("isEditable", true);
+
+        return "admin/scheme-courses";
+    }
+
+    @GetMapping("/edit/schemes/{schemeId}/{splid}/scheme-courses/add")
     public String showAddForm(@PathVariable Long programId,
                               @PathVariable Long schemeId,
                               @PathVariable Long splid,
@@ -212,10 +300,13 @@ public class SchemeCoursesController {
         model.addAttribute("splid", splid);
         model.addAttribute("editing", false);
 
+        // Pass the mode state to the frontend
+        model.addAttribute("isEditable", true);
+
         return "admin/scheme-course-form";
     }
 
-    @PostMapping("/save")
+    @PostMapping("/edit/schemes/{schemeId}/{splid}/scheme-courses/save")
     public String saveSchemeCourse(@PathVariable Long programId,
                                    @PathVariable Long schemeId,
                                    @PathVariable Long splid,
@@ -235,10 +326,13 @@ public class SchemeCoursesController {
         }
 
         schemeCoursesRepository.save(sc);
-        return "redirect:/admin/programs/" + programId + "/schemes/" + schemeId + "/" + splid + "/scheme-courses";
+        // Pass the mode state to the frontend
+        model.addAttribute("isEditable", true);
+
+        return "redirect:/admin/programs/" + programId + "/edit/schemes/" + schemeId + "/" + splid + "/scheme-courses";
     }
 
-    @GetMapping("/edit")
+    @GetMapping("/edit/schemes/{schemeId}/{splid}/scheme-courses/edit")
     public String showEditForm(@PathVariable Long programId,
                                @PathVariable Long schemeId,
                                @PathVariable Long splid,
@@ -252,7 +346,7 @@ public class SchemeCoursesController {
                 new SchemeCoursesId(schemeId, splid, termName, programYear, courseSrNo));
         if (courseOpt.isEmpty()) {
             redirectAttributes.addFlashAttribute("error", "Course not found.");
-            return "redirect:/admin/programs/" + programId + "/schemes/" + schemeId + "/" + splid + "/scheme-courses";
+            return "redirect:/admin/programs/" + programId + "/edit/schemes/" + schemeId + "/" + splid + "/scheme-courses";
         }
 
         SchemeCourses course = courseOpt.get();
@@ -260,7 +354,7 @@ public class SchemeCoursesController {
         // Prevent editing general-degree from specialization page
         if (!course.getSplid().equals(splid)) {
             redirectAttributes.addFlashAttribute("error", "This course belongs to the general degree; update it from the general degree page.");
-            return "redirect:/admin/programs/" + programId + "/schemes/" + schemeId + "/" + splid + "/scheme-courses";
+            return "redirect:/admin/programs/" + programId + "/edit/schemes/" + schemeId + "/" + splid + "/scheme-courses";
         }
 
         // Prepare dropdowns
@@ -287,10 +381,13 @@ public class SchemeCoursesController {
         model.addAttribute("splid", splid);
         model.addAttribute("editing", true);
 
+        // Pass the mode state to the frontend
+        model.addAttribute("isEditable", true);
+
         return "admin/scheme-course-form";
     }
 
-    @GetMapping("/delete")
+    @GetMapping("/edit/schemes/{schemeId}/{splid}/scheme-courses/delete")
     public String deleteSchemeCourse(@PathVariable Long programId,
                                      @PathVariable Long schemeId,
                                      @PathVariable Long splid,
@@ -305,7 +402,7 @@ public class SchemeCoursesController {
             SchemeCourses course = courseOpt.get();
             if (!course.getSplid().equals(splid)) {
                 redirectAttributes.addFlashAttribute("error", "This course belongs to the general degree; delete it from the general degree page.");
-                return "redirect:/admin/programs/" + programId + "/schemes/" + schemeId + "/" + splid + "/scheme-courses";
+                return "redirect:/admin/programs/" + programId + "/edit/schemes/" + schemeId + "/" + splid + "/scheme-courses";
             }
 
             schemeCoursesRepository.deleteById(id);
@@ -327,6 +424,6 @@ public class SchemeCoursesController {
             redirectAttributes.addFlashAttribute("error", "Course not found.");
         }
 
-        return "redirect:/admin/programs/" + programId + "/schemes/" + schemeId + "/" + splid + "/scheme-courses";
+        return "redirect:/admin/programs/" + programId + "/edit/schemes/" + schemeId + "/" + splid + "/scheme-courses";
     }
 }
