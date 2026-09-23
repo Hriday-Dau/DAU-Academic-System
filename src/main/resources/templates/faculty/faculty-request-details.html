@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <title>Request Details</title>
     <link rel="stylesheet" th:href="@{/css/base.css}">
-    <link rel="stylesheet" th:href="@{/css/navdes.css}">
+    <!-- <link rel="stylesheet" th:href="@{/css/navdes.css}"> -->
+    <link rel="stylesheet" th:href="@{/css/faculty.css}" />
     <style>
         body {
             display: flex;
@@ -69,10 +70,12 @@
 
 <body>
     <div th:replace="~{fragments/header :: header}"></div>
-    <div th:replace="~{fragments/navbar :: navbar}"></div>
+    <div th:replace="~{fragments/navbar :: faculty-navbar}"></div>
+
+    <!-- <div th:replace="~{fragments/navbar :: navbar}"></div> -->
     <!-- <div class="header-strip"></div> -->
 
-    <div class="container">
+    <div class="container main-content">
         <div class="details-container">
             <div style="margin-bottom: 16px;"><a href="javascript:history.back()" class="btn-outline">← Back</a></div>
             <div class="report-header">

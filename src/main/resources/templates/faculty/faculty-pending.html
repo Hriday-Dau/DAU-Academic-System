@@ -3,9 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Pending Grade Modifications</title>
+    <title>Pending Grade Modifications Status for Faculty</title>
     <link rel="stylesheet" th:href="@{/css/base.css}">
-    <link rel="stylesheet" th:href="@{/css/navdes.css}">
+    <!-- <link rel="stylesheet" th:href="@{/css/navdes.css}"> -->
+    <link rel="stylesheet" th:href="@{/css/faculty.css}" />
     <style>
         body {
             display: flex;
@@ -96,11 +97,11 @@
 
 <body>
     <div th:replace="~{fragments/header :: header}"></div>
-    <!-- <div th:replace="~{fragments/navbar :: navbar}"></div> -->
+    <div th:replace="~{fragments/navbar :: faculty-navbar}"></div>
 
-    <nav class="navbar" th:replace="~{fragments/navbar :: navbar}"></nav>
+    <!-- <nav class="navbar" th:replace="~{fragments/navbar :: navbar}"></nav> -->
 
-    <div class="container">
+    <div class="container main-content">
         <h2 class="section-title">Pending Grade Modifications</h2>
 
         <div class="card"

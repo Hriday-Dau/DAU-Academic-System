@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <title>Completed Requests</title>
     <link rel="stylesheet" th:href="@{/css/base.css}">
-    <link rel="stylesheet" th:href="@{/css/navdes.css}">
+    <!-- <link rel="stylesheet" th:href="@{/css/navdes.css}"> -->
+    <link rel="stylesheet" th:href="@{/css/faculty.css}" />
     <style>
         body {
             display: flex;
@@ -95,9 +96,10 @@
 
 <body>
     <div th:replace="~{fragments/header :: header}"></div>
-    <div th:replace="~{fragments/navbar :: navbar}"></div>
+    <div th:replace="~{fragments/navbar :: faculty-navbar}"></div>
+    <!-- <div th:replace="~{fragments/navbar :: navbar}"></div> -->
 
-    <div class="container" style="opacity: 0.85;">
+    <div class="container main-content" style="opacity: 0.85;">
         <div class="archive-wrapper">
             <h2 class="section-title" style="color: var(--primary-dark); margin-top: 0;">Completed Requests (Last 3
                 Months)</h2>
@@ -131,7 +133,8 @@
                         <td th:text="${#temporals.format(request.date, 'dd-MMM-yyyy')}">Date</td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(requests)}">
-                        <td colspan="5" style="text-align:center; padding:24px; color:var(--text-muted); font-style:italic;">
+                        <td colspan="5"
+                            style="text-align:center; padding:24px; color:var(--text-muted); font-style:italic;">
                             No completed requests in the last 3 months.
                         </td>
                     </tr>
