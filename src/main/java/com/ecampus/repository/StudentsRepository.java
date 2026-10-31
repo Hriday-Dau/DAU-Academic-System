@@ -12,38 +12,90 @@ import org.springframework.stereotype.Repository;
 import com.ecampus.model.Batches;
 import com.ecampus.model.Students;
 
+/**
+ * Provides persistence operations for student records and faculty student information searches.
+ */
 @Repository
 public interface StudentsRepository extends JpaRepository<Students, Long> {
 
-    // Native query for fetching one student by stdid
+    /**
+     * Finds an active student by database ID.
+     *
+     * @param studentId the student database ID
+     * @return the matching student, or {@code null} if none exists
+     */
     @Query(value = "SELECT * FROM ec2.students st WHERE st.stdrowstate > 0 AND st.stdid = :studentId", nativeQuery = true)
     Students findStudent(@Param("studentId") Long studentId);
 
-    // Latest stdid by institute id
+    /**
+     * Finds the latest database student ID for an institute ID.
+     *
+     * @param studentId the institute student ID
+     * @return the latest database student ID
+     */
     @Query(value = "SELECT st.stdid FROM ec2.students st WHERE st.stdinstid = :studentId ORDER BY st.stdrowstate DESC LIMIT 1", nativeQuery = true)
     Long findStdid(@Param("studentId") String studentId);
 
-    // Batch id by institute id
+    /**
+     * Finds the batch ID associated with an institute student ID.
+     *
+     * @param studentId the institute student ID
+     * @return the associated batch ID
+     */
     @Query(value = "SELECT st.stdbchid FROM ec2.students st WHERE st.stdinstid = :studentId ORDER BY st.stdrowstate DESC LIMIT 1", nativeQuery = true)
     Long findBatchIdByStudentId(@Param("studentId") String studentId);
 
-    // Paging queries
+    /**
+     * Finds active students by institute ID with pagination.
+     *
+     * @param stdinstid the institute student ID
+     * @param state the minimum row state
+     * @param pageable pagination and sorting information
+     * @return a page of matching students
+     */
     Page<Students> findByStdinstidAndStdrowstateGreaterThan(String stdinstid, int state, Pageable pageable);
 
+    /**
+     * Finds active students by first and last name with pagination.
+     *
+     * @param fname the first name fragment
+     * @param lname the last name fragment
+     * @param state the minimum row state
+     * @param pageable pagination and sorting information
+     * @return a page of matching students
+     */
     Page<Students> findByStdfirstnameContainingIgnoreCaseAndStdlastnameContainingIgnoreCaseAndStdrowstateGreaterThan(
             String fname, String lname, int state, Pageable pageable);
 
+    /**
+     * Finds active students by first name with pagination.
+     *
+     * @param fname the first name fragment
+     * @param state the minimum row state
+     * @param pageable pagination and sorting information
+     * @return a page of matching students
+     */
     Page<Students> findByStdfirstnameContainingIgnoreCaseAndStdrowstateGreaterThan(
             String fname, int state, Pageable pageable);
 
+    /**
+     * Finds active students by last name with pagination.
+     *
+     * @param lname the last name fragment
+     * @param state the minimum row state
+     * @param pageable pagination and sorting information
+     * @return a page of matching students
+     */
     Page<Students> findByStdlastnameContainingIgnoreCaseAndStdrowstateGreaterThan(
             String lname, int state, Pageable pageable);
 
-    // Counts
+    /** @return the number of active students matching the first name */
     long countByStdfirstnameContainingIgnoreCaseAndStdrowstateGreaterThan(String stdfirstname, Long rowstate);
 
+    /** @return the number of active students matching the last name */
     long countByStdlastnameContainingIgnoreCaseAndStdrowstateGreaterThan(String stdlastname, Long rowstate);
 
+    /** @return the number of active students matching both names */
     long countByStdfirstnameContainingIgnoreCaseAndStdlastnameContainingIgnoreCaseAndStdrowstateGreaterThan(
             String stdfirstname, String stdlastname, Long rowstate);
 
@@ -62,9 +114,10 @@ public interface StudentsRepository extends JpaRepository<Students, Long> {
     @Query(value = "SELECT st.stdid FROM ec2.students st WHERE st.stdinstid = :stdinstid ORDER BY st.stdid ASC LIMIT 1", nativeQuery = true)
     List<Long> findStudentIdByInstituteId(@Param("stdinstid") String stdinstid);
 
-    // Derived query by batch
+        /** @return students belonging to the supplied batch */
     List<Students> findByBatch(Batches batches);
 
+        /** @return active students ordered by first name and last name */
     List<Students> findByStdrowstateGreaterThanOrderByStdfirstnameAscStdlastnameAsc(int rowState);
 
     @Query(value = "SELECT s.stdinstid, " +
@@ -82,18 +135,26 @@ public interface StudentsRepository extends JpaRepository<Students, Long> {
                                                 @Param("splname") String splname, 
                                                 @Param("termId") Long termId);
 
-    // ===================================================================
-    // NEW QUERIES FOR FACULTY: STUDENT INFO MODULE
-    // ===================================================================
+// === NEW QUERIES FOR FACULTY-SIDE: Student Info Module ===
 
-    // -- Search by exactly Student Institute ID
+        /**
+         * Searches for an active student by exact institute ID.
+         *
+         * @param stdinstid the institute student ID
+         * @return matching students with batch and program data
+         */
     @Query("SELECT s FROM Students s " +
            "LEFT JOIN FETCH s.batch b " +
            "LEFT JOIN FETCH b.programs p " +
            "WHERE s.stdinstid = :stdinstid AND s.stdrowstate > 0")
     List<Students> getStudentInfoById(@Param("stdinstid") String stdinstid);
 
-    // --search by Full Name (first + middle + last)
+        /**
+         * Searches active students by their full name.
+         *
+         * @param query the full-name search text
+         * @return matching students with batch and program data
+         */
     @Query("SELECT s FROM Students s " +
            "LEFT JOIN FETCH s.batch b " +
            "LEFT JOIN FETCH b.programs p " +
@@ -101,49 +162,4 @@ public interface StudentsRepository extends JpaRepository<Students, Long> {
            "AND s.stdrowstate > 0")
     List<Students> getStudentInfoByName(@Param("query") String query);
 
-    // -- Native Query to fetch the student's latest registered Semester Name
-    @Query(value = "SELECT sem.strname FROM ec2.studentregistrations sr " +
-                   "JOIN ec2.semesters sem ON sr.srgstrid = sem.strid " +
-                   "WHERE sr.srgstdid = :stdid " +
-                   "ORDER BY sr.srgregdate DESC LIMIT 1", nativeQuery = true)
-    String getLatestSemesterForStudent(@Param("stdid") Long stdid);
-    
-    // ===================================================================
-    // QUERIES FOR TABS: REGISTRATION & RESULT
-    // ===================================================================
-
-    // Unified query fetching all registered courses AND their obtained grades
-    @Query(value = "SELECT " +
-            "sem.strid AS semesterId, " +
-            "sem.strname AS semesterName, " +
-            "c.crscode AS courseCode, " +
-            "c.crstitle AS courseTitle, " +
-            "ct.ctpname AS courseType, " +
-            "c.crscreditpoints AS credits, " +
-            "eg.grad_lt AS grade " +
-            "FROM ec2.studentregistrations sr " +
-            "JOIN ec2.semesters sem ON sr.srgstrid = sem.strid " +
-            "JOIN ec2.studentregistrationcourses src ON src.srcsrgid = sr.srgid " +
-            "JOIN ec2.termcourses tc ON src.srctcrid = tc.tcrid " +
-            "JOIN ec2.courses c ON tc.tcrcrsid = c.crsid " +
-            "LEFT JOIN ec2.coursetypes ct ON src.curr_ctpid = ct.ctpid " +
-            "LEFT JOIN ec2.egcrstt1 exam ON exam.stud_id = sr.srgstdid AND exam.tcrid = tc.tcrid " +
-            "LEFT JOIN ec2.eggradm1 eg ON exam.obtgr_id = eg.grad_id " +
-            "WHERE sr.srgstdid = :stdid AND sr.srgrowstate > 0 AND src.srcrowstate > 0 " +
-            "ORDER BY sem.strseqno ASC, c.crscode ASC", 
-            nativeQuery = true)
-    List<com.ecampus.dto.StudentAcademicRecordDTO> getStudentAcademicRecords(@Param("stdid") Long stdid);
-
-    // Query to fetch the final SPI and CPI for each semester
-    @Query(value = "SELECT " +
-            "sem.strname AS semesterName, " +
-            "ssr.ssrspi AS spi, " +
-            "ssr.ssrcpi AS cpi " +
-            "FROM ec2.studentsemesterresult ssr " +
-            "JOIN ec2.studentregistrations sr ON ssr.ssrsrgid = sr.srgid " +
-            "JOIN ec2.semesters sem ON sr.srgstrid = sem.strid " +
-            "WHERE sr.srgstdid = :stdid AND sr.srgrowstate > 0 " +
-            "ORDER BY sem.strseqno ASC", 
-            nativeQuery = true)
-    List<com.ecampus.dto.StudentSemesterResultDTO> getStudentSemesterResults(@Param("stdid") Long stdid);
 }

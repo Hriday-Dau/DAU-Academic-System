@@ -2,6 +2,8 @@ package com.ecampus.controller.faculty;
 
 import com.ecampus.model.Students;
 import com.ecampus.repository.StudentsRepository;
+import com.ecampus.repository.StudentRegistrationsRepository;
+import com.ecampus.repository.StudentSemesterResultRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,7 +21,13 @@ import java.util.List;
 public class StudentInfoController {
 
     @Autowired
-    private StudentsRepository studentsRepository;
+    private StudentsRepository studentsRepository; // Used for searching the student
+
+    @Autowired
+    private StudentRegistrationsRepository registrationsRepository; // Used for courses/grades
+
+    @Autowired
+    private StudentSemesterResultRepository resultRepository; // Used for SPI/CPI
 
     /**
      * Displays student information matching the supplied search criteria.
@@ -58,12 +66,12 @@ public class StudentInfoController {
                 Students foundStudent = searchResults.get(0);
                 model.addAttribute("student", foundStudent);
                 
-                String currentSemester = studentsRepository.getLatestSemesterForStudent(foundStudent.getStdid());
+                String currentSemester = registrationsRepository.getLatestSemesterForStudent(foundStudent.getStdid());
                 model.addAttribute("currentSemester", currentSemester != null ? currentSemester : "N/A");
                 
                 // -- Fetch Academic Records (Courses + Grades)
                 List<com.ecampus.dto.StudentAcademicRecordDTO> records = 
-                        studentsRepository.getStudentAcademicRecords(foundStudent.getStdid());
+                        registrationsRepository.getStudentAcademicRecords(foundStudent.getStdid());
                 
                 // Group records by Semester Name (LinkedHashMap preserves the chronological ORDER BY from SQL)
                 java.util.Map<String, java.util.List<com.ecampus.dto.StudentAcademicRecordDTO>> recordsBySemester = new java.util.LinkedHashMap<>();
@@ -74,7 +82,7 @@ public class StudentInfoController {
 
                 // -- Fetch Semester Performance (SPI / CPI)
                 List<com.ecampus.dto.StudentSemesterResultDTO> performance = 
-                        studentsRepository.getStudentSemesterResults(foundStudent.getStdid());
+                        resultRepository.getStudentSemesterResults(foundStudent.getStdid());
                 
                 java.util.Map<String, com.ecampus.dto.StudentSemesterResultDTO> performanceMap = new java.util.HashMap<>();
                 for (com.ecampus.dto.StudentSemesterResultDTO res : performance) {
