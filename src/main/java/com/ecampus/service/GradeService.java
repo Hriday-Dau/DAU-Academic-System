@@ -2,6 +2,7 @@ package com.ecampus.service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.ecampus.dto.GradeChangeStatusDTO;
 import com.ecampus.dto.StudentGradeDTO;
@@ -36,6 +37,8 @@ public interface GradeService {
     boolean processRegistrarAction(Long gmdid, Long registrarId, String action);
 
     boolean checkIfGradesExist(Long crsid, Long trmid, Long examTypeId);
+
+    Set<Long> getUploadedTcridSet(List<Long> tcrIds, Long examTypeId);
 
     List<StudentGradeDTO> getRegisteredStudentsForCourse(Long tcrid);
 

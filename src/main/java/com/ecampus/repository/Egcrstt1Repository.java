@@ -29,4 +29,15 @@ public interface Egcrstt1Repository extends JpaRepository<Egcrstt1, Egcrstt1Id> 
     Long countUploadedGrades(@Param("tcrid") Long tcrid,
             @Param("examTypeId") Long examTypeId);
 
+    @Query(value = """
+            SELECT DISTINCT e.tcrid
+            FROM ec2.egcrstt1 e
+            WHERE e.tcrid IN (:tcrIds)
+              AND e.examtype_id = :examTypeId
+              AND e.row_st > '0'
+              AND e.obtgr_id IS NOT NULL
+            """, nativeQuery = true)
+    List<Long> findUploadedTcridList(@Param("tcrIds") List<Long> tcrIds,
+            @Param("examTypeId") Long examTypeId);
+
 }

@@ -46,4 +46,38 @@ public interface BatchesRepository extends JpaRepository<Batches, Long> {
 
     @Query(value = "SELECT DISTINCT b.bchname FROM ec2.batches b JOIN ec2.schemedetails sd ON b.scheme_id = sd.scheme_id AND b.splid = sd.splid WHERE sd.splname = :splname AND b.bchid IN (SELECT DISTINCT sm.strbchid FROM ec2.semesters sm WHERE sm.strtrmid = :trmid) ORDER BY b.bchname;", nativeQuery = true)
     List<String> findBatchBySplnTrm(@Param("splname") String splname, @Param("trmid") Long trmid);
+
+    @Query(value = "SELECT COALESCE(MAX(b.bchid), 0) + 1 FROM ec2.batches b", nativeQuery = true)
+    Long findNextBatchId();
+
+    @Query(value = """
+        SELECT b.bchid, b.bchname, p.prgname, COALESCE(sd.splname, p.prgdesc, 'General') as splname,
+               b.bchcapacity, b.bchinstcode,
+               (SELECT COUNT(1) FROM ec2.students s WHERE s.stdbchid = b.bchid AND s.stdrowstate > 0) AS student_count
+        FROM ec2.batches b
+        JOIN ec2.programs p ON b.bchprgid = p.prgid
+        LEFT JOIN ec2.schemedetails sd ON b.scheme_id = sd.scheme_id AND b.splid = sd.splid
+        WHERE b.bchrowstate >= 0
+        ORDER BY b.bchid DESC
+    """, nativeQuery = true)
+    List<Object[]> getAllBatchesMasterDetails();
+
+    @Query(value = """
+        SELECT b.bchid, b.bchname, p.prgname, COALESCE(sd.splname, p.prgdesc, 'General') as splname,
+               b.bchcapacity, b.bchinstcode,
+               (SELECT COUNT(1) FROM ec2.students s WHERE s.stdbchid = b.bchid AND s.stdrowstate > 0) AS student_count
+        FROM ec2.batches b
+        JOIN ec2.programs p ON b.bchprgid = p.prgid
+        LEFT JOIN ec2.schemedetails sd ON b.scheme_id = sd.scheme_id AND b.splid = sd.splid
+        WHERE b.bchrowstate >= 0 AND (
+            LOWER(b.bchname) LIKE LOWER(CONCAT('%', :q, '%'))
+            OR LOWER(p.prgname) LIKE LOWER(CONCAT('%', :q, '%'))
+            OR LOWER(COALESCE(sd.splname, '')) LIKE LOWER(CONCAT('%', :q, '%'))
+        )
+        ORDER BY b.bchid DESC
+    """, nativeQuery = true)
+    List<Object[]> searchBatchesMasterDetails(@Param("q") String q);
+
+    boolean existsByBchprgidAndBchname(Long bchprgid, String bchname);
+
 }

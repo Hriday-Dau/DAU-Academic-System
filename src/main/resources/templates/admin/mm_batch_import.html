@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Import Students Batch - Master Maintenance</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/base.css}">
+    <link rel="stylesheet" th:href="@{/css/navdes.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <style>
+        .import-card {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-card);
+            padding: 32px;
+            max-width: 840px;
+            margin: 0 auto;
+        }
+        .file-dropzone {
+            border: 2px dashed #cbd5e1;
+            border-radius: var(--radius-md);
+            padding: 36px 20px;
+            text-align: center;
+            background: #f8fafc;
+            cursor: pointer;
+            transition: border-color 0.15s ease;
+        }
+        .file-dropzone:hover {
+            border-color: var(--primary);
+        }
+        .format-card {
+            background-color: #f1f5f9;
+            border-radius: var(--radius-sm);
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            font-size: 13px;
+        }
+        .summary-banner {
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .error-log-box {
+            background-color: #fff1f2;
+            border: 1px solid #fecdd3;
+            border-radius: var(--radius-sm);
+            padding: 14px 18px;
+            max-height: 220px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 13px;
+            color: #9f1239;
+            margin-top: 12px;
+        }
+        .success-log-box {
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: var(--radius-sm);
+            padding: 14px 18px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 13px;
+            color: #166534;
+            margin-top: 12px;
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <!-- NAVBAR -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container main-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div>
+                <h2 class="section-title" style="margin-bottom: 4px;">
+                    Import Students: <span th:text="${batch.bchname}">Batch</span>
+                </h2>
+                <p style="color: var(--text-muted); font-size: 14px;">
+                    Upload a CSV file of student records to bulk register students and generate user accounts.
+                </p>
+            </div>
+            <a th:href="@{/admin/master-maintenance/batches/{id}(id=${batch.bchid})}" class="btn-outline">&larr; Back to Batch Roster</a>
+        </div>
+
+        <!-- Flash messages -->
+        <div th:if="${success}" class="alert-success" style="padding: 12px 16px; background-color: #d1fae5; color: #065f46; border-radius: var(--radius-sm); margin-bottom: 20px; max-width: 840px; margin-left: auto; margin-right: auto;">
+            <span th:text="${success}"></span>
+        </div>
+        <div th:if="${error}" class="alert-danger" style="padding: 12px 16px; background-color: #fee2e2; color: #991b1b; border-radius: var(--radius-sm); margin-bottom: 20px; max-width: 840px; margin-left: auto; margin-right: auto;">
+            <span th:text="${error}"></span>
+        </div>
+        <div th:if="${warning}" class="alert-warning" style="padding: 12px 16px; background-color: #fef3c7; color: #92400e; border-radius: var(--radius-sm); margin-bottom: 20px; max-width: 840px; margin-left: auto; margin-right: auto;">
+            <span th:text="${warning}"></span>
+        </div>
+
+        <!-- On-Screen Import Summary if available -->
+        <div th:if="${importResult != null}" class="import-card" style="margin-bottom: 24px; border-top: 4px solid var(--primary);">
+            <h4 style="font-size: 18px; font-weight: 600; margin-bottom: 16px; color: var(--primary-dark);">Import Summary</h4>
+            <div style="display: flex; gap: 24px; margin-bottom: 16px;">
+                <div>
+                    <span style="font-size: 13px; color: var(--text-muted); display: block;">Total Rows</span>
+                    <strong style="font-size: 20px;" th:text="${importResult.totalRows}">0</strong>
+                </div>
+                <div>
+                    <span style="font-size: 13px; color: var(--text-muted); display: block;">Successfully Added</span>
+                    <strong style="font-size: 20px; color: #059669;" th:text="${importResult.successCount}">0</strong>
+                </div>
+                <div>
+                    <span style="font-size: 13px; color: var(--text-muted); display: block;">Skipped / Errors</span>
+                    <strong style="font-size: 20px; color: #dc2626;" th:text="${importResult.errorCount}">0</strong>
+                </div>
+            </div>
+
+            <!-- Error List -->
+            <div th:if="${!#lists.isEmpty(importResult.errors)}">
+                <h6 style="color: #991b1b; font-weight: 600; margin-top: 14px; margin-bottom: 4px;">Encountered Errors / Warnings:</h6>
+                <div class="error-log-box">
+                    <div th:each="err : ${importResult.errors}" th:text="${err}"></div>
+                </div>
+            </div>
+
+            <!-- Success List -->
+            <div th:if="${!#lists.isEmpty(importResult.successStudents)}">
+                <h6 style="color: #166534; font-weight: 600; margin-top: 14px; margin-bottom: 4px;">Successfully Registered Students:</h6>
+                <div class="success-log-box">
+                    <div th:each="std : ${importResult.successStudents}" th:text="${std}"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="import-card">
+            <!-- Format Specification -->
+            <div class="format-card">
+                <div style="font-weight: 600; margin-bottom: 6px; color: var(--text-dark);">
+                    📋 Required CSV Format Specifications:
+                </div>
+                <p style="margin-bottom: 8px;">The uploaded CSV must have a header line with the following column headers:</p>
+                <code style="display: block; background: #e2e8f0; padding: 8px 12px; border-radius: 4px; font-weight: 600; font-size: 12px; color: #0f172a; margin-bottom: 8px;">
+                    stdinstid,stdfirstname,stdmiddlename,stdlastname,stdemail,stdgender,stddob
+                </code>
+                <ul style="padding-left: 20px; margin-bottom: 0; line-height: 1.6;">
+                    <li><strong>stdinstid</strong>: Unique Institute ID (e.g. <code>202401001</code>)</li>
+                    <li><strong>stdfirstname</strong> &amp; <strong>stdlastname</strong>: Student names (required)</li>
+                    <li><strong>stdmiddlename</strong>: Middle name (optional, leave empty if not applicable)</li>
+                    <li><strong>stdemail</strong>: Student email address (unique)</li>
+                    <li><strong>stdgender</strong>: <code>M</code>, <code>F</code>, or <code>O</code></li>
+                    <li><strong>stddob</strong>: Date of birth (format: <code>YYYY-MM-DD</code> or <code>DD-MM-YYYY</code>)</li>
+                    <li><strong>Accounts</strong>: User accounts are created automatically with role <strong>Student (914)</strong> and default password <strong>Daiict@26</strong>.</li>
+                </ul>
+            </div>
+
+            <!-- Upload Form -->
+            <form th:action="@{/admin/master-maintenance/batches/{id}/import(id=${batch.bchid})}" method="post" enctype="multipart/form-data">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                <div class="form-group mb-4">
+                    <label class="form-label" for="file" style="font-weight: 600;">Select Student CSV File <span style="color: #dc2626;">*</span></label>
+                    <input type="file" id="file" name="file" accept=".csv" class="form-control" required style="padding: 10px;" />
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid #e5e7eb; padding-top: 20px;">
+                    <a th:href="@{/admin/master-maintenance/batches/{id}(id=${batch.bchid})}" class="btn-outline">Cancel</a>
+                    <button type="submit" class="btn">Upload &amp; Import Students</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
+

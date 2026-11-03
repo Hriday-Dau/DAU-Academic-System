@@ -35,4 +35,14 @@ public interface SchemeDetailsRepository extends JpaRepository<SchemeDetails, Sc
                "WHERE b.bchname IN :batches", nativeQuery = true)
     List<Object[]> getBchSpl(@Param("batches") List<String> batches, @Param("termId") Long termId, @Param("registrationtype") String registrationtype);
 
+
+    @Query(value = """
+        SELECT sd.splid, sd.splname, sd.spldesc, sd.scheme_id
+        FROM ec2.schemedetails sd
+        JOIN ec2.scheme s ON sd.scheme_id = s.scheme_id
+        WHERE s.program_id = :programId
+        ORDER BY sd.splid ASC
+    """, nativeQuery = true)
+    List<Object[]> findSpecializationsByProgramId(@Param("programId") Long programId);
+
 }

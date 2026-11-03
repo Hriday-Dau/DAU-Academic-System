@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Accounts - Master Maintenance</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/base.css}">
+    <link rel="stylesheet" th:href="@{/css/navdes.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <style>
+        .search-box-wrapper {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .search-input {
+            padding: 8px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            width: 320px;
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <!-- NAVBAR -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container main-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div>
+                <h2 class="section-title" style="margin-bottom: 4px;">User Accounts Management</h2>
+                <p style="color: var(--text-muted); font-size: 14px;">Institutional non-student user accounts across administrative and academic roles.</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <a th:href="@{/admin/master-maintenance}" class="btn-outline">Back to Hub</a>
+                <a th:href="@{/admin/master-maintenance/users/add}" class="btn">+ Add New User</a>
+            </div>
+        </div>
+
+        <!-- Flash messages -->
+        <div th:if="${success}" class="alert-success" style="padding: 12px 16px; background-color: #d1fae5; color: #065f46; border-radius: var(--radius-sm); margin-bottom: 20px;">
+            <span th:text="${success}"></span>
+        </div>
+        <div th:if="${error}" class="alert-danger" style="padding: 12px 16px; background-color: #fee2e2; color: #991b1b; border-radius: var(--radius-sm); margin-bottom: 20px;">
+            <span th:text="${error}"></span>
+        </div>
+
+        <div class="table-container">
+            <div class="top-actions" style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                <form method="get" th:action="@{/admin/master-maintenance/users}" class="search-box-wrapper">
+                    <input type="text" name="search" id="userSearch" class="search-input" placeholder="Search by name, email, role, or username..." th:value="${search}">
+                    <button type="submit" class="btn-action btn-primary-custom" style="background: var(--primary); color: white;">Search</button>
+                    <a th:if="${search != null and !search.isEmpty()}" th:href="@{/admin/master-maintenance/users}" class="btn-outline">Clear</a>
+                </form>
+                <div style="font-size: 14px; color: var(--text-muted);">
+                    Total Users: <strong th:text="${#lists.size(usersList)}">0</strong>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="data-table" id="usersTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 8%; text-align: center;">UID</th>
+                            <th style="width: 12%;">Univ ID</th>
+                            <th style="width: 14%;">Username</th>
+                            <th style="width: 22%;">Full Name</th>
+                            <th style="width: 24%;">Email</th>
+                            <th style="width: 12%; text-align: center;">Assigned Role</th>
+                            <th style="width: 8%; text-align: center;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${#lists.isEmpty(usersList)}">
+                            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                                No users found. Click "+ Add New User" to register a user account.
+                            </td>
+                        </tr>
+                        <tr th:each="u : ${usersList}">
+                            <td style="text-align: center; font-weight: 600;" th:text="${u.uid}"></td>
+                            <td th:text="${u.univId != null ? u.univId : '-'}"></td>
+                            <td th:text="${u.uname}"></td>
+                            <td style="font-weight: 500;" th:text="${u.ufullname}"></td>
+                            <td th:text="${u.uemail}"></td>
+                            <td style="text-align: center;">
+                                <span style="background: #e0e7ff; color: #3730a3; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;" 
+                                      th:text="${u.role != null ? u.role.roleName : (u.urole != null ? u.urole : '-')}">Role</span>
+                            </td>
+                            <td style="text-align: center;">
+                                <span th:if="${u.status == true or u.status == null}" style="color: #059669; font-weight: 600;">Active</span>
+                                <span th:if="${u.status == false}" style="color: #dc2626; font-weight: 600;">Inactive</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Client-side real-time filter script -->
+    <script>
+        document.getElementById('userSearch')?.addEventListener('keyup', function() {
+            const query = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#usersTable tbody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        });
+    </script>
+
+    <!-- FOOTER -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
+

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Batches & Student Import - Master Maintenance</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/base.css}">
+    <link rel="stylesheet" th:href="@{/css/navdes.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <style>
+        .search-box-wrapper {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .search-input {
+            padding: 8px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            width: 320px;
+        }
+        .badge-count {
+            background-color: #dbeafe;
+            color: #1e40af;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <!-- NAVBAR -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container main-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div>
+                <h2 class="section-title" style="margin-bottom: 4px;">Academic Batches</h2>
+                <p style="color: var(--text-muted); font-size: 14px;">Master list of all academic batches sorted descending by Batch ID. Manage student rosters and CSV imports.</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <a th:href="@{/admin/master-maintenance}" class="btn-outline">Back to Hub</a>
+                <a th:href="@{/admin/master-maintenance/batches/add}" class="btn">+ Create New Batch</a>
+            </div>
+        </div>
+
+        <!-- Flash messages -->
+        <div th:if="${success}" class="alert-success" style="padding: 12px 16px; background-color: #d1fae5; color: #065f46; border-radius: var(--radius-sm); margin-bottom: 20px;">
+            <span th:text="${success}"></span>
+        </div>
+        <div th:if="${error}" class="alert-danger" style="padding: 12px 16px; background-color: #fee2e2; color: #991b1b; border-radius: var(--radius-sm); margin-bottom: 20px;">
+            <span th:text="${error}"></span>
+        </div>
+
+        <div class="table-container">
+            <div class="top-actions" style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                <form method="get" th:action="@{/admin/master-maintenance/batches}" class="search-box-wrapper">
+                    <input type="text" name="search" id="batchSearch" class="search-input" placeholder="Search by batch name, program, or specialization..." th:value="${search}">
+                    <button type="submit" class="btn-action btn-primary-custom" style="background: var(--primary); color: white;">Search</button>
+                    <a th:if="${search != null and !search.isEmpty()}" th:href="@{/admin/master-maintenance/batches}" class="btn-outline">Clear</a>
+                </form>
+                <div style="font-size: 14px; color: var(--text-muted);">
+                    Total Batches: <strong th:text="${#lists.size(batches)}">0</strong>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="data-table" id="batchesTable">
+                    <thead>
+                        <tr>
+                            <th style="width: 7%; text-align: center;">Batch ID</th>
+                            <th style="width: 13%;">Batch Name</th>
+                            <th style="width: 20%;">Program</th>
+                            <th style="width: 22%;">Specialization / Scheme</th>
+                            <th style="width: 8%; text-align: center;">Capacity</th>
+                            <th style="width: 8%; text-align: center;">Students</th>
+                            <th style="width: 22%; text-align: center;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${#lists.isEmpty(batches)}">
+                            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                                No batches found. Click "+ Create New Batch" to add an academic batch.
+                            </td>
+                        </tr>
+                        <tr th:each="b : ${batches}">
+                            <td style="text-align: center; font-weight: 600;" th:text="${b.bchid}"></td>
+                            <td style="font-weight: 600; color: var(--primary-dark);" th:text="${b.bchname}"></td>
+                            <td th:text="${b.prgname}"></td>
+                            <td th:text="${b.splname}"></td>
+                            <td style="text-align: center;" th:text="${b.bchcapacity}"></td>
+                            <td style="text-align: center;">
+                                <span class="badge-count" th:text="${b.studentCount}">0</span>
+                            </td>
+                            <td class="action-cell">
+                                <div class="action-buttons-wrapper">
+                                    <a th:href="@{/admin/master-maintenance/batches/{id}(id=${b.bchid})}" class="btn-action btn-primary-custom" style="background: var(--primary); color: white; padding: 4px 10px; font-size: 12px;" title="View students in this batch">Students</a>
+                                    <a th:href="@{/admin/master-maintenance/batches/{id}/import(id=${b.bchid})}" class="btn-action btn-success" style="padding: 4px 10px; font-size: 12px;" title="Import students via CSV">Import CSV</a>
+                                    <a th:href="@{/admin/master-maintenance/batches/{id}/edit(id=${b.bchid})}" class="btn-warning" style="padding: 4px 10px; font-size: 12px;" title="Edit batch">Edit</a>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Client-side real-time filter script -->
+    <script>
+        document.getElementById('batchSearch')?.addEventListener('keyup', function() {
+            const query = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#batchesTable tbody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        });
+    </script>
+
+    <!-- FOOTER -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
+

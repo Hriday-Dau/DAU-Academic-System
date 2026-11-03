@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -227,8 +228,11 @@ public class FacultyDashboardController {
         }
 
         model.addAttribute("course", course);
-        model.addAttribute("registeredStudents",
-                studentRegistrationCoursesRepository.findRegisteredStudentsByTcrid(tcrid));
+        List<?> registeredStudents = studentRegistrationCoursesRepository.findRegisteredStudentsByTcrid(tcrid);
+        if (registeredStudents == null || registeredStudents.isEmpty()) {
+            model.addAttribute("warning", "No registered students found for this course.");
+        }
+        model.addAttribute("registeredStudents", registeredStudents);
 
         return "faculty_v2/course_registrations";
     }
@@ -428,13 +432,18 @@ public class FacultyDashboardController {
     }
 
     private void fillGradeStatuses(List<TermCourses> courses, Map<Long, Boolean> target) {
-        if (courses == null) {
+        if (courses == null || courses.isEmpty()) {
             return;
         }
 
+        List<Long> tcrIds = courses.stream()
+                .map(TermCourses::getTcrid)
+                .toList();
+
+        Set<Long> uploadedTcrIds = gradeService.getUploadedTcridSet(tcrIds, 1L);
+
         for (TermCourses tc : courses) {
-            target.put(tc.getTcrid(),
-                    gradeService.checkIfGradesExist(tc.getTcrcrsid(), tc.getTcrtrmid(), 1L));
+            target.put(tc.getTcrid(), uploadedTcrIds.contains(tc.getTcrid()));
         }
     }
 }

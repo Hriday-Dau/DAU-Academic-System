@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Batch - Master Maintenance</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/base.css}">
+    <link rel="stylesheet" th:href="@{/css/navdes.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <style>
+        .form-card {
+            background: var(--white);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-card);
+            padding: 32px;
+            max-width: 760px;
+            margin: 0 auto;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            font-weight: 500;
+            font-size: 14px;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+        }
+        .form-control-custom, .form-select-custom {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            background-color: #fff;
+            transition: border-color 0.15s ease;
+        }
+        .form-control-custom:focus, .form-select-custom:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(15, 57, 182, 0.12);
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <!-- NAVBAR -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container main-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 class="section-title" style="margin-bottom: 0;">Create New Batch</h2>
+            <a th:href="@{/admin/master-maintenance/batches}" class="btn-outline">&larr; Back to Batches List</a>
+        </div>
+
+        <div th:if="${error}" class="alert-danger" style="padding: 12px 16px; background-color: #fee2e2; color: #991b1b; border-radius: var(--radius-sm); margin-bottom: 20px; max-width: 760px; margin-left: auto; margin-right: auto;">
+            <span th:text="${error}"></span>
+        </div>
+
+        <div class="form-card">
+            <form th:action="@{/admin/master-maintenance/batches/add}" th:object="${form}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <input type="hidden" id="schemeId" name="schemeId" th:value="*{schemeId}" />
+
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label class="form-label" for="bchid">Batch ID <span style="color: #dc2626;">*</span></label>
+                        <input type="number" id="bchid" name="bchid" th:value="*{bchid}" class="form-control-custom" required />
+                    </div>
+
+                    <div class="col-md-6 form-group">
+                        <label class="form-label" for="bchprgid">Select Program <span style="color: #dc2626;">*</span></label>
+                        <select id="bchprgid" name="bchprgid" class="form-select-custom" required onchange="loadSpecializations(this.value)">
+                            <option value="">-- Select Degree Program --</option>
+                            <option th:each="p : ${programs}" th:value="${p.prgid}" th:text="${p.prgname + ' (' + p.prgdesc + ')'}" th:selected="${p.prgid == form.bchprgid}"></option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12 form-group">
+                        <label class="form-label" for="splSelect">Specialization (Optional)</label>
+                        <select id="splSelect" name="splid" class="form-select-custom" onchange="handleSpecializationChange(this)">
+                            <option value="">-- Select Specialization --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 form-group">
+                        <label class="form-label" for="bchname">Batch Name <span style="color: #dc2626;">*</span></label>
+                        <input type="text" id="bchname" name="bchname" th:value="*{bchname}" class="form-control-custom" placeholder="e.g. 2024 or B.Tech ICT 2024" required maxlength="100" />
+                    </div>
+
+                    <div class="col-md-3 form-group">
+                        <label class="form-label" for="bchcapacity">Capacity <span style="color: #dc2626;">*</span></label>
+                        <input type="number" id="bchcapacity" name="bchcapacity" th:value="*{bchcapacity}" class="form-control-custom" min="1" max="10000" required />
+                    </div>
+
+                    <div class="col-md-3 form-group">
+                        <label class="form-label" for="bchinstcode">Inst Code</label>
+                        <input type="text" id="bchinstcode" name="bchinstcode" th:value="*{bchinstcode}" class="form-control-custom" placeholder="e.g. DAU" maxlength="50" />
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; border-top: 1px solid #e5e7eb; padding-top: 20px;">
+                    <a th:href="@{/admin/master-maintenance/batches}" class="btn-outline">Cancel</a>
+                    <button type="submit" class="btn">Create Batch</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function loadSpecializations(programId) {
+            const splSelect = document.getElementById('splSelect');
+            const schemeInput = document.getElementById('schemeId');
+            splSelect.innerHTML = '<option value="">-- Select Specialization --</option>';
+            schemeInput.value = '';
+
+            if (!programId) return;
+
+            fetch('/admin/master-maintenance/api/programs/' + programId + '/specializations')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(item => {
+                        const opt = document.createElement('option');
+                        opt.value = item.splid;
+                        opt.dataset.schemeId = item.schemeId || '';
+                        opt.textContent = (item.splname || 'General') + (item.spldesc ? ' - ' + item.spldesc : '');
+                        splSelect.appendChild(opt);
+                    });
+                })
+                .catch(err => console.error('Error fetching specializations:', err));
+        }
+
+        function handleSpecializationChange(selectEl) {
+            const selectedOpt = selectEl.options[selectEl.selectedIndex];
+            const schemeInput = document.getElementById('schemeId');
+            schemeInput.value = selectedOpt.dataset.schemeId || '';
+        }
+    </script>
+
+    <!-- FOOTER -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

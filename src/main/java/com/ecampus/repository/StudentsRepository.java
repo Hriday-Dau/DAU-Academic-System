@@ -162,4 +162,17 @@ public interface StudentsRepository extends JpaRepository<Students, Long> {
            "AND s.stdrowstate > 0")
     List<Students> getStudentInfoByName(@Param("query") String query);
 
+
+    @Query(value = "SELECT COALESCE(MAX(st.stdid), 0) + 1 FROM ec2.students st", nativeQuery = true)
+    Long findNextStudentId();
+
+    @Query(value = "SELECT * FROM ec2.students WHERE stdbchid = :bchid AND stdrowstate > 0 ORDER BY stdinstid ASC", nativeQuery = true)
+    List<Students> findActiveStudentsByBatchId(@Param("bchid") Long bchid);
+
+    @Query(value = "SELECT COUNT(1) > 0 FROM ec2.students WHERE LOWER(stdinstid) = LOWER(:stdinstid)", nativeQuery = true)
+    boolean existsByStdinstidIgnoreCase(@Param("stdinstid") String stdinstid);
+
+    @Query(value = "SELECT COUNT(1) > 0 FROM ec2.students WHERE LOWER(stdemail) = LOWER(:stdemail)", nativeQuery = true)
+    boolean existsByStdemailIgnoreCase(@Param("stdemail") String stdemail);
+
 }
