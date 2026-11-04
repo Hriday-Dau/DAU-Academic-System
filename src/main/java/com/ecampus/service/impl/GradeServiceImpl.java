@@ -463,9 +463,21 @@ public class GradeServiceImpl implements GradeService {
 
     @Override
     public boolean checkIfGradesExist(Long crsid, Long trmid, Long examTypeId) {
+        Long tcrid = termCoursesRepository.findTcridByCrsidAndTrmid(crsid, trmid);
+        if (tcrid != null) {
+            return gradesAlreadyUploaded(tcrid, examTypeId);
+        }
         return getStudentGrades(crsid, trmid, examTypeId, List.of("AA", "AB", "BB", "BC", "CC", "CD", "DD", "F", "I"))
                 .stream()
                 .anyMatch(dto -> dto.getGrade() != null && !"NULL".equalsIgnoreCase(dto.getGrade()));
+    }
+
+    @Override
+    public Set<Long> getUploadedTcridSet(List<Long> tcrIds, Long examTypeId) {
+        if (tcrIds == null || tcrIds.isEmpty()) {
+            return Set.of();
+        }
+        return new HashSet<>(egcrstt1Repository.findUploadedTcridList(tcrIds, examTypeId));
     }
 
     private List<GradeChangeStatusDTO> toStatusDtos(GradeModRequests request) {

@@ -129,8 +129,15 @@ public class GradeController {
             return "redirect:/faculty/dashboard";
         }
 
+        List<StudentGradeDTO> registeredStudents = gradeService.getRegisteredStudentsForCourse(tcrid);
+        if (registeredStudents.isEmpty()) {
+            redirectAttributes.addFlashAttribute("error",
+                    "No registered students found for this course. Grade entry cannot be opened.");
+            return "redirect:/faculty/dashboard";
+        }
+
         StudentGradeDTOWrapper gradeForm = new StudentGradeDTOWrapper();
-        gradeForm.setGradesList(gradeService.getRegisteredStudentsForCourse(tcrid));
+        gradeForm.setGradesList(registeredStudents);
 
         model.addAttribute("TermName", gradeService.getTermName(trmid));
         model.addAttribute("CourseName", gradeService.getCourseName(crsid));

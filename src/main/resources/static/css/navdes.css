@@ -216,3 +216,9 @@
     padding: 0;
 }
 */
+/* Fix right-aligned navbar dropdowns from overflowing past viewport edge */
+.nav-right .dropdown-menu,
+.dropdown-menu-end {
+    right: 0 !important;
+    left: auto !important;
+}

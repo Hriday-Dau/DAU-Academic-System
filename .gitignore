@@ -84,3 +84,8 @@ target/
 build/
 !**/src/main/**/build/
 !**/src/test/**/build/
+# Test files and sample data for Master Maintenance
+src/test/java/com/ecampus/service/MasterMaintenanceServiceTest.java
+src/test/java/com/ecampus/controller/admin/MasterMaintenanceControllerTest.java
+src/main/resources/sample_data/sample_valid_students.csv
+src/main/resources/sample_data/sample_invalid_students.csv

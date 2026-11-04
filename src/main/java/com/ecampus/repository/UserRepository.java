@@ -109,4 +109,45 @@ public interface UserRepository extends JpaRepository<Users, Long>, UserDetailsR
                                       AND bch.splid = sd.splid
             """, nativeQuery = true)
     List<Object[]> getForAddDrop();
+
+    @Query(value = "SELECT COALESCE(MAX(uid), 0) + 1 FROM ec2.users", nativeQuery = true)
+    Long findNextUid();
+
+    @Query(value = "SELECT * FROM ec2.users WHERE LOWER(uemail) = LOWER(:email) LIMIT 1", nativeQuery = true)
+    Optional<Users> findByUemail(@Param("email") String email);
+
+    @Query(value = "SELECT COUNT(1) > 0 FROM ec2.users WHERE uid = :uid", nativeQuery = true)
+    boolean existsByUid(@Param("uid") Long uid);
+
+    @Query(value = "SELECT COUNT(1) > 0 FROM ec2.users WHERE LOWER(uname) = LOWER(:uname)", nativeQuery = true)
+    boolean existsByUnameIgnoreCase(@Param("uname") String uname);
+
+    @Query(value = "SELECT COUNT(1) > 0 FROM ec2.users WHERE LOWER(univid) = LOWER(:univId)", nativeQuery = true)
+    boolean existsByUnivIdIgnoreCase(@Param("univId") String univId);
+
+    @Query(value = "SELECT COUNT(1) > 0 FROM ec2.users WHERE LOWER(uemail) = LOWER(:uemail)", nativeQuery = true)
+    boolean existsByUemailIgnoreCase(@Param("uemail") String uemail);
+
+    @Query(value = """
+            SELECT *
+            FROM ec2.users
+            WHERE (urole != '914' OR urole IS NULL)
+              AND (row_state > 0 OR row_state IS NULL)
+            ORDER BY ufullname ASC
+            """, nativeQuery = true)
+    List<Users> findAllNonStudentUsers();
+
+    @Query(value = """
+            SELECT *
+            FROM ec2.users
+            WHERE (urole != '914' OR urole IS NULL)
+              AND (row_state > 0 OR row_state IS NULL)
+              AND (LOWER(ufullname) LIKE LOWER(CONCAT('%', :q, '%'))
+                OR LOWER(uname) LIKE LOWER(CONCAT('%', :q, '%'))
+                OR LOWER(uemail) LIKE LOWER(CONCAT('%', :q, '%'))
+                OR univid LIKE CONCAT('%', :q, '%'))
+            ORDER BY ufullname ASC
+            """, nativeQuery = true)
+    List<Users> searchNonStudentUsers(@Param("q") String q);
+
 }
