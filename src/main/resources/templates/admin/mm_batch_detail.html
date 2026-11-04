@@ -59,7 +59,6 @@
                 <h2 class="section-title" style="margin-bottom: 4px;">
                     Batch Roster: <span th:text="${batch.bchname}">Batch</span>
                 </h2>
-                <p style="color: var(--text-muted); font-size: 14px;">Students enrolled in this academic batch.</p>
             </div>
             <div style="display: flex; gap: 10px;">
                 <a th:href="@{/admin/master-maintenance/batches}" class="btn-outline">&larr; Batches List</a>
@@ -80,15 +79,11 @@
         <div class="batch-summary-card">
             <div class="summary-grid">
                 <div class="summary-item">
-                    <label>Batch ID</label>
-                    <value th:text="${batch.bchid}"></value>
-                </div>
-                <div class="summary-item">
                     <label>Program</label>
                     <value th:text="${batch.programs != null ? batch.programs.prgname : '-'}"></value>
                 </div>
                 <div class="summary-item">
-                    <label>Intake Capacity</label>
+                    <label>Intake</label>
                     <value th:text="${batch.bchcapacity}"></value>
                 </div>
                 <div class="summary-item">
@@ -96,7 +91,7 @@
                     <value style="color: var(--primary);" th:text="${#lists.size(students)}">0</value>
                 </div>
                 <div class="summary-item">
-                    <label>Institute Code</label>
+                    <label>School</label>
                     <value th:text="${batch.bchinstcode != null ? batch.bchinstcode : '-'}"></value>
                 </div>
             </div>
@@ -116,23 +111,21 @@
                 <table class="data-table" id="studentsTable">
                     <thead>
                         <tr>
-                            <th style="width: 8%; text-align: center;">ID</th>
-                            <th style="width: 15%;">Institute ID</th>
-                            <th style="width: 25%;">Student Name</th>
-                            <th style="width: 25%;">Email</th>
+                            <th style="width: 16%;">Institute ID</th>
+                            <th style="width: 28%;">Student Name</th>
+                            <th style="width: 26%;">Email</th>
                             <th style="width: 8%; text-align: center;">Gender</th>
-                            <th style="width: 11%;">DOB</th>
-                            <th style="width: 8%; text-align: center;">Status</th>
+                            <th style="width: 12%;">DOB</th>
+                            <th style="width: 10%; text-align: center;">Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr th:if="${#lists.isEmpty(students)}">
-                            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">
                                 No students found in this batch yet. Click "Import Students (CSV)" above to add students.
                             </td>
                         </tr>
                         <tr th:each="s : ${students}">
-                            <td style="text-align: center; font-weight: 600;" th:text="${s.stdid}"></td>
                             <td style="font-weight: 600; color: var(--primary-dark);" th:text="${s.stdinstid}"></td>
                             <td th:text="${s.stdfirstname + (s.stdmiddlename != null and !s.stdmiddlename.isEmpty() ? ' ' + s.stdmiddlename : '') + ' ' + s.stdlastname}"></td>
                             <td th:text="${s.stdemail != null ? s.stdemail : '-'}"></td>

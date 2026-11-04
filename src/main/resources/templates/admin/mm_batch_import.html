@@ -81,9 +81,6 @@
                 <h2 class="section-title" style="margin-bottom: 4px;">
                     Import Students: <span th:text="${batch.bchname}">Batch</span>
                 </h2>
-                <p style="color: var(--text-muted); font-size: 14px;">
-                    Upload a CSV file of student records to bulk register students and generate user accounts.
-                </p>
             </div>
             <a th:href="@{/admin/master-maintenance/batches/{id}(id=${batch.bchid})}" class="btn-outline">&larr; Back to Batch Roster</a>
         </div>

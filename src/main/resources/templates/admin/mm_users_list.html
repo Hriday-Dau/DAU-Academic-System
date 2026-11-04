@@ -35,7 +35,6 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
             <div>
                 <h2 class="section-title" style="margin-bottom: 4px;">User Accounts Management</h2>
-                <p style="color: var(--text-muted); font-size: 14px;">Institutional non-student user accounts across administrative and academic roles.</p>
             </div>
             <div style="display: flex; gap: 10px;">
                 <a th:href="@{/admin/master-maintenance}" class="btn-outline">Back to Hub</a>
@@ -67,23 +66,21 @@
                 <table class="data-table" id="usersTable">
                     <thead>
                         <tr>
-                            <th style="width: 8%; text-align: center;">UID</th>
-                            <th style="width: 12%;">Univ ID</th>
-                            <th style="width: 14%;">Username</th>
-                            <th style="width: 22%;">Full Name</th>
+                            <th style="width: 14%;">Univ ID</th>
+                            <th style="width: 18%;">Username</th>
+                            <th style="width: 26%;">Full Name</th>
                             <th style="width: 24%;">Email</th>
-                            <th style="width: 12%; text-align: center;">Assigned Role</th>
+                            <th style="width: 10%; text-align: center;">Assigned Role</th>
                             <th style="width: 8%; text-align: center;">Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr th:if="${#lists.isEmpty(usersList)}">
-                            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">
                                 No users found. Click "+ Add New User" to register a user account.
                             </td>
                         </tr>
                         <tr th:each="u : ${usersList}">
-                            <td style="text-align: center; font-weight: 600;" th:text="${u.uid}"></td>
                             <td th:text="${u.univId != null ? u.univId : '-'}"></td>
                             <td th:text="${u.uname}"></td>
                             <td style="font-weight: 500;" th:text="${u.ufullname}"></td>

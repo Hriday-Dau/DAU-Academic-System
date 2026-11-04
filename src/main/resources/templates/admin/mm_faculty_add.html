@@ -66,20 +66,8 @@
 
                 <div class="row">
                     <div class="col-md-6 form-group">
-                        <label class="form-label" for="uid">User ID (UID) <span style="color: #dc2626;">*</span></label>
-                        <input type="number" id="uid" name="uid" th:value="*{uid}" class="form-control-custom" required />
-                    </div>
-
-                    <div class="col-md-6 form-group">
                         <label class="form-label" for="univId">University / Employee ID <span style="color: #dc2626;">*</span></label>
                         <input type="text" id="univId" name="univId" th:value="*{univId}" class="form-control-custom" placeholder="e.g. EMP1029" required />
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6 form-group">
-                        <label class="form-label" for="uname">Login Username <span style="color: #dc2626;">*</span></label>
-                        <input type="text" id="uname" name="uname" th:value="*{uname}" class="form-control-custom" placeholder="e.g. john_doe" required minlength="3" maxlength="50" />
                     </div>
 
                     <div class="col-md-6 form-group">
@@ -90,11 +78,18 @@
 
                 <div class="row">
                     <div class="col-md-6 form-group">
-                        <label class="form-label" for="uemail">Email Address <span style="color: #dc2626;">*</span></label>
-                        <input type="email" id="uemail" name="uemail" th:value="*{uemail}" class="form-control-custom" placeholder="e.g. john_doe@daiict.ac.in" required />
+                        <label class="form-label" for="uname">Login Username <span style="color: #dc2626;">*</span></label>
+                        <input type="text" id="uname" name="uname" th:value="*{uname}" class="form-control-custom" placeholder="e.g. john_doe" required minlength="3" maxlength="50" />
                     </div>
 
                     <div class="col-md-6 form-group">
+                        <label class="form-label" for="uemail">Email Address <span style="color: #dc2626;">*</span></label>
+                        <input type="email" id="uemail" name="uemail" th:value="*{uemail}" class="form-control-custom" placeholder="e.g. john_doe@daiict.ac.in" required />
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12 form-group">
                         <label class="form-label">Role</label>
                         <input type="hidden" name="urole" value="913" />
                         <input type="text" class="form-control-custom" value="Faculty (913)" disabled style="background-color: #f3f4f6; color: #4b5563; font-weight: 500;" />

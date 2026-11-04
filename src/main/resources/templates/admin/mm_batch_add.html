@@ -66,13 +66,10 @@
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <input type="hidden" id="schemeId" name="schemeId" th:value="*{schemeId}" />
 
-                <div class="row">
-                    <div class="col-md-6 form-group">
-                        <label class="form-label" for="bchid">Batch ID <span style="color: #dc2626;">*</span></label>
-                        <input type="number" id="bchid" name="bchid" th:value="*{bchid}" class="form-control-custom" required />
-                    </div>
+                <input type="hidden" id="bchid" name="bchid" th:value="*{bchid}" />
 
-                    <div class="col-md-6 form-group">
+                <div class="row">
+                    <div class="col-md-12 form-group">
                         <label class="form-label" for="bchprgid">Select Program <span style="color: #dc2626;">*</span></label>
                         <select id="bchprgid" name="bchprgid" class="form-select-custom" required onchange="loadSpecializations(this.value)">
                             <option value="">-- Select Degree Program --</option>
@@ -97,13 +94,13 @@
                     </div>
 
                     <div class="col-md-3 form-group">
-                        <label class="form-label" for="bchcapacity">Capacity <span style="color: #dc2626;">*</span></label>
-                        <input type="number" id="bchcapacity" name="bchcapacity" th:value="*{bchcapacity}" class="form-control-custom" min="1" max="10000" required />
+                        <label class="form-label" for="bchcapacity">Intake <span style="color: #dc2626;">*</span></label>
+                        <input type="number" id="bchcapacity" name="bchcapacity" th:value="*{bchcapacity}" class="form-control-custom" placeholder="e.g. 300" min="1" max="10000" required />
                     </div>
 
                     <div class="col-md-3 form-group">
-                        <label class="form-label" for="bchinstcode">Inst Code</label>
-                        <input type="text" id="bchinstcode" name="bchinstcode" th:value="*{bchinstcode}" class="form-control-custom" placeholder="e.g. DAU" maxlength="50" />
+                        <label class="form-label" for="bchinstcode">School</label>
+                        <input type="text" id="bchinstcode" name="bchinstcode" th:value="*{bchinstcode}" class="form-control-custom" placeholder="e.g. School of Tech" maxlength="50" />
                     </div>
                 </div>
 

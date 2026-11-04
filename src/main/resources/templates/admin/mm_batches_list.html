@@ -43,7 +43,6 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
             <div>
                 <h2 class="section-title" style="margin-bottom: 4px;">Academic Batches</h2>
-                <p style="color: var(--text-muted); font-size: 14px;">Master list of all academic batches sorted descending by Batch ID. Manage student rosters and CSV imports.</p>
             </div>
             <div style="display: flex; gap: 10px;">
                 <a th:href="@{/admin/master-maintenance}" class="btn-outline">Back to Hub</a>
@@ -75,23 +74,21 @@
                 <table class="data-table" id="batchesTable">
                     <thead>
                         <tr>
-                            <th style="width: 7%; text-align: center;">Batch ID</th>
-                            <th style="width: 13%;">Batch Name</th>
-                            <th style="width: 20%;">Program</th>
-                            <th style="width: 22%;">Specialization / Scheme</th>
-                            <th style="width: 8%; text-align: center;">Capacity</th>
+                            <th style="width: 18%;">Batch Name</th>
+                            <th style="width: 22%;">Program</th>
+                            <th style="width: 24%;">Specialization / Scheme</th>
+                            <th style="width: 10%; text-align: center;">Intake</th>
                             <th style="width: 8%; text-align: center;">Students</th>
-                            <th style="width: 22%; text-align: center;">Actions</th>
+                            <th style="width: 18%; text-align: center;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr th:if="${#lists.isEmpty(batches)}">
-                            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">
                                 No batches found. Click "+ Create New Batch" to add an academic batch.
                             </td>
                         </tr>
                         <tr th:each="b : ${batches}">
-                            <td style="text-align: center; font-weight: 600;" th:text="${b.bchid}"></td>
                             <td style="font-weight: 600; color: var(--primary-dark);" th:text="${b.bchname}"></td>
                             <td th:text="${b.prgname}"></td>
                             <td th:text="${b.splname}"></td>
