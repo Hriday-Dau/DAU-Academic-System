@@ -128,8 +128,8 @@ public class MasterMaintenanceController {
     public String showAddBatchForm(Model model) {
         BatchCreateForm form = new BatchCreateForm();
         form.setBchid(masterMaintenanceService.getNextBatchId());
-        form.setBchcapacity(400L);
-        form.setBchinstcode("DAU");
+        form.setBchcapacity(null);
+        form.setBchinstcode("School of Tech");
 
         List<Programs> programs = programsRepository.findActivePrograms();
         model.addAttribute("form", form);
@@ -144,7 +144,7 @@ public class MasterMaintenanceController {
         try {
             Long adminId = getAdminId(authentication);
             Batches batch = masterMaintenanceService.createBatch(form, adminId);
-            redirectAttributes.addFlashAttribute("success", "Batch '" + batch.getBchname() + "' created successfully (Batch ID: " + batch.getBchid() + ").");
+            redirectAttributes.addFlashAttribute("success", "Batch '" + batch.getBchname() + "' created successfully.");
             return "redirect:/admin/master-maintenance/batches";
         } catch (Exception ex) {
             redirectAttributes.addFlashAttribute("error", ex.getMessage());

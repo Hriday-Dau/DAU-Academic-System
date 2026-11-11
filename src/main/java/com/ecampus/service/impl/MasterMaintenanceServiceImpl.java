@@ -155,7 +155,7 @@ public class MasterMaintenanceServiceImpl implements MasterMaintenanceService {
         batch.setBchprgid(form.getBchprgid());
         batch.setBchname(form.getBchname().trim());
         batch.setBchcapacity(form.getBchcapacity());
-        batch.setBchinstcode(form.getBchinstcode() != null ? form.getBchinstcode().trim() : "DAU");
+        batch.setBchinstcode(form.getBchinstcode() != null && !form.getBchinstcode().trim().isEmpty() ? form.getBchinstcode().trim() : "School of Tech");
         batch.setSchemeId(form.getSchemeId());
         batch.setSplid(form.getSplid());
         batch.setBchcalid(0L); // Skipped as instructed, default 0L to satisfy DB NOT NULL constraint

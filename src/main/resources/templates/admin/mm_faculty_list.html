@@ -35,7 +35,6 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
             <div>
                 <h2 class="section-title" style="margin-bottom: 4px;">Faculty Users</h2>
-                <p style="color: var(--text-muted); font-size: 14px;">Master list of all registered faculty members in the university portal.</p>
             </div>
             <div style="display: flex; gap: 10px;">
                 <a th:href="@{/admin/master-maintenance}" class="btn-outline">Back to Hub</a>
@@ -67,23 +66,21 @@
                 <table class="data-table" id="facultyTable">
                     <thead>
                         <tr>
-                            <th style="width: 8%; text-align: center;">UID</th>
-                            <th style="width: 12%;">Univ ID</th>
-                            <th style="width: 15%;">Username</th>
-                            <th style="width: 25%;">Full Name</th>
-                            <th style="width: 25%;">Email</th>
-                            <th style="width: 8%; text-align: center;">Role</th>
-                            <th style="width: 7%; text-align: center;">Status</th>
+                            <th style="width: 14%;">Univ ID</th>
+                            <th style="width: 18%;">Username</th>
+                            <th style="width: 26%;">Full Name</th>
+                            <th style="width: 24%;">Email</th>
+                            <th style="width: 9%; text-align: center;">Role</th>
+                            <th style="width: 9%; text-align: center;">Status</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr th:if="${#lists.isEmpty(facultyList)}">
-                            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                            <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">
                                 No faculty members found. Click "+ Add New Faculty" to register a faculty member.
                             </td>
                         </tr>
                         <tr th:each="f : ${facultyList}">
-                            <td style="text-align: center; font-weight: 600;" th:text="${f.uid}"></td>
                             <td th:text="${f.univId != null ? f.univId : '-'}"></td>
                             <td th:text="${f.uname}"></td>
                             <td style="font-weight: 500;" th:text="${f.ufullname}"></td>
