@@ -42,6 +42,18 @@ public interface StudentSemesterResultRepository extends
         String getcpi(@Param("studentId") Long studentId);
 
         /**
+         * Finds the latest semester result for a student.
+         *
+         * @param studentId the student database ID
+         * @return the latest semester result, or {@code null} if none exists
+         */
+        @Query(value = "SELECT ssr.* FROM ec2.STUDENTSEMESTERRESULT ssr "
+            + "JOIN ec2.STUDENTREGISTRATIONS srg ON ssr.SSRSRGID = srg.SRGID "
+            + "WHERE srg.SRGSTDID = :studentId "
+            + "ORDER BY ssr.SSRSRGID DESC LIMIT 1", nativeQuery = true)
+        StudentSemesterResult findLatestByStudentId(@Param("studentId") Long studentId);
+
+        /**
          * Finds the previous CPI for a student.
          *
          * @param studentId the student database ID
